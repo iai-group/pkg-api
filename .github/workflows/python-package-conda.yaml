@@ -1,35 +1,88 @@
 name: build
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
+  pre-commit:
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run black
+        shell: bash
+        run: pre-commit run black --all-files
+
+      - name: Run flake8
+        shell: bash
+        run: pre-commit run flake8 --all-files
+
+      - name: Run docformatter
+        shell: bash
+        run: pre-commit run docformatter --all-file
+
+      - name: Run pydocstyle
+        shell: bash
+        run: pre-commit run pydocstyle --all-file
+
+  mypy:
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run mypy
+        shell: bash
+        run: pre-commit run mypy --all-file
+
   build-linux:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.7
-    - name: Add conda to system path
+        python-version: 3.9
+        cache: "pip"
+
+    - name: Install Dependencies
       run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        conda env update --file .github/environment.yaml --name base
-    - name: Check black formatting
-      run: |
-        black .
-    - name: Lint with flake8
-      run: |
-        flake8 .
+        pip install --upgrade pip
+        pip install -r requirements.txt
+   
     - name: Run tests
       run: |
         pytest tests --cov=./ --cov-report=xml
+
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v2
       with:
