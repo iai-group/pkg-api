@@ -2,7 +2,10 @@
 
 from typing import List
 
-URI = str
+import pkg_api.utils as utils
+from pkg_api.connector import Connector, RDFStore
+from pkg_api.types import URI
+
 
 class PKG:
     def __init__(self, owner: URI) -> None:
@@ -12,11 +15,16 @@ class PKG:
             user: User URI.
         """
         self._owner_uri = owner
+        self._connector = Connector(owner)
 
     @property
     def owner_uri(self) -> URI:
         """Returns the URI of the owner of this PKG."""
         return self._owner_uri
+    
+    def close(self) -> None:
+        """Close the connection to the triplestore."""
+        self._connector.close()
     
     def get_owner_preference(self, object: URI) -> float:
         """Get preference for a given object.
@@ -85,7 +93,9 @@ class PKG:
         Returns:
             List of objects.
         """
-        pass
+        query = utils.get_query_get_objects_from_facts(who, predicate)
+        results = self._connector.execute_sparql_query(query)
+        return results
 
     def set_owner_preference(self, entity: URI, preference: float) -> None:
         """Sets owner preference for a given entity.
@@ -129,4 +139,12 @@ class PKG:
         # (Optional) Create RDF representation of the fact
         # Create SPARQL query
         # Execute SPARQL query
-        pass
+        query = utils.get_query_add_fact(who, predicate, entity)
+        self._connector.execute_sparql_update(query)
+
+if __name__ == "__main__":
+    pkg = PKG("http://example.org/user1")
+    pkg.add_owner_fact("http://example.org/likes", "http://example.org/icecream")
+    pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
+
+    print(pkg.get_owner_objects_from_facts("http://example.org/likes"))

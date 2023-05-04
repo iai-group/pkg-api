@@ -1,0 +1,2 @@
+URI = str
+SPARQLQuery = str
