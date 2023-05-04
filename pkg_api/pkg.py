@@ -147,4 +147,5 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/icecream")
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
-    print(pkg.get_owner_objects_from_facts("http://example.org/likes"))
+    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
+        print(item[0].value)
