@@ -5,6 +5,7 @@ from pkg_api.types import URI, SPARQLQuery
 # Method to create RDF representation of the preference/fact
 # Method to translate RDF to SPAQRL (OTTR)
 
+
 def get_query_add_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
     """Get SPARQL query to add a fact.
 
@@ -21,6 +22,7 @@ def get_query_add_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
             <{who}> <{predicate}> <{entity}> .
         }}
     """
+
 
 def get_query_get_objects_from_facts(who: URI, predicate: URI) -> SPARQLQuery:
     """Get SPARQL query to get objects given subject and predicate.

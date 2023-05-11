@@ -21,11 +21,11 @@ class PKG:
     def owner_uri(self) -> URI:
         """Returns the URI of the owner of this PKG."""
         return self._owner_uri
-    
+
     def close(self) -> None:
         """Close the connection to the triplestore."""
         self._connector.close()
-    
+
     def get_owner_preference(self, object: URI) -> float:
         """Get preference for a given object.
 
@@ -36,10 +36,10 @@ class PKG:
             Preference value.
         """
         return self.get_preference(self._owner_uri, object)
-    
+
     def get_owner_preferences(self, rdf_class: URI) -> dict[URI, float]:
         """Get preferences for a given class.
-        
+
         Args:
             rdf_class: Class of the preference.
 
@@ -47,7 +47,7 @@ class PKG:
             Dictionary of preferences.
         """
         return self.get_preferences(self._owner_uri, rdf_class)
-    
+
     def get_preference(self, who: URI, object: URI) -> float:
         """Get preference for a given object.
 
@@ -73,7 +73,7 @@ class PKG:
 
     def get_preferences(self, who: URI, rdf_class: URI) -> dict[URI, float]:
         """Get preferences for a given class.
-        
+
         Args:
             who: Subject of the preference.
             rdf_class: Class of the preference.
@@ -142,9 +142,12 @@ class PKG:
         query = utils.get_query_add_fact(who, predicate, entity)
         self._connector.execute_sparql_update(query)
 
+
 if __name__ == "__main__":
     pkg = PKG("http://example.org/user1")
-    pkg.add_owner_fact("http://example.org/likes", "http://example.org/icecream")
+    pkg.add_owner_fact(
+        "http://example.org/likes", "http://example.org/icecream"
+    )
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
