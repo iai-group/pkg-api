@@ -27,6 +27,13 @@ class Connector:
         rdf_store: RDFStore = RDFStore.MEMORY,
         rdf_store_path: str = DEFAULT_STORE_PATH,
     ) -> None:
+        """Initializes the connector to the triplestore.
+
+        Args:
+            owner: Owner URI.
+            rdf_store: Type of RDF store to use.
+            rdf_store_path: Path to the RDF store.
+        """
         self._graph = Graph(rdf_store.value, identifier=owner)
         self._graph.open(rdf_store_path, create=True)
 

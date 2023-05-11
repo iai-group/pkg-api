@@ -9,10 +9,10 @@ from pkg_api.types import URI
 
 class PKG:
     def __init__(self, owner: URI) -> None:
-        """Initialize PKG for a given user.
+        """Initializes PKG for a given user.
 
         Args:
-            user: User URI.
+            owner: Owner URI.
         """
         self._owner_uri = owner
         self._connector = Connector(owner)
