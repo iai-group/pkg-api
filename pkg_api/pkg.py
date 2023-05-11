@@ -3,7 +3,7 @@
 from typing import List
 
 import pkg_api.utils as utils
-from pkg_api.connector import Connector, RDFStore
+from pkg_api.connector import Connector
 from pkg_api.types import URI
 
 
@@ -151,4 +151,4 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0].value)
+        print(item[0])
