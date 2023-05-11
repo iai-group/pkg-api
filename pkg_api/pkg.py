@@ -8,26 +8,28 @@ from pkg_api.types import URI
 
 
 class PKG:
-    def __init__(self, owner: URI) -> None:
-        """Initialize PKG for a given user.
+    def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
+        """Initializes PKG for a given user.
 
         Args:
-            user: User URI.
+            owner: Owner URI.
+            rdf_store: Type of RDF store.
+            rdf_path: Path to the RDF store.
         """
         self._owner_uri = owner
-        self._connector = Connector(owner)
+        self._connector = Connector(owner, rdf_store, rdf_path)
 
     @property
     def owner_uri(self) -> URI:
         """Returns the URI of the owner of this PKG."""
         return self._owner_uri
-    
+
     def close(self) -> None:
-        """Close the connection to the triplestore."""
+        """Closes the connection to the triplestore."""
         self._connector.close()
-    
+
     def get_owner_preference(self, object: URI) -> float:
-        """Get preference for a given object.
+        """Gets preference for a given object.
 
         Args:
             object: Object of the preference.
@@ -36,10 +38,10 @@ class PKG:
             Preference value.
         """
         return self.get_preference(self._owner_uri, object)
-    
+
     def get_owner_preferences(self, rdf_class: URI) -> dict[URI, float]:
-        """Get preferences for a given class.
-        
+        """Gets preferences for a given class.
+
         Args:
             rdf_class: Class of the preference.
 
@@ -47,9 +49,9 @@ class PKG:
             Dictionary of preferences.
         """
         return self.get_preferences(self._owner_uri, rdf_class)
-    
+
     def get_preference(self, who: URI, object: URI) -> float:
-        """Get preference for a given object.
+        """Gets preference for a given object.
 
         Args:
             who: Subject of the preference.
@@ -61,7 +63,7 @@ class PKG:
         pass
 
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
-        """Get objects given subject and predicate.
+        """Gets objects given subject and predicate.
 
         Args:
             predicate: Predicate of the fact.
@@ -72,8 +74,8 @@ class PKG:
         return self.get_objects_from_facts(self._owner_uri, predicate)
 
     def get_preferences(self, who: URI, rdf_class: URI) -> dict[URI, float]:
-        """Get preferences for a given class.
-        
+        """Gets preferences for a given class.
+
         Args:
             who: Subject of the preference.
             rdf_class: Class of the preference.
@@ -84,7 +86,7 @@ class PKG:
         pass
 
     def get_objects_from_facts(self, who: URI, predicate: URI) -> List[URI]:
-        """Get objects given subject and predicate.
+        """Gets objects given subject and predicate.
 
         Args:
             who: Subject of the fact.
@@ -142,10 +144,13 @@ class PKG:
         query = utils.get_query_add_fact(who, predicate, entity)
         self._connector.execute_sparql_update(query)
 
+
 if __name__ == "__main__":
-    pkg = PKG("http://example.org/user1")
-    pkg.add_owner_fact("http://example.org/likes", "http://example.org/icecream")
+    pkg = PKG("http://example.org/user1", RDFStore.MEMORY, "data/RDFStore")
+    pkg.add_owner_fact(
+        "http://example.org/likes", "http://example.org/icecream"
+    )
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0].value)
+        print(item[0])
