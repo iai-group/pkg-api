@@ -9,7 +9,7 @@ from pkg_api.types import URI
 
 class PKG:
     def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
-        """Initializes PKG for a given user.
+        """Initializes PKG of a given user.
 
         Args:
             owner: Owner URI.
@@ -25,7 +25,7 @@ class PKG:
         return self._owner_uri
 
     def close(self) -> None:
-        """Closes the connection to the triplestore."""
+        """Closes the connection to the connector."""
         self._connector.close()
 
     def get_owner_preference(self, object: URI) -> float:
@@ -51,7 +51,7 @@ class PKG:
         return self.get_preferences(self._owner_uri, rdf_class)
 
     def get_preference(self, who: URI, object: URI) -> float:
-        """Gets preference for a given object.
+        """Gets the preference for a given object.
 
         Args:
             who: Subject of the preference.
