@@ -9,7 +9,7 @@ from pkg_api.types import URI
 
 class PKG:
     def __init__(self, owner: URI) -> None:
-        """Initializes PKG for a given user.
+        """Initializes PKG of a given user.
 
         Args:
             owner: Owner URI.
@@ -23,11 +23,11 @@ class PKG:
         return self._owner_uri
 
     def close(self) -> None:
-        """Close the connection to the triplestore."""
+        """Closes the connection to the connector."""
         self._connector.close()
 
     def get_owner_preference(self, object: URI) -> float:
-        """Get preference for a given object.
+        """Gets preference for a given object.
 
         Args:
             object: Object of the preference.
@@ -38,7 +38,7 @@ class PKG:
         return self.get_preference(self._owner_uri, object)
 
     def get_owner_preferences(self, rdf_class: URI) -> dict[URI, float]:
-        """Get preferences for a given class.
+        """Gets preferences for a given class.
 
         Args:
             rdf_class: Class of the preference.
@@ -49,7 +49,7 @@ class PKG:
         return self.get_preferences(self._owner_uri, rdf_class)
 
     def get_preference(self, who: URI, object: URI) -> float:
-        """Get preference for a given object.
+        """Gets the preference for a given object.
 
         Args:
             who: Subject of the preference.
@@ -61,7 +61,7 @@ class PKG:
         pass
 
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
-        """Get objects given subject and predicate.
+        """Gets objects given subject and predicate.
 
         Args:
             predicate: Predicate of the fact.
@@ -72,7 +72,7 @@ class PKG:
         return self.get_objects_from_facts(self._owner_uri, predicate)
 
     def get_preferences(self, who: URI, rdf_class: URI) -> dict[URI, float]:
-        """Get preferences for a given class.
+        """Gets preferences for a given class.
 
         Args:
             who: Subject of the preference.
@@ -84,7 +84,7 @@ class PKG:
         pass
 
     def get_objects_from_facts(self, who: URI, predicate: URI) -> List[URI]:
-        """Get objects given subject and predicate.
+        """Gets objects given subject and predicate.
 
         Args:
             who: Subject of the fact.
