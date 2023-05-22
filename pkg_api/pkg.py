@@ -1,4 +1,20 @@
-"""PKG API."""
+"""PKG API.
+
+A fact is an atomic piece of information that can be represented as a triple:
+subject, predicate, object. A fact can be about the owner in which case the
+subject is the owner's URI or about another entity then the subject is the
+entity's URI.
+For example:
+    - The owner (user1) likes ice cream is represented as follow:
+    (http://example.org/user1, http://example.org/likes, http://example.org/icecream)   # noqa
+    - Stavanger is in Norway is represented as follow:
+    (http://example.org/stavanger, http://example.org/isIn, http://example.org/norway)  # noqa
+
+A preference indicates how much a person (can be the owner or someone else)
+likes an entity. In practice, the preference is represented with a blank node
+that links the subject, the object and the preference value (a float between -1
+and 1).
+"""
 
 from typing import List
 
@@ -83,17 +99,17 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(self, who: URI, predicate: URI) -> List[URI]:
+    def get_objects_from_facts(self, subject: URI, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
 
         Args:
-            who: Subject of the fact.
+            subject: Subject of the fact.
             predicate: Predicate of the fact.
 
         Returns:
             List of objects.
         """
-        query = utils.get_query_get_objects_from_facts(who, predicate)
+        query = utils.get_query_get_objects_from_facts(subject, predicate)
         results = self._connector.execute_sparql_query(query)
         return results
 
@@ -128,18 +144,18 @@ class PKG:
         """
         self.add_fact(self._owner_uri, predicate, entity)
 
-    def add_fact(self, who: URI, predicate: URI, entity: URI) -> None:
+    def add_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
         """Adds a fact.
 
         Args:
-            who: Who is adding the fact.
+            subject: Subject.
             predicate: Predicate.
             entity: Entity.
         """
         # (Optional) Create RDF representation of the fact
         # Create SPARQL query
         # Execute SPARQL query
-        query = utils.get_query_add_fact(who, predicate, entity)
+        query = utils.get_query_add_fact(subject, predicate, entity)
         self._connector.execute_sparql_update(query)
 
 
