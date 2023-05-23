@@ -1,10 +1,10 @@
 """PKG API."""
 
-from rdflib.query import Result
+from typing import List
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector
-from pkg_api.pkg_types import URI
+from pkg_api.types import URI
 
 
 class PKG:
@@ -60,7 +60,7 @@ class PKG:
         """
         pass
 
-    def get_owner_objects_from_facts(self, predicate: URI) -> Result:
+    def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
 
         Args:
@@ -83,7 +83,7 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(self, who: URI, predicate: URI) -> Result:
+    def get_objects_from_facts(self, who: URI, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
 
         Args:
@@ -142,28 +142,6 @@ class PKG:
         query = utils.get_query_add_fact(who, predicate, entity)
         self._connector.execute_sparql_update(query)
 
-    def remove_fact(self, who: URI, predicate: URI, entity: URI) -> None:
-        """Removes a fact.
-
-        Args:
-            who: Who is removing the fact.
-            predicate: Predicate to be removed.
-            entity: Entity to be removed.
-        """
-        # Create SPARQL query
-        # Execute SPARQL query
-        query = utils.get_query_remove_fact(who, predicate, entity)
-        self._connector.execute_sparql_update(query)
-
-    def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
-        """Removes a fact related to the PKG owner.
-
-        Args:
-            predicate: Predicate to be removed.
-            entity: Entity to be removed.
-        """
-        self.remove_fact(self._owner_uri, predicate, entity)
-
 
 if __name__ == "__main__":
     pkg = PKG("http://example.org/user1")
@@ -173,9 +151,4 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])  # type: ignore
-    pkg.remove_owner_fact(
-        "http://example.org/likes", "http://example.org/pizza"
-    )
-    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])  # type: ignore
+        print(item[0])

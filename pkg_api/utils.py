@@ -1,6 +1,6 @@
 """Utils methods for the API."""
 
-from pkg_api.pkg_types import URI, SPARQLQuery
+from pkg_api.types import URI, SPARQLQuery
 
 # Method to create RDF representation of the preference/fact
 # Method to translate RDF to SPAQRL (OTTR)
@@ -19,24 +19,6 @@ def get_query_add_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
     """
     return f"""
         INSERT DATA {{
-            <{who}> <{predicate}> <{entity}> .
-        }}
-    """
-
-
-def get_query_remove_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
-    """Gets SPARQL query to remove a fact.
-
-    Args:
-        who: Who is removing the fact.
-        predicate: Predicate of the fact.
-        entity: Entity of the fact.
-
-    Returns:
-    SPARQL query.
-    """
-    return f"""
-        DELETE DATA {{
             <{who}> <{predicate}> <{entity}> .
         }}
     """
