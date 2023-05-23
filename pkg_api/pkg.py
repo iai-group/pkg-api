@@ -1,10 +1,10 @@
 """PKG API."""
 
-from typing import List
+from rdflib.query import Result
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector
-from pkg_api.types import URI
+from pkg_api.pkg_types import URI
 
 
 class PKG:
@@ -60,14 +60,14 @@ class PKG:
         """
         pass
 
-    def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
+    def get_owner_objects_from_facts(self, predicate: URI) -> Result:
         """Gets objects given subject and predicate.
 
         Args:
             predicate: Predicate of the fact.
 
         Returns:
-            List of objects.
+            Result containing list of objects.
         """
         return self.get_objects_from_facts(self._owner_uri, predicate)
 
@@ -83,7 +83,7 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(self, who: URI, predicate: URI) -> List[URI]:
+    def get_objects_from_facts(self, who: URI, predicate: URI) -> Result:
         """Gets objects given subject and predicate.
 
         Args:
@@ -91,7 +91,7 @@ class PKG:
             predicate: Predicate of the fact.
 
         Returns:
-            List of objects.
+            Result containing list of objects.
         """
         query = utils.get_query_get_objects_from_facts(who, predicate)
         results = self._connector.execute_sparql_query(query)
@@ -142,6 +142,28 @@ class PKG:
         query = utils.get_query_add_fact(who, predicate, entity)
         self._connector.execute_sparql_update(query)
 
+    def remove_fact(self, who: URI, predicate: URI, entity: URI) -> None:
+        """Removes a fact.
+
+        Args:
+            who: Who is removing the fact.
+            predicate: Predicate to be removed.
+            entity: Entity to be removed.
+        """
+        # Create SPARQL query
+        # Execute SPARQL query
+        query = utils.get_query_remove_fact(who, predicate, entity)
+        self._connector.execute_sparql_update(query)
+
+    def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
+        """Removes a fact related to the PKG owner.
+
+        Args:
+            predicate: Predicate to be removed.
+            entity: Entity to be removed.
+        """
+        self.remove_fact(self._owner_uri, predicate, entity)
+
 
 if __name__ == "__main__":
     pkg = PKG("http://example.org/user1")
@@ -151,4 +173,9 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])
+        print(item[0])  # type: ignore
+    pkg.remove_owner_fact(
+        "http://example.org/likes", "http://example.org/pizza"
+    )
+    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
+        print(item[0])  # type: ignore
