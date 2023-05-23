@@ -7,3 +7,4 @@ pre-commit
 pydocstyle==6.1.1
 toml
 rdflib==6.3.2
+pytest-cov
