@@ -58,7 +58,8 @@ class PKG:
         Returns:
             Preference value.
         """
-        pass
+        query = utils.get_query_get_preference(who, object)
+        return pkg._connector.execute_sparql_query(query)
 
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
@@ -114,10 +115,17 @@ class PKG:
             entity: URI of the entity.
             preference: Preference value.
         """
-        # (Optional) Create RDF representation of the preference
-        # Create SPARQL query
-        # Execute SPARQL query
-        pass
+        entity_preference = None
+        for user_preference in self.get_preference(who, entity):
+            entity_preference = user_preference[0]
+        print("set_pref", entity_preference)
+        if entity_preference is None:
+            query = utils.get_query_set_preference(who, entity, preference)
+        else:
+            query = utils.get_query_update_preference(who, entity, entity_preference, preference)
+
+        # query = utils.get_query_set_preference(who, entity, preference)
+        return self._connector.execute_sparql_update(query)
 
     def add_owner_fact(self, predicate: URI, entity: URI) -> None:
         """Adds a fact related to the PKG owner.
@@ -152,3 +160,43 @@ if __name__ == "__main__":
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
         print(item[0])
+
+    pkg.set_owner_preference("http://example.org/tea", 1)
+    pkg.set_owner_preference("http://example.org/coffee", -1)
+
+    for item in pkg.get_owner_preference("http://example.org/coffee"):
+        print(item[0])
+
+    # Update user preference
+    pkg.set_owner_preference("http://example.org/coffee", 0.5)
+    for item in pkg.get_owner_preference("http://example.org/coffee"):
+        print(item[0])
+
+    for item in pkg.get_owner_preference("http://example.org/tea"):
+        print(item[0])
+
+    # pkg.set_owner_preference("http://example.org/coffee", 2)
+    # for item in pkg.get_owner_preference("http://example.org/coffee"):
+    #     print(item[0])
+
+    # print(list(pkg.get_owner_preference("http://example.org/tea")))
+    # print(list(pkg.get_owner_preference("http://example.org/pizza")))
+
+    # query = utils.get_query_update_preference("http://example.org/user1", "http://example.org/coffee", -1, 0.5)
+    # pkg._connector.execute_sparql_update(query)
+
+    # query = utils.get_query_set_preference("http://example.org/user1", "http://example.org/sample_entity", 1)
+    # pkg._connector.execute_sparql_update(query)
+
+    # query2 = utils.get_query_get_preference("http://example.org/user1", "http://example.org/sample_entity")
+    # i = pkg._connector.execute_sparql_query(query2)
+    # for i1 in i:
+    #     print(i1[0])
+    # # print(i)
+
+    # query3 = utils.select("http://example.org/user1", "http://example.org/sample_entity")
+    # i = pkg._connector.execute_sparql_query(query3)
+    # for i1 in i:
+    #     print(i1[0])
+    # # print(i)
+
