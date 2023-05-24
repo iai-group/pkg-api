@@ -72,7 +72,7 @@ jobs:
         shell: bash
         run: pre-commit run mypy --all-file
 
-  build-linux:
+  build-and-test:
     name: "Build and Test Python 3.9"
     runs-on: ubuntu-latest
     if: always()
