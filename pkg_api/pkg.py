@@ -115,16 +115,17 @@ class PKG:
             entity: URI of the entity.
             preference: Preference value.
         """
-        entity_preference = None
+        old_preference = None
         for user_preference in self.get_preference(who, entity):
-            entity_preference = user_preference[0]
-        print("set_pref", entity_preference)
-        if entity_preference is None:
+            old_preference = user_preference[0]
+
+        if old_preference is None:
             query = utils.get_query_set_preference(who, entity, preference)
         else:
-            query = utils.get_query_update_preference(who, entity, entity_preference, preference)
+            query = utils.get_query_update_preference(
+                who, entity, old_preference, preference
+            )
 
-        # query = utils.get_query_set_preference(who, entity, preference)
         return self._connector.execute_sparql_update(query)
 
     def add_owner_fact(self, predicate: URI, entity: URI) -> None:
@@ -174,29 +175,3 @@ if __name__ == "__main__":
 
     for item in pkg.get_owner_preference("http://example.org/tea"):
         print(item[0])
-
-    # pkg.set_owner_preference("http://example.org/coffee", 2)
-    # for item in pkg.get_owner_preference("http://example.org/coffee"):
-    #     print(item[0])
-
-    # print(list(pkg.get_owner_preference("http://example.org/tea")))
-    # print(list(pkg.get_owner_preference("http://example.org/pizza")))
-
-    # query = utils.get_query_update_preference("http://example.org/user1", "http://example.org/coffee", -1, 0.5)
-    # pkg._connector.execute_sparql_update(query)
-
-    # query = utils.get_query_set_preference("http://example.org/user1", "http://example.org/sample_entity", 1)
-    # pkg._connector.execute_sparql_update(query)
-
-    # query2 = utils.get_query_get_preference("http://example.org/user1", "http://example.org/sample_entity")
-    # i = pkg._connector.execute_sparql_query(query2)
-    # for i1 in i:
-    #     print(i1[0])
-    # # print(i)
-
-    # query3 = utils.select("http://example.org/user1", "http://example.org/sample_entity")
-    # i = pkg._connector.execute_sparql_query(query3)
-    # for i1 in i:
-    #     print(i1[0])
-    # # print(i)
-

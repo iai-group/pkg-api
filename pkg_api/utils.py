@@ -40,6 +40,7 @@ def get_query_get_objects_from_facts(who: URI, predicate: URI) -> SPARQLQuery:
         }}
     """
 
+
 def get_query_set_preference(who: URI, entity: URI, preference: float):
     """Gets SPARQL query to set preference.
 
@@ -56,20 +57,18 @@ def get_query_set_preference(who: URI, entity: URI, preference: float):
                 <weight> <{preference}> ]
         }}
     """
-    # return f"""
-    #     INSERT DATA {{
-    #         <{who}> <preference> _:blank .
-    #         _:blank <entity> <{entity}> .
-    #         _:blank <weight> <{preference}> .
-    #     }}
-    # """
 
-def get_query_update_preference(who: URI, entity: URI, old_preference: float, new_preference: float):
-    """Gets SPARQL query to retrieve preference value given subject and entity.
+
+def get_query_update_preference(
+    who: URI, entity: URI, old_preference: float, new_preference: float
+):
+    """Gets SPARQL query to update preference value given subject and entity.
 
     Args:
         who: Who is adding the fact.
         entity: Entity of the fact.
+        old_preference: The old preference value for given entity.
+        new_preference: The new preference value for given entity.
     """
     return f"""
         DELETE {{ ?x <weight> <{old_preference}> }}
@@ -80,6 +79,7 @@ def get_query_update_preference(who: URI, entity: URI, old_preference: float, ne
             ?x <weight> ?old_preference .
         }}
     """
+
 
 def get_query_get_preference(who: URI, entity: URI):
     """Gets SPARQL query to retrieve preference value given subject and entity.
@@ -95,26 +95,3 @@ def get_query_get_preference(who: URI, entity: URI):
                 <weight> ?pref ]
         }}
     """
-    # return f"""
-    #     SELECT ?who ?entity ?pref WHERE {{
-    #         ?who <preference> ?x .
-    #         ?x <entity> ?entity .
-    #         ?x <weight> ?pref 
-    #     }}
-    # """
-
-def select(who: URI, entity: URI):
-    return f"""
-        SELECT ?pref WHERE {{
-            <{who}> <preference>
-            [ <entity> <{entity}> ;
-                <weight> ?pref ]
-        }}
-    """
-    # return f"""
-    #     SELECT ?who ?entity ?pref {{
-    #         ?who <preference>
-    #         [ <entity> ?entity ;
-    #             <weight> ?pref ]
-    #     }}
-    # """
