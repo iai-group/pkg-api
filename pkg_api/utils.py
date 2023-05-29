@@ -1,4 +1,16 @@
-"""Utils methods for the API."""
+"""Utils methods for the API.
+
+The methods creates SPARQL queries to edit the PKG like adding/removing facts
+or preferences. In practice, the preference is represented with a blank node
+that links the subject, the object and the preference value (a float between -1
+and 1).
+
+For example:
+    - Alice loves action movies with a preference of 0.8 is represented as:
+    (:Alice pkg:preference _:blank)
+    (_:blank pkg:entity :action_movies)
+    (_:blank pkg:weight 0.8)
+"""
 
 from pkg_api.types import URI, SPARQLQuery
 
@@ -6,11 +18,13 @@ from pkg_api.types import URI, SPARQLQuery
 # Method to translate RDF to SPAQRL (OTTR)
 
 
-def get_query_add_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
+def get_query_add_fact(
+    subject: URI, predicate: URI, entity: URI
+) -> SPARQLQuery:
     """Gets SPARQL query to add a fact.
 
     Args:
-        who: Who is adding the fact.
+        subject: Subject of the fact.
         predicate: Predicate of the fact.
         entity: Entity of the fact.
 
@@ -19,16 +33,18 @@ def get_query_add_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
     """
     return f"""
         INSERT DATA {{
-            <{who}> <{predicate}> <{entity}> .
+            <{subject}> <{predicate}> <{entity}> .
         }}
     """
 
 
-def get_query_get_objects_from_facts(who: URI, predicate: URI) -> SPARQLQuery:
+def get_query_get_objects_from_facts(
+    subject: URI, predicate: URI
+) -> SPARQLQuery:
     """Gets SPARQL query to retrieve objects given subject and predicate.
 
     Args:
-        who: Subject of the fact.
+        subject: Subject of the fact.
         predicate: Predicate of the fact.
 
     Returns:
@@ -36,6 +52,6 @@ def get_query_get_objects_from_facts(who: URI, predicate: URI) -> SPARQLQuery:
     """
     return f"""
         SELECT ?object WHERE {{
-            <{who}> <{predicate}> ?object .
+            <{subject}> <{predicate}> ?object .
         }}
     """

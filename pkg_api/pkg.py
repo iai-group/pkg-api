@@ -1,19 +1,19 @@
 """PKG API.
 
 A fact is an atomic piece of information that can be represented as a triple:
-subject, predicate, object. A fact can be about the owner in which case the
-subject is the owner's URI or about another entity then the subject is the
+subject, predicate, object. A fact can be about the owner, in which case the
+subject is the owner's URI, or about another entity, then the subject is the
 entity's URI.
+
 For example:
     - The owner (user1) likes ice cream is represented as follow:
-    (http://example.org/user1, http://example.org/likes, http://example.org/icecream)   # noqa
+    (/../user1, /../likes, /../icecream)
     - Stavanger is in Norway is represented as follow:
-    (http://example.org/stavanger, http://example.org/isIn, http://example.org/norway)  # noqa
+    (/../stavanger, /../isIn, /../norway)  # noqa
 
 A preference indicates how much a person (can be the owner or someone else)
-likes an entity. In practice, the preference is represented with a blank node
-that links the subject, the object and the preference value (a float between -1
-and 1).
+likes an entity. Representing a preference requires multiple triples; creating
+this representation is left to the utils class.
 """
 
 from typing import List
