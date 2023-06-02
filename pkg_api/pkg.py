@@ -1,6 +1,6 @@
 """PKG API."""
 
-from rdflib.query import Result
+from typing import List
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector
@@ -60,14 +60,14 @@ class PKG:
         """
         pass
 
-    def get_owner_objects_from_facts(self, predicate: URI) -> Result:
+    def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
 
         Args:
             predicate: Predicate of the fact.
 
         Returns:
-            Result containing list of objects.
+            List of objects for the given predicate.
         """
         return self.get_objects_from_facts(self._owner_uri, predicate)
 
@@ -83,7 +83,7 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(self, who: URI, predicate: URI) -> Result:
+    def get_objects_from_facts(self, who: URI, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
 
         Args:
@@ -91,11 +91,13 @@ class PKG:
             predicate: Predicate of the fact.
 
         Returns:
-            Result containing list of objects.
+            List of objects for the given predicate.
         """
         query = utils.get_query_get_objects_from_facts(who, predicate)
-        results = self._connector.execute_sparql_query(query)
-        return results
+        return [
+            str(binding["object"])  # type: ignore
+            for binding in self._connector.execute_sparql_query(query)
+        ]
 
     def set_owner_preference(self, entity: URI, preference: float) -> None:
         """Sets owner preference for a given entity.
@@ -150,8 +152,6 @@ class PKG:
             predicate: Predicate to be removed.
             entity: Entity to be removed.
         """
-        # Create SPARQL query
-        # Execute SPARQL query
         query = utils.get_query_remove_fact(who, predicate, entity)
         self._connector.execute_sparql_update(query)
 
