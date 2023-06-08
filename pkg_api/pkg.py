@@ -144,7 +144,7 @@ class PKG:
         query = utils.get_query_add_fact(who, predicate, entity)
         self._connector.execute_sparql_update(query)
 
-    def remove_fact(self, who: URI, predicate: URI, entity: URI) -> None:
+    def remove_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
         """Removes a fact.
 
         Args:
