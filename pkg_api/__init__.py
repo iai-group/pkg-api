@@ -1,1 +1,1 @@
-"""pkg_api Module init file."""
+"""PKG API module init."""

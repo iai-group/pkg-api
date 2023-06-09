@@ -41,11 +41,13 @@ def get_query_get_objects_from_facts(who: URI, predicate: URI) -> SPARQLQuery:
     """
 
 
-def get_query_remove_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
+def get_query_remove_fact(
+    subject: URI, predicate: URI, entity: URI
+) -> SPARQLQuery:
     """Gets SPARQL query to remove a fact.
 
     Args:
-        who: Who is removing the fact.
+        subject: Subject of the fact to remove.
         predicate: Predicate of the fact.
         entity: Entity of the fact.
 
@@ -54,6 +56,6 @@ def get_query_remove_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
     """
     return f"""
          DELETE DATA {{
-             <{who}> <{predicate}> <{entity}> .
+             <{subject}> <{predicate}> <{entity}> .
          }}
      """

@@ -20,6 +20,7 @@ def test_add_fact(user_pkg: PKG) -> None:
     assert user_pkg.get_objects_from_facts(
         "http://example.com/testuser1", "http://example.org/likes"
     ) == ["http://example.org/pizza"]
+    user_pkg.close()
 
 
 def test_add_owner_fact(user_pkg) -> None:
