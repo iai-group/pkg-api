@@ -95,7 +95,7 @@ class PKG:
         """
         query = utils.get_query_get_objects_from_facts(who, predicate)
         return [
-            str(binding.get("object"))
+            str(binding.get("object"))  # type: ignore
             for binding in self._connector.execute_sparql_query(query)
         ]
 
@@ -173,9 +173,9 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])  # type: ignore
+        print(item[0])
     pkg.remove_owner_fact(
         "http://example.org/likes", "http://example.org/pizza"
     )
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])  # type: ignore
+        print(item[0])
