@@ -95,7 +95,7 @@ class PKG:
         """
         query = utils.get_query_get_objects_from_facts(who, predicate)
         return [
-            str(binding["object"])  # type: ignore
+            str(binding.get("object"))
             for binding in self._connector.execute_sparql_query(query)
         ]
 
@@ -148,11 +148,11 @@ class PKG:
         """Removes a fact.
 
         Args:
-            who: Who is removing the fact.
-            predicate: Predicate to be removed.
+            subject: Subject of the fact being removed.
+            predicate: Predicate of the fact being removed.
             entity: Entity to be removed.
         """
-        query = utils.get_query_remove_fact(who, predicate, entity)
+        query = utils.get_query_remove_fact(subject, predicate, entity)
         self._connector.execute_sparql_update(query)
 
     def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
