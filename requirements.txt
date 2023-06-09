@@ -1,6 +1,7 @@
 black
 flake8
 pytest
+pytest-cov
 mypy
 docformatter
 pre-commit
