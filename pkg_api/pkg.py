@@ -2,6 +2,8 @@
 
 from typing import List
 
+from rdflib.term import Variable
+
 import pkg_api.utils as utils
 from pkg_api.connector import Connector
 from pkg_api.pkg_types import URI
@@ -95,8 +97,8 @@ class PKG:
         """
         query = utils.get_query_get_objects_from_facts(who, predicate)
         return [
-            str(binding.get("object"))  # type: ignore
-            for binding in self._connector.execute_sparql_query(query)
+            str(binding.get(Variable("object")))
+            for binding in self._connector.execute_sparql_query(query).bindings
         ]
 
     def set_owner_preference(self, entity: URI, preference: float) -> None:
@@ -173,9 +175,9 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])
+        print(item)
     pkg.remove_owner_fact(
         "http://example.org/likes", "http://example.org/pizza"
     )
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])
+        print(item)
