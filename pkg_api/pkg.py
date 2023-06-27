@@ -2,9 +2,11 @@
 
 from typing import List
 
+from rdflib.term import Variable
+
 import pkg_api.utils as utils
 from pkg_api.connector import Connector
-from pkg_api.types import URI
+from pkg_api.pkg_types import URI
 
 
 class PKG:
@@ -67,7 +69,7 @@ class PKG:
             predicate: Predicate of the fact.
 
         Returns:
-            List of objects.
+            List of objects for the given predicate.
         """
         return self.get_objects_from_facts(self._owner_uri, predicate)
 
@@ -91,11 +93,13 @@ class PKG:
             predicate: Predicate of the fact.
 
         Returns:
-            List of objects.
+            List of objects for the given predicate.
         """
         query = utils.get_query_get_objects_from_facts(who, predicate)
-        results = self._connector.execute_sparql_query(query)
-        return results
+        return [
+            str(binding.get(Variable("object")))
+            for binding in self._connector.execute_sparql_query(query).bindings
+        ]
 
     def set_owner_preference(self, entity: URI, preference: float) -> None:
         """Sets owner preference for a given entity.
@@ -142,6 +146,26 @@ class PKG:
         query = utils.get_query_add_fact(who, predicate, entity)
         self._connector.execute_sparql_update(query)
 
+    def remove_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
+        """Removes a fact.
+
+        Args:
+            subject: Subject of the fact being removed.
+            predicate: Predicate of the fact being removed.
+            entity: Entity to be removed.
+        """
+        query = utils.get_query_remove_fact(subject, predicate, entity)
+        self._connector.execute_sparql_update(query)
+
+    def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
+        """Removes a fact related to the PKG owner.
+
+        Args:
+            predicate: Predicate to be removed.
+            entity: Entity to be removed.
+        """
+        self.remove_fact(self._owner_uri, predicate, entity)
+
 
 if __name__ == "__main__":
     pkg = PKG("http://example.org/user1")
@@ -151,4 +175,9 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])
+        print(item)
+    pkg.remove_owner_fact(
+        "http://example.org/likes", "http://example.org/pizza"
+    )
+    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
+        print(item)

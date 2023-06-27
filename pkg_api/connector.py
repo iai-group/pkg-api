@@ -4,7 +4,7 @@ from enum import Enum
 from rdflib import Graph
 from rdflib.query import Result
 
-from pkg_api.types import URI
+from pkg_api.pkg_types import URI
 
 # Method to create/load the RDF graph
 # Method to execute the SPARQL query
