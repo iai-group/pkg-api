@@ -1,3 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pkg_api"]
+
 [tool.black]
 line-length = 80
 target-version = ['py39']
+
+[project]
+name = "pkg_api"
+version = "0.0.1"
+authors = [
+  { name="IAI group", email="author@example.com" },
+]
+description = "PKG API"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "rdflib==6.3.2"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/iai-group/pkg-api"
+"Bug Tracker" = "https://github.com/iai-group/pkg-api/issues"
+
+
