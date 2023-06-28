@@ -13,6 +13,9 @@ See example for a query to retrieve a preference for a given entity:
 
 
 class Vocab:
-    PREFERENCE = "pkg:preference"
-    PREFERENCE_WEIGHT = "pkg:weight"
-    ENTITY = "pkg:entity"
+    # Namespace for the RDF vocabulary terms related to the PKG.
+    _NS = "http://example.org/pkg/"
+
+    PREFERENCE = f"{_NS}preference"
+    PREFERENCE_WEIGHT = f"{_NS}weight"
+    ENTITY = f"{_NS}entity"
