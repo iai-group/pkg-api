@@ -1,13 +1,16 @@
 """Tests for the PKG module."""
 import pytest
 
+from pkg_api.connector import RDFStore
 from pkg_api.pkg import PKG
 
 
 @pytest.fixture
 def user_pkg() -> PKG:
     """Returns a PKG instance."""
-    return PKG("http://example.com/testuser")
+    return PKG(
+        "http://example.com/testuser", RDFStore.MEMORY, "tests/data/RDFStore"
+    )
 
 
 def test_add_fact(user_pkg: PKG) -> None:
