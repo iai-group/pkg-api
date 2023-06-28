@@ -12,7 +12,7 @@ For example:
     (_:blank pkg:weight 0.8)
 """
 
-from pkg_api.types import URI, SPARQLQuery
+from pkg_api.pkg_types import URI, SPARQLQuery
 
 # Method to create RDF representation of the preference/fact
 # Method to translate RDF to SPAQRL (OTTR)
@@ -55,3 +55,23 @@ def get_query_get_objects_from_facts(
             <{subject}> <{predicate}> ?object .
         }}
     """
+
+
+def get_query_remove_fact(
+    subject: URI, predicate: URI, entity: URI
+) -> SPARQLQuery:
+    """Gets SPARQL query to remove a fact.
+
+    Args:
+        subject: Subject of the fact to remove.
+        predicate: Predicate of the fact.
+        entity: Entity of the fact.
+
+    Returns:
+        SPARQL query.
+    """
+    return f"""
+         DELETE DATA {{
+             <{subject}> <{predicate}> <{entity}> .
+         }}
+     """
