@@ -5,19 +5,21 @@ from typing import List
 from rdflib.term import Variable
 
 import pkg_api.utils as utils
-from pkg_api.connector import Connector
+from pkg_api.connector import Connector, RDFStore
 from pkg_api.pkg_types import URI
 
 
 class PKG:
-    def __init__(self, owner: URI) -> None:
+    def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
         """Initializes PKG of a given user.
 
         Args:
             owner: Owner URI.
+            rdf_store: Type of RDF store.
+            rdf_path: Path to the RDF store.
         """
         self._owner_uri = owner
-        self._connector = Connector(owner)
+        self._connector = Connector(owner, rdf_store, rdf_path)
 
     @property
     def owner_uri(self) -> URI:
@@ -168,7 +170,7 @@ class PKG:
 
 
 if __name__ == "__main__":
-    pkg = PKG("http://example.org/user1")
+    pkg = PKG("http://example.org/user1", RDFStore.MEMORY, "data/RDFStore")
     pkg.add_owner_fact(
         "http://example.org/likes", "http://example.org/icecream"
     )
