@@ -6,9 +6,9 @@ subject is the owner's URI, or about another entity, then the subject is the
 entity's URI.
 
 For example:
-    - The owner (user1) likes ice cream is represented as follow:
+    - 'The owner (user1) likes ice cream' is represented as follow:
     (/../user1, /../likes, /../icecream)
-    - Stavanger is in Norway is represented as follow:
+    - 'Stavanger is in Norway' is represented as follow:
     (/../stavanger, /../isIn, /../norway)  # noqa
 
 A preference indicates how much a person (can be the owner or someone else)

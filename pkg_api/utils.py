@@ -6,7 +6,11 @@ that links the subject, the object and the preference value (a float between -1
 and 1).
 
 For example:
-    - Alice loves action movies with a preference of 0.8 is represented as:
+    - 'Bob like Titanic with a preference of 0.75' is represented as:
+    (:Bob pkg:preference _:blank)
+    (_:blank pkg:entity :titanic)
+    (_:blank pkg:weight 0.75)
+    - 'Alice loves action movies with a preference of 0.8' is represented as:
     (:Alice pkg:preference _:blank)
     (_:blank pkg:entity :action_movies)
     (_:blank pkg:weight 0.8)
