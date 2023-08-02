@@ -16,7 +16,7 @@ likes an entity. Representing a preference requires multiple triples; creating
 this representation is left to the utils class.
 """
 
-from typing import List
+from typing import Dict, List
 
 from rdflib.term import Variable
 
@@ -57,7 +57,7 @@ class PKG:
         """
         return self.get_preference(self._owner_uri, object)
 
-    def get_owner_preferences(self, rdf_class: URI) -> dict[URI, float]:
+    def get_owner_preferences(self, rdf_class: URI) -> Dict[URI, float]:
         """Gets preferences for a given class.
 
         Args:
@@ -79,7 +79,11 @@ class PKG:
             Preference value.
         """
         query = utils.get_query_get_preference(who, object)
-        return pkg._connector.execute_sparql_query(query)
+        preference = [
+            float(binding.get(Variable("pref")))
+            for binding in self._connector.execute_sparql_query(query).bindings
+        ]
+        return preference[0] if len(preference) > 0 else None
 
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
@@ -92,7 +96,7 @@ class PKG:
         """
         return self.get_objects_from_facts(self._owner_uri, predicate)
 
-    def get_preferences(self, who: URI, rdf_class: URI) -> dict[URI, float]:
+    def get_preferences(self, who: URI, rdf_class: URI) -> Dict[URI, float]:
         """Gets preferences for a given class.
 
         Args:
@@ -137,9 +141,7 @@ class PKG:
             entity: URI of the entity.
             preference: Preference value.
         """
-        old_preference = None
-        for user_preference in self.get_preference(who, entity):
-            old_preference = user_preference[0]
+        old_preference = self.get_preference(who, entity)
 
         if old_preference is None:
             query = utils.get_query_set_preference(who, entity, preference)
@@ -202,24 +204,21 @@ if __name__ == "__main__":
     pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])
-        
+        print(item)
+
     pkg.remove_owner_fact(
         "http://example.org/likes", "http://example.org/pizza"
     )
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item[0])
+        print(item)
 
-    pkg.set_owner_preference("http://example.org/tea", 1)
-    pkg.set_owner_preference("http://example.org/coffee", -1)
+    pkg.set_owner_preference("http://example.org/tea", 1.0)
+    pkg.set_owner_preference("http://example.org/coffee", -1.0)
 
-    for item in pkg.get_owner_preference("http://example.org/coffee"):
-        print(item[0])
+    print(pkg.get_owner_preference("http://example.org/coffee"))
 
     # Update user preference
     pkg.set_owner_preference("http://example.org/coffee", 0.5)
-    for item in pkg.get_owner_preference("http://example.org/coffee"):
-        print(item[0])
+    print(pkg.get_owner_preference("http://example.org/coffee"))
 
-    for item in pkg.get_owner_preference("http://example.org/tea"):
-        print(item[0])
+    print(pkg.get_owner_preference("http://example.org/tea"))

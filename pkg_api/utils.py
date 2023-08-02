@@ -60,7 +60,7 @@ def get_query_get_objects_from_facts(
         }}
     """
 
-  
+
 def get_query_set_preference(who: URI, entity: URI, preference: float):
     """Gets SPARQL query to set preference.
 
@@ -116,7 +116,7 @@ def get_query_get_preference(who: URI, entity: URI):
         }}
     """
 
-  
+
 def get_query_remove_fact(
     subject: URI, predicate: URI, entity: URI
 ) -> SPARQLQuery:
