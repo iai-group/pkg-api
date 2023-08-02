@@ -1,16 +1,34 @@
-"""Utils methods for the API."""
+"""Utils methods for the API.
 
-from pkg_api.types import URI, SPARQLQuery
+The methods creates SPARQL queries to edit the PKG like adding/removing facts
+or preferences. In practice, the preference is represented with a blank node
+that links the subject, the object and the preference value (a float between -1
+and 1).
+
+For example:
+    - 'Bob like Titanic with a preference of 0.75' is represented as:
+    (:Bob pkg:preference _:blank)
+    (_:blank pkg:entity :titanic)
+    (_:blank pkg:weight 0.75)
+    - 'Alice loves action movies with a preference of 0.8' is represented as:
+    (:Alice pkg:preference _:blank)
+    (_:blank pkg:entity :action_movies)
+    (_:blank pkg:weight 0.8)
+"""
+
+from pkg_api.pkg_types import URI, SPARQLQuery
 
 # Method to create RDF representation of the preference/fact
 # Method to translate RDF to SPAQRL (OTTR)
 
 
-def get_query_add_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
+def get_query_add_fact(
+    subject: URI, predicate: URI, entity: URI
+) -> SPARQLQuery:
     """Gets SPARQL query to add a fact.
 
     Args:
-        who: Who is adding the fact.
+        subject: Subject of the fact.
         predicate: Predicate of the fact.
         entity: Entity of the fact.
 
@@ -19,16 +37,18 @@ def get_query_add_fact(who: URI, predicate: URI, entity: URI) -> SPARQLQuery:
     """
     return f"""
         INSERT DATA {{
-            <{who}> <{predicate}> <{entity}> .
+            <{subject}> <{predicate}> <{entity}> .
         }}
     """
 
 
-def get_query_get_objects_from_facts(who: URI, predicate: URI) -> SPARQLQuery:
+def get_query_get_objects_from_facts(
+    subject: URI, predicate: URI
+) -> SPARQLQuery:
     """Gets SPARQL query to retrieve objects given subject and predicate.
 
     Args:
-        who: Subject of the fact.
+        subject: Subject of the fact.
         predicate: Predicate of the fact.
 
     Returns:
@@ -36,11 +56,11 @@ def get_query_get_objects_from_facts(who: URI, predicate: URI) -> SPARQLQuery:
     """
     return f"""
         SELECT ?object WHERE {{
-            <{who}> <{predicate}> ?object .
+            <{subject}> <{predicate}> ?object .
         }}
     """
 
-
+  
 def get_query_set_preference(who: URI, entity: URI, preference: float):
     """Gets SPARQL query to set preference.
 
@@ -95,3 +115,23 @@ def get_query_get_preference(who: URI, entity: URI):
                 <weight> ?pref ]
         }}
     """
+
+  
+def get_query_remove_fact(
+    subject: URI, predicate: URI, entity: URI
+) -> SPARQLQuery:
+    """Gets SPARQL query to remove a fact.
+
+    Args:
+        subject: Subject of the fact to remove.
+        predicate: Predicate of the fact.
+        entity: Entity of the fact.
+
+    Returns:
+        SPARQL query.
+    """
+    return f"""
+         DELETE DATA {{
+             <{subject}> <{predicate}> <{entity}> .
+         }}
+     """
