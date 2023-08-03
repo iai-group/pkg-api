@@ -16,7 +16,7 @@ likes an entity. Representing a preference requires multiple triples; creating
 this representation is left to the utils class.
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from rdflib.term import Variable
 
@@ -68,7 +68,7 @@ class PKG:
         """
         return self.get_preferences(self._owner_uri, rdf_class)
 
-    def get_preference(self, who: URI, object: URI) -> float:
+    def get_preference(self, who: URI, object: URI) -> Optional[float]:
         """Gets the preference for a given object.
 
         Args:
@@ -76,14 +76,20 @@ class PKG:
             object: Object of the preference.
 
         Returns:
-            Preference value.
+            Preference value. If no preference is found, returns None. If
+            multiple preferences are found, raises an exception.
         """
         query = utils.get_query_get_preference(who, object)
-        preference = [
+        preferences = [
             float(binding.get(Variable("pref")))
             for binding in self._connector.execute_sparql_query(query).bindings
         ]
-        return preference[0] if len(preference) > 0 else None
+        if len(preferences) > 1:
+            raise Exception(
+                f"Multiple preferences found for {who} and {object}: "
+                f"{preferences}"
+            )
+        return preferences[0] if len(preferences) == 1 else None
 
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
@@ -150,7 +156,7 @@ class PKG:
                 who, entity, old_preference, preference
             )
 
-        return self._connector.execute_sparql_update(query)
+        self._connector.execute_sparql_update(query)
 
     def add_owner_fact(self, predicate: URI, entity: URI) -> None:
         """Adds a fact related to the PKG owner.

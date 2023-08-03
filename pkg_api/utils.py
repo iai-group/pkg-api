@@ -61,7 +61,9 @@ def get_query_get_objects_from_facts(
     """
 
 
-def get_query_set_preference(who: URI, entity: URI, preference: float):
+def get_query_set_preference(
+    who: URI, entity: URI, preference: float
+) -> SPARQLQuery:
     """Gets SPARQL query to set preference.
 
     Args:
@@ -69,6 +71,9 @@ def get_query_set_preference(who: URI, entity: URI, preference: float):
         entity: Entity of the fact.
         preference: The preference value (a float between -1 and 1) for given
           entity.
+
+    Returns:
+        SPARQL query.
     """
     return f"""
         INSERT DATA {{
@@ -81,7 +86,7 @@ def get_query_set_preference(who: URI, entity: URI, preference: float):
 
 def get_query_update_preference(
     who: URI, entity: URI, old_preference: float, new_preference: float
-):
+) -> SPARQLQuery:
     """Gets SPARQL query to update preference value given subject and entity.
 
     Args:
@@ -89,6 +94,9 @@ def get_query_update_preference(
         entity: Entity of the fact.
         old_preference: The old preference value for given entity.
         new_preference: The new preference value for given entity.
+
+    Returns:
+        SPARQL query.
     """
     return f"""
         DELETE {{ ?x <weight> <{old_preference}> }}
@@ -101,12 +109,15 @@ def get_query_update_preference(
     """
 
 
-def get_query_get_preference(who: URI, entity: URI):
+def get_query_get_preference(who: URI, entity: URI) -> SPARQLQuery:
     """Gets SPARQL query to retrieve preference value given subject and entity.
 
     Args:
         who: Who is adding the fact.
         entity: Entity of the fact.
+
+    Returns:
+        SPARQL query.
     """
     return f"""
         SELECT ?pref {{
