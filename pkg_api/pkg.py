@@ -74,7 +74,7 @@ class PKG:
         Args:
             who: Subject of the preference.
             object: Object of the preference.
-        
+
         Raises:
             Exception: If multiple preferences are found for the given subject.
 
