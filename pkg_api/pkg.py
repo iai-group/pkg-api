@@ -74,10 +74,12 @@ class PKG:
         Args:
             who: Subject of the preference.
             object: Object of the preference.
+        
+        Raises:
+            Exception: If multiple preferences are found for the given subject.
 
         Returns:
-            Preference value. If no preference is found, returns None. If
-            multiple preferences are found, raises an exception.
+            Preference value. If no preference is found, returns None.
         """
         query = utils.get_query_for_get_preference(who, object)
         preferences = [
@@ -175,9 +177,6 @@ class PKG:
             predicate: Predicate.
             entity: Entity.
         """
-        # (Optional) Create RDF representation of the fact
-        # Create SPARQL query
-        # Execute SPARQL query
         query = utils.get_query_for_add_fact(subject, predicate, entity)
         self._connector.execute_sparql_update(query)
 
