@@ -22,7 +22,7 @@ from pkg_api.pkg_types import URI, SPARQLQuery
 # Method to translate RDF to SPAQRL (OTTR)
 
 
-def get_query_add_fact(
+def get_query_for_add_fact(
     subject: URI, predicate: URI, entity: URI
 ) -> SPARQLQuery:
     """Gets SPARQL query to add a fact.
@@ -42,7 +42,7 @@ def get_query_add_fact(
     """
 
 
-def get_query_get_objects_from_facts(
+def get_query_for_get_objects_from_facts(
     subject: URI, predicate: URI
 ) -> SPARQLQuery:
     """Gets SPARQL query to retrieve objects given subject and predicate.
@@ -61,7 +61,7 @@ def get_query_get_objects_from_facts(
     """
 
 
-def get_query_set_preference(
+def get_query_for_set_preference(
     who: URI, entity: URI, preference: float
 ) -> SPARQLQuery:
     """Gets SPARQL query to set preference.
@@ -84,7 +84,7 @@ def get_query_set_preference(
     """
 
 
-def get_query_update_preference(
+def get_query_for_update_preference(
     who: URI, entity: URI, old_preference: float, new_preference: float
 ) -> SPARQLQuery:
     """Gets SPARQL query to update preference value given subject and entity.
@@ -109,7 +109,7 @@ def get_query_update_preference(
     """
 
 
-def get_query_get_preference(who: URI, entity: URI) -> SPARQLQuery:
+def get_query_for_get_preference(who: URI, entity: URI) -> SPARQLQuery:
     """Gets SPARQL query to retrieve preference value given subject and entity.
 
     Args:
@@ -128,7 +128,7 @@ def get_query_get_preference(who: URI, entity: URI) -> SPARQLQuery:
     """
 
 
-def get_query_remove_fact(
+def get_query_for_remove_fact(
     subject: URI, predicate: URI, entity: URI
 ) -> SPARQLQuery:
     """Gets SPARQL query to remove a fact.

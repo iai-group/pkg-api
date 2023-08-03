@@ -79,7 +79,7 @@ class PKG:
             Preference value. If no preference is found, returns None. If
             multiple preferences are found, raises an exception.
         """
-        query = utils.get_query_get_preference(who, object)
+        query = utils.get_query_for_get_preference(who, object)
         preferences = [
             float(binding.get(Variable("pref")))
             for binding in self._connector.execute_sparql_query(query).bindings
@@ -124,7 +124,7 @@ class PKG:
         Returns:
             List of objects for the given predicate.
         """
-        query = utils.get_query_get_objects_from_facts(subject, predicate)
+        query = utils.get_query_for_get_objects_from_facts(subject, predicate)
         return [
             str(binding.get(Variable("object")))
             for binding in self._connector.execute_sparql_query(query).bindings
@@ -150,9 +150,9 @@ class PKG:
         old_preference = self.get_preference(who, entity)
 
         if old_preference is None:
-            query = utils.get_query_set_preference(who, entity, preference)
+            query = utils.get_query_for_set_preference(who, entity, preference)
         else:
-            query = utils.get_query_update_preference(
+            query = utils.get_query_for_update_preference(
                 who, entity, old_preference, preference
             )
 
@@ -178,7 +178,7 @@ class PKG:
         # (Optional) Create RDF representation of the fact
         # Create SPARQL query
         # Execute SPARQL query
-        query = utils.get_query_add_fact(subject, predicate, entity)
+        query = utils.get_query_for_add_fact(subject, predicate, entity)
         self._connector.execute_sparql_update(query)
 
     def remove_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
@@ -189,7 +189,7 @@ class PKG:
             predicate: Predicate of the fact being removed.
             entity: Entity to be removed.
         """
-        query = utils.get_query_remove_fact(subject, predicate, entity)
+        query = utils.get_query_for_remove_fact(subject, predicate, entity)
         self._connector.execute_sparql_update(query)
 
     def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
