@@ -98,13 +98,6 @@ class PKG:
             else None
         )
 
-        # if len(preferences) > 1:
-        #     raise Exception(
-        #         f"Multiple preferences found for {who} and {object}: "
-        #         f"{preferences}"
-        #     )
-        # return preferences[0] if len(preferences) == 1 else None
-
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
 
