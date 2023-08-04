@@ -66,3 +66,39 @@ def test_remove_owner_fact(user_pkg) -> None:
         == 0
     )
     user_pkg.close()
+
+
+def test_set_preference(user_pkg) -> None:
+    """Tests set_preference method."""
+    user_pkg.set_preference(
+        "http://example.com/testuser1", "http://example.org/pizza", 0.5
+    )
+    assert (
+        user_pkg.get_preference(
+            "http://example.com/testuser1",
+            "http://example.org/pizza",
+        )
+        == 0.5
+    )
+    # Update preference
+    user_pkg.set_preference(
+        "http://example.com/testuser1", "http://example.org/pizza", 1.0
+    )
+    assert (
+        user_pkg.get_preference(
+            "http://example.com/testuser1",
+            "http://example.org/pizza",
+        )
+        == 1.0
+    )
+    user_pkg.close()
+
+
+def test_set_owner_preference(user_pkg) -> None:
+    """Tests set_owner_preference method."""
+    user_pkg.set_owner_preference("http://example.org/pizza", 0.5)
+    assert user_pkg.get_owner_preference("http://example.org/pizza") == 0.5
+    # Update preference
+    user_pkg.set_owner_preference("http://example.org/pizza", 1.0)
+    assert user_pkg.get_owner_preference("http://example.org/pizza") == 1.0
+    user_pkg.close()

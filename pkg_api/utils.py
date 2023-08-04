@@ -22,7 +22,7 @@ from pkg_api.pkg_types import URI, SPARQLQuery
 # Method to translate RDF to SPAQRL (OTTR)
 
 
-def get_query_add_fact(
+def get_query_for_add_fact(
     subject: URI, predicate: URI, entity: URI
 ) -> SPARQLQuery:
     """Gets SPARQL query to add a fact.
@@ -42,7 +42,7 @@ def get_query_add_fact(
     """
 
 
-def get_query_get_objects_from_facts(
+def get_query_for_get_objects_from_facts(
     subject: URI, predicate: URI
 ) -> SPARQLQuery:
     """Gets SPARQL query to retrieve objects given subject and predicate.
@@ -61,7 +61,74 @@ def get_query_get_objects_from_facts(
     """
 
 
-def get_query_remove_fact(
+def get_query_for_set_preference(
+    who: URI, entity: URI, preference: float
+) -> SPARQLQuery:
+    """Gets SPARQL query to set preference.
+
+    Args:
+        who: Who is adding the fact.
+        entity: Entity of the fact.
+        preference: The preference value (a float between -1 and 1) for given
+          entity.
+
+    Returns:
+        SPARQL query.
+    """
+    return f"""
+        INSERT DATA {{
+            <{who}> <preference>
+            [ <entity> <{entity}> ;
+                <weight> <{preference}> ]
+        }}
+    """
+
+
+def get_query_for_update_preference(
+    who: URI, entity: URI, old_preference: float, new_preference: float
+) -> SPARQLQuery:
+    """Gets SPARQL query to update preference value given subject and entity.
+
+    Args:
+        who: Who is adding the fact.
+        entity: Entity of the fact.
+        old_preference: The old preference value for given entity.
+        new_preference: The new preference value for given entity.
+
+    Returns:
+        SPARQL query.
+    """
+    return f"""
+        DELETE {{ ?x <weight> <{old_preference}> }}
+        INSERT {{ ?x <weight> <{new_preference}> }}
+        WHERE  {{
+            <{who}> <preference> ?x .
+            ?x <entity> <{entity}> .
+            ?x <weight> ?old_preference .
+        }}
+    """
+
+
+def get_query_for_get_preference(who: URI, entity: URI) -> SPARQLQuery:
+    """Gets SPARQL query to retrieve preference value given subject and entity.
+
+    Args:
+        who: Who is adding the fact.
+        entity: Entity of the fact.
+
+    Returns:
+        SPARQL query.
+    """
+    return f"""
+        SELECT ?pref {{
+            <{who}> <preference>
+            [ <entity> <{entity}> ;
+                <weight> ?pref ]
+        }}
+    """
+
+
+def get_query_for_remove_fact(
     subject: URI, predicate: URI, entity: URI
 ) -> SPARQLQuery:
     """Gets SPARQL query to remove a fact.

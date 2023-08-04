@@ -16,7 +16,7 @@ likes an entity. Representing a preference requires multiple triples; creating
 this representation is left to the utils class.
 """
 
-from typing import List
+from typing import Dict, List, Optional
 
 from rdflib.term import Variable
 
@@ -57,7 +57,7 @@ class PKG:
         """
         return self.get_preference(self._owner_uri, object)
 
-    def get_owner_preferences(self, rdf_class: URI) -> dict[URI, float]:
+    def get_owner_preferences(self, rdf_class: URI) -> Dict[URI, float]:
         """Gets preferences for a given class.
 
         Args:
@@ -68,17 +68,41 @@ class PKG:
         """
         return self.get_preferences(self._owner_uri, rdf_class)
 
-    def get_preference(self, who: URI, object: URI) -> float:
+    def get_preference(self, who: URI, object: URI) -> Optional[float]:
         """Gets the preference for a given object.
+
+        Bindings that are returned after executing a query in RDFLib are
+        iterable. By design, we should have up to one binding returned when
+        querying for preferences (there is a preference set or not). If more
+        than one binding is returned, it means that something went wrong while
+        setting the preferences and the exception is raised.
 
         Args:
             who: Subject of the preference.
             object: Object of the preference.
 
+        Raises:
+            Exception: If multiple bindings are returned after executing the
+            query.
+
         Returns:
-            Preference value.
+            Preference value. If no preference is found, returns None.
         """
-        pass
+        query = utils.get_query_for_get_preference(who, object)
+        bindings = [
+            binding
+            for binding in self._connector.execute_sparql_query(query).bindings
+        ]
+        if len(bindings) > 1:
+            raise Exception(
+                f"Multiple bindings found for {who} and {object}: "
+                f"{bindings}"
+            )
+        return (
+            float(bindings[0].get(Variable("pref")))
+            if len(bindings) == 1
+            else None
+        )
 
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
@@ -91,7 +115,7 @@ class PKG:
         """
         return self.get_objects_from_facts(self._owner_uri, predicate)
 
-    def get_preferences(self, who: URI, rdf_class: URI) -> dict[URI, float]:
+    def get_preferences(self, who: URI, rdf_class: URI) -> Dict[URI, float]:
         """Gets preferences for a given class.
 
         Args:
@@ -113,7 +137,7 @@ class PKG:
         Returns:
             List of objects for the given predicate.
         """
-        query = utils.get_query_get_objects_from_facts(subject, predicate)
+        query = utils.get_query_for_get_objects_from_facts(subject, predicate)
         return [
             str(binding.get(Variable("object")))
             for binding in self._connector.execute_sparql_query(query).bindings
@@ -136,10 +160,16 @@ class PKG:
             entity: URI of the entity.
             preference: Preference value.
         """
-        # (Optional) Create RDF representation of the preference
-        # Create SPARQL query
-        # Execute SPARQL query
-        pass
+        old_preference = self.get_preference(who, entity)
+
+        if old_preference is None:
+            query = utils.get_query_for_set_preference(who, entity, preference)
+        else:
+            query = utils.get_query_for_update_preference(
+                who, entity, old_preference, preference
+            )
+
+        self._connector.execute_sparql_update(query)
 
     def add_owner_fact(self, predicate: URI, entity: URI) -> None:
         """Adds a fact related to the PKG owner.
@@ -158,10 +188,7 @@ class PKG:
             predicate: Predicate.
             entity: Entity.
         """
-        # (Optional) Create RDF representation of the fact
-        # Create SPARQL query
-        # Execute SPARQL query
-        query = utils.get_query_add_fact(subject, predicate, entity)
+        query = utils.get_query_for_add_fact(subject, predicate, entity)
         self._connector.execute_sparql_update(query)
 
     def remove_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
@@ -172,7 +199,7 @@ class PKG:
             predicate: Predicate of the fact being removed.
             entity: Entity to be removed.
         """
-        query = utils.get_query_remove_fact(subject, predicate, entity)
+        query = utils.get_query_for_remove_fact(subject, predicate, entity)
         self._connector.execute_sparql_update(query)
 
     def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
@@ -194,8 +221,20 @@ if __name__ == "__main__":
 
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
         print(item)
+
     pkg.remove_owner_fact(
         "http://example.org/likes", "http://example.org/pizza"
     )
     for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
         print(item)
+
+    pkg.set_owner_preference("http://example.org/tea", 1.0)
+    pkg.set_owner_preference("http://example.org/coffee", -1.0)
+
+    print(pkg.get_owner_preference("http://example.org/coffee"))
+
+    # Update user preference
+    pkg.set_owner_preference("http://example.org/coffee", 0.5)
+    print(pkg.get_owner_preference("http://example.org/coffee"))
+
+    print(pkg.get_owner_preference("http://example.org/tea"))
