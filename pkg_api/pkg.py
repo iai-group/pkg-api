@@ -71,6 +71,12 @@ class PKG:
     def get_preference(self, who: URI, object: URI) -> Optional[float]:
         """Gets the preference for a given object.
 
+        Bindings that are returned after executing a query in RDFLib are
+        iterable. By design, we should have up to one binding returned when
+        querying for preferences (there is a preference set or not). If more
+        than one binding is returned, it means that something went wrong while
+        setting the preferences and the exception is raised.
+
         Args:
             who: Subject of the preference.
             object: Object of the preference.
