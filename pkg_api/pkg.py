@@ -76,22 +76,34 @@ class PKG:
             object: Object of the preference.
 
         Raises:
-            Exception: If multiple preferences are found for the given subject.
+            Exception: If multiple bindings are returned after executing the
+            query.
 
         Returns:
             Preference value. If no preference is found, returns None.
         """
         query = utils.get_query_for_get_preference(who, object)
-        preferences = [
-            float(binding.get(Variable("pref")))
+        bindings = [
+            binding
             for binding in self._connector.execute_sparql_query(query).bindings
         ]
-        if len(preferences) > 1:
+        if len(bindings) > 1:
             raise Exception(
-                f"Multiple preferences found for {who} and {object}: "
-                f"{preferences}"
+                f"Multiple bindings found for {who} and {object}: "
+                f"{bindings}"
             )
-        return preferences[0] if len(preferences) == 1 else None
+        return (
+            float(bindings[0].get(Variable("pref")))
+            if len(bindings) == 1
+            else None
+        )
+
+        # if len(preferences) > 1:
+        #     raise Exception(
+        #         f"Multiple preferences found for {who} and {object}: "
+        #         f"{preferences}"
+        #     )
+        # return preferences[0] if len(preferences) == 1 else None
 
     def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
