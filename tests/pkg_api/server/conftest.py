@@ -18,9 +18,9 @@ def client():
     """
     app = Flask(__name__)
     api = Api(app)
-    api.add_resource(AuthResource, '/auth')
-    api.add_resource(ServiceManagementResource, '/service')
-    api.add_resource(PersonalFactsResource, '/facts')
-    api.add_resource(PKGExplorationResource, '/explore')
+    api.add_resource(AuthResource, "/auth")
+    api.add_resource(ServiceManagementResource, "/service")
+    api.add_resource(PersonalFactsResource, "/facts")
+    api.add_resource(PKGExplorationResource, "/explore")
     client = app.test_client()
     yield client
