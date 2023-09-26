@@ -9,8 +9,12 @@ from pkg_api.server.pkg_exploration import PKGExplorationResource
 from pkg_api.server.service_management import ServiceManagementResource
 
 
-def create_app():
-    """Create the Flask app and add the API resources."""
+def create_app() -> Flask:
+    """Create the Flask app and add the API resources.
+    
+    Returns:
+        Flask: The Flask app.
+    """
     app = Flask(__name__)
     api = Api(app)
 

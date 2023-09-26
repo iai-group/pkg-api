@@ -1,7 +1,7 @@
 """Tests for the auth endpoints."""
 
 
-def test_auth_endpoint(client):
+def test_auth_endpoint(client) -> None:
     """Test the auth endpoint."""
     response = client.get("/auth")
     assert response.status_code == 200
