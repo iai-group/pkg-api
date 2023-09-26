@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const APIHandler: React.FC = () => {
+  // State tracker for authentication data. I.e. is user logged in?
   const [authData, setAuthData] = useState(null);
+  // State tracker for service management data.
   const [serviceData, setServiceData] = useState(null);
+  // State tracker for personal facts data.
   const [factsData, setFactsData] = useState(null);
+  // State tracker for PKG exploration data. Data presentation, graphs, etc.
   const [exploreData, setExploreData] = useState(null);
 
   useEffect(() => {
