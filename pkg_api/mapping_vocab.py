@@ -5,17 +5,14 @@ These predicates are used to create SPARQL queries.
 See example for a query to retrieve a preference for a given entity:
     SELECT ?preference
     {
-    ?who Vocab.PREFERENCE
-    [ Vocab.ENTITY ?entity ;
-      Vocab.PREFERENCE_WEIGHT ?preference ]
+    ?who Vocab.PREFERENCE_PROPERTY
+    [ Vocab.ENTITY_PROPERTY ?entity ;
+      Vocab.WEIGHT_PROPERTY ?preference ]
     }
 
-Note: The naming convention in this file is different from the one used in the
-rest of the code. Using upper case only can be a problem since IRIs are case
-sensitive, i.e., introduce some confusions between similar IRIS (e.g.,
-pkg:Weight and pkg:weight). The naming convention used in this file is to use
-the same casing as the predicate label.
-See comment: https://github.com/iai-group/pkg-api/pull/17#discussion_r1269803051
+Note: The naming convention is as follows: the name of the object followed by
+its RDF type (i.e., NAME_RDFTYPE). For example, the class preference is named
+PREFERENCE_CLASS.
 """
 
 
@@ -23,7 +20,7 @@ class MappingVocab:
     # Namespace for the RDF vocabulary terms related to the PKG.
     _NS = "http://example.org/pkg/"
 
-    Preference = f"{_NS}Preference"
-    preference = f"{_NS}preference"
-    weight = f"{_NS}weight"
-    entity = f"{_NS}entity"
+    PREFERENCE_CLASS = f"{_NS}Preference"
+    PREFERENCE_PROPERTY = f"{_NS}preference"
+    WEIGHT_PROPERTY = f"{_NS}weight"
+    ENTITY_PROPERTY = f"{_NS}entity"
