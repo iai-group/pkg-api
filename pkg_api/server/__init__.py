@@ -1,4 +1,7 @@
-"""The server module contains the Flask app and the API resources."""
+"""The server module contains the Flask app and the API resources.
+
+Resources give access to HTTP methods related to a PKG API feature.
+"""
 
 from flask import Flask
 from flask_restful import Api
@@ -11,9 +14,9 @@ from pkg_api.server.service_management import ServiceManagementResource
 
 def create_app() -> Flask:
     """Create the Flask app and add the API resources.
-    
+
     Returns:
-        Flask: The Flask app.
+        The Flask app.
     """
     app = Flask(__name__)
     api = Api(app)

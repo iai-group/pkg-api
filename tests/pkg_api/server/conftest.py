@@ -10,7 +10,7 @@ def client() -> Flask:
     """Create the Flask test client and add the API resources.
 
     Yields:
-        Flask: The Flask client.
+        The Flask client.
     """
     app = create_app()
     client = app.test_client()
