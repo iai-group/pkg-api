@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const APIHandler: React.FC = () => {
-  // State tracker for authentication data. I.e. is user logged in?
+  // State tracker for authentication data, i.e. is user logged in?
   const [authData, setAuthData] = useState(null);
   // State tracker for service management data.
   const [serviceData, setServiceData] = useState(null);
