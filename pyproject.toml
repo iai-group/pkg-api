@@ -7,13 +7,13 @@ packages = ["pkg_api"]
 
 [tool.black]
 line-length = 80
-target-version = ['py39']
+target-version = ["py39"]
 
 [project]
 name = "pkg_api"
 version = "0.0.1"
 authors = [
-  { name="IAI group", email="author@example.com" },
+  { name="IAI group" },
 ]
 description = "PKG API"
 readme = "README.md"
@@ -24,11 +24,13 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "rdflib==6.3.2"
+    "rdflib==6.3.2",
+    "Flask>=2.3.3",
+    "Flask-RESTful>=0.3.10", 
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/iai-group/pkg-api"
-"Bug Tracker" = "https://github.com/iai-group/pkg-api/issues"
+"Issue Tracker" = "https://github.com/iai-group/pkg-api/issues"
 
 
