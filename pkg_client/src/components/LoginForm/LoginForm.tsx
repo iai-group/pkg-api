@@ -38,9 +38,9 @@ const LoginForm = () => {
         <Form>
             <h1>Login</h1>
             {error && <Alert variant="danger">{error}</Alert>}
-            <Form.Group className="mb-6" controlId="formEmail">
-                <Form.Label>Email address</Form.Label>
-                <Form.Control required type="email" placeholder="Enter email" onChange={(e) => setUsername(e.target.value)} />
+            <Form.Group className="mb-6" controlId="formUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control required type="username" placeholder="Enter username" onChange={(e) => setUsername(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-6" controlId="formPassword">
                 <Form.Label>Password</Form.Label>
