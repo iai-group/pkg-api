@@ -5,7 +5,9 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class User(db.Model):
+class User(db.Model):  # type: ignore
+    # Typing issue is ignored here. For more information, see:
+    # https://github.com/python/mypy/issues/8603
     """User model for database."""
 
     id = db.Column(db.Integer, primary_key=True)

@@ -1,6 +1,6 @@
 """Authentication resource."""
 
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from flask import request
 from flask_restful import Resource
@@ -16,7 +16,7 @@ def create_user_uri(username: str) -> str:
 
 
 class AuthResource(Resource):
-    def post(self) -> Tuple[Dict[str, str], int]:
+    def post(self) -> Tuple[Dict[str, Any], int]:
         """Logs in or registers the user.
 
         Returns:
