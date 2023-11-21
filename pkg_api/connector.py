@@ -1,4 +1,5 @@
 """Connector to triplestore."""
+import os
 from enum import Enum
 
 from rdflib import Graph
@@ -34,7 +35,10 @@ class Connector:
             rdf_store: Type of RDF store to use.
             rdf_store_path: Path to the RDF store.
         """
+        self._rdf_store_path = f"{rdf_store_path}.ttl"
         self._graph = Graph(rdf_store.value, identifier=owner)
+        if os.path.exists(self._rdf_store_path):
+            self._graph.parse(self._rdf_store_path, format="turtle")
         self._graph.open(rdf_store_path, create=True)
 
     def execute_sparql_query(self, query: str) -> Result:
@@ -55,4 +59,12 @@ class Connector:
 
     def close(self) -> None:
         """Close the connection to the triplestore."""
+        self.save_graph()
         self._graph.close()
+
+    def save_graph(self):
+        """Save the graph on-disk."""
+        if not os.path.exists(self._rdf_store_path):
+            parent_dir = os.path.dirname(self._rdf_store_path)
+            os.makedirs(parent_dir, exist_ok=True)
+        self._graph.serialize(destination=self._rdf_store_path, format="turtle")
