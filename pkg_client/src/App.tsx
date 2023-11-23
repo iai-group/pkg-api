@@ -8,7 +8,7 @@ import { UserContext } from "./contexts/UserContext";
 function App() {
   const { user } = useContext(UserContext);
 
-  const content = !user ? <LoginForm /> : <APIHandler />;
+  const content = user ? <APIHandler /> : <LoginForm />;
 
   return (
     <Container className="p-3">
