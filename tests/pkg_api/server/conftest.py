@@ -19,3 +19,4 @@ def client() -> Flask:
     yield client
     # Delete the test database
     os.remove(f"{app.instance_path}/test.sqlite")
+    os.remove("data/RDFStore/test_user.ttl")
