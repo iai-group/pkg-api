@@ -5,7 +5,7 @@ from flask import Flask
 from pkg_api.server import create_app
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def client() -> Flask:
     """Create the Flask test client and add the API resources.
 
