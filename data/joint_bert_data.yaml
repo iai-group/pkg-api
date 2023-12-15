@@ -1,0 +1,36 @@
+add_owner_fact:
+  - "I [prefer](predicate) [action movies](entity)."
+  - "I [grew up watching](predicate) [Marvel movies](entity)."
+  - "I have [seen](predicate) [every film starring Meryl Streep](entity)."
+
+add_fact:
+  - "[My sister](subject)'s [favorite actor](predicate) is [Tom Hanks](entity)."
+  - "[Emily](subject) [loves](predicate) [romantic comedies](entity)."
+  - "[John and Mary](subject) often [go to](predicate) [horror movie premieres](entity)."
+  - "[My brother](subject) [admires](predicate) [Christopher Nolan's work](entity)."
+  - "[Lisa and her friends](subject) [attend](predicate) [film festivals](entity)."
+  - "[Alex](subject) [dislikes](predicate) [superhero movies](entity)."
+  - "[My dad](subject) often [watches](predicate) [thrillers](entity)."
+  - "[My family](subject) [enjoys](predicate) [animated films](entity)."
+
+set_owner_preference:
+  positive:
+    - I have a special liking for [Pixar movies](entity).
+    - I am a big fan of [Steven Spielberg's movies](entity).
+    - I always enjoy watching films with [Morgan Freeman](entity).
+  negative:
+    - I can't stand [slasher films](entity).
+    - I have never enjoyed [silent films](entity).
+
+set_preference:
+  positive:
+    - "[Rachel](who) really enjoys [documentaries](entity)."
+    - "[Kevin](who) has a strong preference for [indie films](entity)."
+    - "[Olivia](who) loves [classic Hollywood cinema](entity)."
+  negative:
+    - "[Mike](who) isn't a fan of [musicals](entity)."
+    - "[Anna](who) dislikes [black and white movies](entity)."
+
+
+unknown:
+  - unknown
