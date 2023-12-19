@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import APIHandler from "./APIHandler";
+import APIHandler from "./components/APIHandler";
 
 function App() {
   return (
