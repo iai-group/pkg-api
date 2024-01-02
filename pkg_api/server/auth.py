@@ -28,14 +28,14 @@ class AuthResource(Resource):
         authentication_data = request.json
         username = authentication_data.get("username", None)
         password = authentication_data.get("password", None)
-        is_register = authentication_data.get("isRegistration", False)
+        is_registration = authentication_data.get("isRegistration", False)
 
         if not username or not password:
             return {"message": "Missing username or password"}, 400
 
         user = User.query.filter_by(username=username).first()
 
-        if is_register:
+        if is_registration:
             if not user:
                 user = User(
                     username=username,
