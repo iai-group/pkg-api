@@ -1,3 +1,16 @@
+"""Class for converting natural language to API calls.
+
+Example:
+
+    >>> query = "I like cats"
+    >>> from pkg_api.nl_to_api import NLtoAPI
+    >>> nl_to_api = NLtoAPI("path/to/prompt.txt")
+    >>> method_call = nl_to_api.get_method_call(query)
+    >>> method_call
+    (<function pkg_api.pkg.pkg.set_owner_preference()>, (cats, 1))
+
+"""
+
 from typing import Callable, Optional, Tuple
 
 MethodCallWithParameters = Tuple[Callable, Tuple]
@@ -17,7 +30,7 @@ def load_prompt(path: str) -> str:
 
 
 class NLtoAPI:
-    def __init__(self, path: str):
+    def __init__(self, path: str) -> None:
         """Initializes the NLtoAPI class.
 
         Args:
@@ -27,6 +40,9 @@ class NLtoAPI:
 
     def get_method_call(self, query: str) -> Optional[MethodCallWithParameters]:
         """Gets a method call.
+
+        Args:
+            query: The query as a string.
 
         Returns:
             The method call as a string.
@@ -44,7 +60,7 @@ class NLtoAPI:
             prompt: The prompt as a string.
 
         Returns:
-            The prompt as a string.
+            The API prompt as a string.
         """
         # TODO: Implement
         return ""
