@@ -8,7 +8,6 @@ Example:
     >>> method_call = nl_to_api.get_method_call(query)
     >>> method_call
     (<function pkg_api.pkg.pkg.set_owner_preference()>, (cats, 1))
-
 """
 
 from typing import Callable, Optional, Tuple
