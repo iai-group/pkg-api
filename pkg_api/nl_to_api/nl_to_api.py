@@ -73,7 +73,7 @@ class NLtoAPI:
             string: The string to convert.
 
         Returns:
-            The method call as a string.
+            A tuple containing the method and its parameters.
         """
         # TODO: Implement
         return None
