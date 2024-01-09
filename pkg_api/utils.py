@@ -77,9 +77,9 @@ def get_query_for_set_preference(
     """
     return f"""
         INSERT DATA {{
-            <{who}> <preference>
-            [ <entity> <{entity}> ;
-                <weight> <{preference}> ]
+            <{who}> pkg:preference
+            [ pkg:entity <{entity}> ;
+                pkg:weight "{preference}"^^xsd:decimal ]
         }}
     """
 
@@ -99,12 +99,12 @@ def get_query_for_update_preference(
         SPARQL query.
     """
     return f"""
-        DELETE {{ ?x <weight> <{old_preference}> }}
-        INSERT {{ ?x <weight> <{new_preference}> }}
+        DELETE {{ ?x pkg:weight "{old_preference}"^^xsd:decimal }}
+        INSERT {{ ?x pkg:weight "{new_preference}"^^xsd:decimal }}
         WHERE  {{
-            <{who}> <preference> ?x .
-            ?x <entity> <{entity}> .
-            ?x <weight> ?old_preference .
+            <{who}> pkg:preference ?x .
+            ?x pkg:entity <{entity}> .
+            ?x pkg:weight ?old_preference.
         }}
     """
 
@@ -121,9 +121,9 @@ def get_query_for_get_preference(who: URI, entity: URI) -> SPARQLQuery:
     """
     return f"""
         SELECT ?pref {{
-            <{who}> <preference>
-            [ <entity> <{entity}> ;
-                <weight> ?pref ]
+            <{who}> pkg:preference
+            [ pkg:entity <{entity}> ;
+                pkg:weight ?pref ]
         }}
     """
 

@@ -37,7 +37,7 @@ def test_add_preference(client: Flask) -> None:
             "owner_username": "test",
             "subject_uri": "http://example.com/test",
             "entity_uri": "http://example.com/Stavanger",
-            "preference": "1",
+            "preference": 1.0,
         },
     )
     assert response.status_code == 200

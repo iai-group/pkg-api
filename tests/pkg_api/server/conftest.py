@@ -12,6 +12,6 @@ def client() -> Flask:
     Yields:
         The Flask client.
     """
-    app = create_app()
+    app = create_app(testing=True)
     client = app.test_client()
     yield client

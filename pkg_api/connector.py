@@ -2,7 +2,7 @@
 import os
 from enum import Enum
 
-from rdflib import Graph
+from rdflib import Graph, Namespace
 from rdflib.query import Result
 
 from pkg_api.pkg_types import URI
@@ -11,6 +11,7 @@ from pkg_api.pkg_types import URI
 # Method to execute the SPARQL query
 
 DEFAULT_STORE_PATH = "data/RDFStore"
+DEFAULT_PKG_NAMESPACE = Namespace("http://example.com/pkg")
 
 
 class RDFStore(Enum):
@@ -37,6 +38,7 @@ class Connector:
         """
         self._rdf_store_path = f"{rdf_store_path}.ttl"
         self._graph = Graph(rdf_store.value, identifier=owner)
+        self._graph.bind("pkg", DEFAULT_PKG_NAMESPACE)
         if os.path.exists(self._rdf_store_path):
             self._graph.parse(self._rdf_store_path, format="turtle")
         self._graph.open(rdf_store_path, create=True)

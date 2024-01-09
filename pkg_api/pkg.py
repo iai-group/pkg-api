@@ -127,7 +127,9 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(self, subject: URI, predicate: URI) -> List[URI]:
+    def get_objects_from_facts(
+        self, subject: URI, predicate: URI
+    ) -> List[URI]:
         """Gets objects given subject and predicate.
 
         Args:
@@ -238,3 +240,4 @@ if __name__ == "__main__":
     print(pkg.get_owner_preference("http://example.org/coffee"))
 
     print(pkg.get_owner_preference("http://example.org/tea"))
+    pkg.close()

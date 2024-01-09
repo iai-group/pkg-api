@@ -1,7 +1,9 @@
 """Utility functions for the server."""
 from typing import Any, Dict, Tuple
 
-from pkg_api.connector import DEFAULT_STORE_PATH, RDFStore
+from flask import current_app
+
+from pkg_api.connector import RDFStore
 from pkg_api.pkg import PKG
 
 
@@ -19,10 +21,12 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     if owner_uri is None:
         raise Exception("Missing owner URI")
 
+    store_path = current_app.config["STORE_PATH"]
+
     return PKG(
         owner_uri,
         RDFStore.MEMORY,
-        f"{DEFAULT_STORE_PATH}/{owner_username}",
+        f"{store_path}/{owner_username}",
     )
 
 
