@@ -1,5 +1,5 @@
 """Utility functions for the server."""
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from pkg_api.connector import DEFAULT_STORE_PATH, RDFStore
 from pkg_api.pkg import PKG
@@ -26,7 +26,9 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     )
 
 
-def parse_pouplation_request_data(data: Dict[str, str]) -> Tuple[str, str, str]:
+def parse_pouplation_request_data(
+    data: Dict[str, Any]
+) -> Tuple[str, str, str, float]:
     """Parses the request data to retrieve query parameters.
 
     Args:

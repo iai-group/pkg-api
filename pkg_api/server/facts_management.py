@@ -1,5 +1,5 @@
 """Facts Management API Resource."""
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from flask import request
 from flask_restful import Resource
@@ -8,7 +8,7 @@ from pkg_api.server.utils import open_pkg, parse_pouplation_request_data
 
 
 class FactsManagementResource(Resource):
-    def get(self) -> Tuple[Dict[str, str], int]:
+    def get(self) -> Tuple[Dict[str, Any], int]:
         """Returns a fact given constraints.
 
         Returns:
