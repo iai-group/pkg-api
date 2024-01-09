@@ -238,3 +238,5 @@ if __name__ == "__main__":
     print(pkg.get_owner_preference("http://example.org/coffee"))
 
     print(pkg.get_owner_preference("http://example.org/tea"))
+
+    pkg._connector.visualize()
