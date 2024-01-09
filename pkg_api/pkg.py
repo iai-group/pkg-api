@@ -127,9 +127,7 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(
-        self, subject: URI, predicate: URI
-    ) -> List[URI]:
+    def get_objects_from_facts(self, subject: URI, predicate: URI) -> List[URI]:
         """Gets objects given subject and predicate.
 
         Args:
