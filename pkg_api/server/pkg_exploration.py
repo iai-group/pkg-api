@@ -35,7 +35,6 @@ class PKGExplorationResource(Resource):
             A dictionary with the resulting PKG, its visualization, and the HTTP
             status code.
         """
-
         data = request.json
         try:
             pkg = open_pkg(data)
@@ -45,10 +44,13 @@ class PKGExplorationResource(Resource):
         sparql_query = parse_query_request_data(data)
 
         if "SELECT" in sparql_query:
-            result = pkg.execute_sparql_query(sparql_query)
+            result = str(pkg.execute_sparql_query(sparql_query))
         else:
             return {
-                "message": "Operation is not supported. Provide SPARQL select query."
+                "message": (
+                    "Operation is not supported. Provide SPARQL select "
+                    "query."
+                )
             }, 400
 
         pkg.close()

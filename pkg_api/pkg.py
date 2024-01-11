@@ -17,11 +17,10 @@ this representation is left to the utils class.
 """
 
 import io
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
-import numpy as np
 import pydotplus
-from IPython.display import Image, display
+from IPython.display import display
 from rdflib.query import Result
 from rdflib.term import Variable
 from rdflib.tools.rdf2dot import rdf2dot
@@ -31,6 +30,7 @@ from pkg_api.connector import Connector, RDFStore
 from pkg_api.pkg_types import URI
 
 NS = "http://example.org/pkg/"
+
 
 class PKG:
     def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
@@ -224,7 +224,7 @@ class PKG:
         Args:
             query: SPARQL query.
         """
-        self._connector.execute_sparql_query(query)
+        return self._connector.execute_sparql_query(query)
 
     def visualize_graph(self) -> str:
         """Visualizes the PKG.
@@ -242,7 +242,11 @@ class PKG:
         dg = pydotplus.graph_from_dot_data(stream.getvalue())
         png = dg.create_png()
 
-        path = "pkg_api/pkg_visualizations/" + self._owner_uri.replace(NS, "") + ".png"
+        path = (
+            "pkg_api/pkg_visualizations/"
+            + self._owner_uri.replace(NS, "")
+            + ".png"
+        )
 
         with open(path, "wb") as test_png:
             test_png.write(png)
@@ -276,4 +280,3 @@ if __name__ == "__main__":
     print(pkg.get_owner_preference("http://example.org/coffee"))
 
     print(pkg.get_owner_preference("http://example.org/tea"))
-

@@ -28,7 +28,11 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
         json={
             "owner_uri": "http://example.org/pkg/test",
             "owner_username": "test",
-            "sparql_query": "INSERT DATA { <http://example.org/pkg/test> <http://example.org/likes> <http://example.org/icecream> . }",
+            "sparql_query": (
+                "INSERT DATA { <http://example.org/pkg/test> "
+                "<http://example.org/likes> "
+                "<http://example.org/icecream> . }"
+            ),
         },
     )
     assert response.status_code == 400
@@ -59,7 +63,11 @@ def test_pkg_sparql_query(client: Flask) -> None:
         json={
             "owner_uri": "http://example.org/pkg/test",
             "owner_username": "test",
-            "sparql_query": "SELECT ?object WHERE { <http://example.org/pkg/test> <http://example.org/likes> ?object . }",
+            "sparql_query": (
+                "SELECT ?object WHERE { "
+                "<http://example.org/pkg/test> "
+                "<http://example.org/likes> ?object . }"
+            ),
         },
     )
     assert response.status_code == 200

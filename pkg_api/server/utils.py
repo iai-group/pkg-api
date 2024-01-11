@@ -9,8 +9,10 @@ from pkg_api.pkg import PKG
 
 def open_pkg(data: Dict[str, str]) -> PKG:
     """Opens a connection to the PKG.
+
     Args:
         data: Request data.
+
     Returns:
         A PKG instance.
     """
@@ -32,8 +34,10 @@ def parse_pouplation_request_data(
     data: Dict[str, Any]
 ) -> Tuple[str, str, str, float]:
     """Parses the request data to retrieve query parameters.
+
     Args:
         data: Request data.
+
     Returns:
         A tuple containing subject, predicate, entity, and preference.
     """
