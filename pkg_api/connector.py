@@ -1,12 +1,9 @@
 """Connector to triplestore."""
-import io
+import os
 from enum import Enum
 
-import pydotplus
-from IPython.display import Image, display
-from rdflib import Graph
+from rdflib import Graph, Namespace
 from rdflib.query import Result
-from rdflib.tools.rdf2dot import rdf2dot
 
 from pkg_api.pkg_types import URI
 
@@ -14,6 +11,7 @@ from pkg_api.pkg_types import URI
 # Method to execute the SPARQL query
 
 DEFAULT_STORE_PATH = "data/RDFStore"
+DEFAULT_PKG_NAMESPACE = Namespace("http://example.com/pkg")
 
 
 class RDFStore(Enum):
@@ -38,20 +36,12 @@ class Connector:
             rdf_store: Type of RDF store to use.
             rdf_store_path: Path to the RDF store.
         """
+        self._rdf_store_path = f"{rdf_store_path}.ttl"
         self._graph = Graph(rdf_store.value, identifier=owner)
+        self._graph.bind("pkg", DEFAULT_PKG_NAMESPACE)
+        if os.path.exists(self._rdf_store_path):
+            self._graph.parse(self._rdf_store_path, format="turtle")
         self._graph.open(rdf_store_path, create=True)
-
-    def visualize(self):
-        # https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python
-        stream = io.StringIO()
-        rdf2dot(self._graph, stream, opts = {display})
-        dg = pydotplus.graph_from_dot_data(stream.getvalue())
-        png = dg.create_png()
-        print(type(png))
-        print(type(Image(png)))
-        with open("test.png", "wb") as test_png:
-            test_png.write(png)
-
 
     def execute_sparql_query(self, query: str) -> Result:
         """Execute SPARQL query.
@@ -70,5 +60,15 @@ class Connector:
         self._graph.update(query)
 
     def close(self) -> None:
+        """Closes the connection to the triplestore."""
+        self.save_graph()
+        self._graph.close()
+
+    def save_graph(self) -> None:
+        """Saves the graph to a file."""
+        if not os.path.exists(self._rdf_store_path):
+            parent_dir = os.path.dirname(self._rdf_store_path)
+            os.makedirs(parent_dir, exist_ok=True)
+        self._graph.serialize(self._rdf_store_path, format="turtle")
         """Close the connection to the triplestore."""
         self._graph.close()

@@ -16,14 +16,21 @@ likes an entity. Representing a preference requires multiple triples; creating
 this representation is left to the utils class.
 """
 
-from typing import Dict, List, Optional
+import io
+from typing import Any, Dict, List, Optional
 
+import numpy as np
+import pydotplus
+from IPython.display import Image, display
+from rdflib.query import Result
 from rdflib.term import Variable
+from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
 from pkg_api.pkg_types import URI
 
+NS = "http://example.org/pkg/"
 
 class PKG:
     def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
@@ -211,6 +218,37 @@ class PKG:
         """
         self.remove_fact(self._owner_uri, predicate, entity)
 
+    def execute_sparql_query(self, query: str) -> Result:
+        """Executes a SPARQL query.
+
+        Args:
+            query: SPARQL query.
+        """
+        self._connector.execute_sparql_query(query)
+
+    def visualize_graph(self) -> str:
+        """Visualizes the PKG.
+
+        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python
+
+        Args:
+            pkg: PKG to visualize.
+
+        Returns:
+            The image visualizing the PKG.
+        """
+        stream = io.StringIO()
+        rdf2dot(self._connector._graph, stream, opts={display})
+        dg = pydotplus.graph_from_dot_data(stream.getvalue())
+        png = dg.create_png()
+
+        path = "pkg_api/pkg_visualizations/" + self._owner_uri.replace(NS, "") + ".png"
+
+        with open(path, "wb") as test_png:
+            test_png.write(png)
+
+        return path
+
 
 if __name__ == "__main__":
     pkg = PKG("http://example.org/user1", RDFStore.MEMORY, "data/RDFStore")
@@ -239,4 +277,3 @@ if __name__ == "__main__":
 
     print(pkg.get_owner_preference("http://example.org/tea"))
 
-    pkg._connector.visualize()
