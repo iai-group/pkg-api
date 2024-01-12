@@ -16,7 +16,7 @@ jobs:
   pre-commit:
     if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v3
         with:
@@ -51,7 +51,7 @@ jobs:
   mypy:
     if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 2
     steps:
       - uses: actions/checkout@v3
         with:
