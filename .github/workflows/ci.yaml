@@ -33,17 +33,8 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download and install Graphviz
-        run: |
-          wget https://gitlab.com/api/v4/projects/4207231/packages/generic/graphviz-releases/9.0.0/graphviz-9.0.0.tar.gz
-          tar -xzvf graphviz-9.0.0.tar.gz
-          cd graphviz-9.0.0
-          sudo apt-get update
-          sudo apt-get install -y build-essential libexpat1-dev libexpat1
-          ./configure
-          make
-          sudo make install
-          dot -V
+      - name: Install Graphviz
+        uses: tlylt/install-graphviz@v1
 
       - name: Run black
         shell: bash
@@ -79,6 +70,9 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Install Graphviz
+        uses: tlylt/install-graphviz@v1
 
       - name: Run mypy
         shell: bash
