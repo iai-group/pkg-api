@@ -33,10 +33,7 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
       
-      - name: Install graphviz
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: graphviz
+      - uses: tlylt/install-graphviz@v1
 
       - name: Run black
         shell: bash
