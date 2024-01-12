@@ -12,6 +12,6 @@ pytest-cov
 Flask>=2.3.3
 Flask-RESTful>=0.3.10
 pyparsing>=2.4.7
-graphviz>=0.20.1
+graphviz
 pydotplus>=2.0.2
-ipython>=8.19.0
+ipython>=7.28.0
