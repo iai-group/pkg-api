@@ -12,12 +12,11 @@ on:
 env:
   REPO_NAME: ${{ github.event.repository.name }}
 
-
 jobs:
   pre-commit:
     if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
         with:
@@ -52,7 +51,7 @@ jobs:
   mypy:
     if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
         with:
@@ -92,12 +91,12 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-github-actions-annotate-failures
-    
+
       - name: PyTest with code coverage
         continue-on-error: true
         run: |
           pytest --junitxml pytest.xml --cov=. --cov-report=term-missing --cov-report=xml --cov-branch | tee pytest-coverage.txt
-      
+
       - name: Upload Coverage Results txt
         if: always()
         uses: actions/upload-artifact@v3
