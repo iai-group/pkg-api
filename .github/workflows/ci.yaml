@@ -33,7 +33,9 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
       
-      - uses: tlylt/install-graphviz@v1
+      - uses: actions/checkout@v3
+      - name: Setup Graphviz
+        uses: ts-graphviz/setup-graphviz@v1
 
       - name: Run black
         shell: bash
