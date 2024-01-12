@@ -43,7 +43,7 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
 
 
 def test_pkg_visualization(client: Flask) -> None:
-    """Test /explore endpoint."""
+    """Test the GET /explore endpoint."""
     response = client.get(
         "/explore",
         json={

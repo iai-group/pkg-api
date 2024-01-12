@@ -12,7 +12,7 @@ class PKGExplorationResource(Resource):
         """Returns the PKG visualization.
 
         Returns:
-            A dictionary with the PKG visualization and the HTTP status code.
+            A dictionary with the path to PKG visualization and the status code.
         """
         data = request.json
         try:
@@ -32,8 +32,8 @@ class PKGExplorationResource(Resource):
         """Executes the SPARQL query and visualizes the resulting PKG.
 
         Returns:
-            A dictionary with the resulting PKG, its visualization, and the HTTP
-            status code.
+            A dictionary with the result of running SPARQL query and the status
+            code.
         """
         data = request.json
         try:
