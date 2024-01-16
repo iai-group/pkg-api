@@ -33,6 +33,7 @@ class AuthResource(Resource):
         if not username or not password:
             return {"message": "Missing username or password"}, 400
 
+        # Retrieve the first user with the given username from the database.
         user = User.query.filter_by(username=username).first()
 
         if is_registration:
