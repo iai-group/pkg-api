@@ -36,6 +36,7 @@ const Layout = () => {
         </Nav.Item>
       </Nav>
 
+      <br />
       <Outlet />
     </>
   );
