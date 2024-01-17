@@ -10,6 +10,7 @@ from flask_restful import Api
 from pkg_api.connector import DEFAULT_STORE_PATH
 from pkg_api.server.auth import AuthResource
 from pkg_api.server.facts_management import FactsManagementResource
+from pkg_api.server.models import db
 from pkg_api.server.pkg_exploration import PKGExplorationResource
 from pkg_api.server.preference_management import PreferenceManagementResource
 from pkg_api.server.service_management import ServiceManagementResource
@@ -30,8 +31,16 @@ def create_app(testing: bool = False) -> Flask:
         app.config["TESTING"] = True
         # Path to store all the PKGs
         app.config["STORE_PATH"] = "tests/data/RDFStore"
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.sqlite"
     else:
         app.config["STORE_PATH"] = DEFAULT_STORE_PATH
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+
+    db.init_app(app)
+
+    with app.app_context():
+        # Create the database tables
+        db.create_all()
 
     api = Api(app)
 
