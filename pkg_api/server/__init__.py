@@ -7,13 +7,12 @@ Resources give access to HTTP methods related to a PKG API feature.
 from flask import Flask
 from flask_restful import Api
 
-from pkg_api.connector import DEFAULT_STORE_PATH
 from pkg_api.server.auth import AuthResource
-from pkg_api.server.facts_management import FactsManagementResource
+from pkg_api.server.config import BaseConfig, TestingConfig
 from pkg_api.server.models import db
 from pkg_api.server.pkg_exploration import PKGExplorationResource
-from pkg_api.server.preference_management import PreferenceManagementResource
 from pkg_api.server.service_management import ServiceManagementResource
+from pkg_api.server.statements_management import StatementsManagementResource
 
 
 def create_app(testing: bool = False) -> Flask:
@@ -28,13 +27,9 @@ def create_app(testing: bool = False) -> Flask:
     app = Flask(__name__)
 
     if testing:
-        app.config["TESTING"] = True
-        # Path to store all the PKGs
-        app.config["STORE_PATH"] = "tests/data/RDFStore"
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.sqlite"
+        app.config.from_object(TestingConfig)
     else:
-        app.config["STORE_PATH"] = DEFAULT_STORE_PATH
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+        app.config.from_object(BaseConfig)
 
     db.init_app(app)
 
@@ -46,8 +41,7 @@ def create_app(testing: bool = False) -> Flask:
 
     api.add_resource(AuthResource, "/auth")
     api.add_resource(ServiceManagementResource, "/service")
-    api.add_resource(FactsManagementResource, "/facts")
-    api.add_resource(PreferenceManagementResource, "/preference")
+    api.add_resource(StatementsManagementResource, "/statements")
     api.add_resource(PKGExplorationResource, "/explore")
 
     return app
