@@ -1,7 +1,7 @@
 """Test eval_nl_to_api.py file."""
 import pytest
 
-from pkg_api.nl_to_api.eval_nl_to_api import load_data
+from pkg_api.nl_annotations.eval_nl_to_kg import load_data
 
 
 @pytest.fixture
