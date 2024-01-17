@@ -1,5 +1,4 @@
 """Class for converting natural language to API calls.
-
 Example:
 
     >>> query = "I like cats"
@@ -37,7 +36,9 @@ class NLtoAPI:
         """
         self._prompt = load_prompt(path)
 
-    def get_method_call(self, query: str) -> Optional[MethodCallWithParameters]:
+    def get_method_call(
+        self, query: str
+    ) -> Optional[MethodCallWithParameters]:
         """Gets a method call.
 
         Args:
