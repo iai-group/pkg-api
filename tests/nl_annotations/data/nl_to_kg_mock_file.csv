@@ -1,0 +1,4 @@
+"Sentence","Intent","Subject","Predicate","Object","Preference"
+"Sentence1.","ADD","S1","P1","O1", 
+"Sentence2.","UPDATE","S2","P2","O2",1
+"Sentence3.","DELETE","S3","P3","O3", 
