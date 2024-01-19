@@ -13,7 +13,7 @@ class NLResource(Resource):
         on the frontend's needs.
 
         Returns:
-            A dictionary containing a message, and the status code.
+            A tuple with a dictionary containing a message, and the status code.
         """
         # TODO: Implement this method following the approved pipeline.
         # See issue: https://github.com/iai-group/pkg-api/issues/78
