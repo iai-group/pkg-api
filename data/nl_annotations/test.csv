@@ -17,13 +17,16 @@
 "Do I like action movies?,","GET", "I", "like", "Action movies", 
 "Do I prefer romantic comedies?,","GET", "I", "prefer", "Romantic comedies", 1
 "Do I hate romantic comedies?,","GET", "I", "hate", "Action movies", -1
-"How many action movies are stored in my PKG?,","GET", "PKG", "contains", "action movies", 
+"How many action movies are stored in my PKG?,","UNKNOWN", "", "", "", 
 "Save The Godfather as my favourite movie,","ADD", "I", "favourite movie", "The Godfather", 1
 "I enjoy watching action movies with Alice,","ADD", "I", "enjoy watching", "action movies with Alice", 1
 "I went to the movie theatre yesterday and loved Oppenheimer,","ADD", "I", "loved", "Oppenheimer", 1
 "Note that I would never watch cheesy romcom unless with my friends,","ADD", "I", "dislike", "cheesy romcom", -1
-"How many action movies are stored in my PKG?,","GET", "", "is a", "", 
+"How many action movies are stored in my PKG?,","UNKNOWN", "", "", "", 
 "I am married to Bob,","ADD", "I", "married to", "Bob", 
 "My husband doesn't like romantic comedies,","ADD", "My husband", "dislikes", "romantic comedies", -1
 "Emma is my mother,","ADD", "I", "son of", "Emma", 
 "My husband has seen all the Christopher Nolan movies and a big fan,","ADD", "My husband", "big fan of", "Christopher Nolan movies", 1
+"Remove Forrest Gump from my movie library.","DELETE","", "", "Forrest Gump",
+"I am no longer married to Bob", "DELETE", "I", "married to", "Bob", 
+"Discard everything directed by Steven Spielberg.", "DELETE", "", "directed by", "Steven Spielberg",
