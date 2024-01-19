@@ -17,7 +17,6 @@ def create_user_uri(username: str) -> str:
     """Creates the user URI from the username."""
     return f"{NS}{username}"
 
-
 class AuthResource(Resource):
     def post(self) -> Tuple[Dict[str, Any], int]:
         """Logs in or registers the user.
@@ -33,7 +32,6 @@ class AuthResource(Resource):
         if not username or not password:
             return {"message": "Missing username or password"}, 400
 
-        # Retrieve the first user with the given username from the database.
         user = User.query.filter_by(username=username).first()
 
         if is_registration:
