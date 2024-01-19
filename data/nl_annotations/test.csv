@@ -4,7 +4,7 @@
 "Charlie doesn't prefer Steven Spielberg's movies.","ADD", "Charlie", "doesn't prefer", "Steven Spielberg movies", -1
 "Alice admires Robert Downey Jr..","ADD", "Alice", "admires", "Robert Downey Jr.", 1
 "Ethan is a fan of Interstellar.","ADD", "Ethan", "fan of", "Interstellar", 1
-"Diana told me she loves movies directed by Quentin Tarantino.","ADD", "Diana", "loves", "Quentin Tarantino movies", 1
+"Diana told me she loves movies directed by Quentin Tarantino.","ADD", "Diana", "loves", "movies directed by Quentin Tarantino", 1
 "Bob's sister is Diana.","ADD", "Bob", "sister of", "Diana", 
 "Bob admires Emma Watson.","ADD", "Bob", "admires", "Emma Watson", 1
 "Diana likes sci-fi movies.","ADD", "Diana", "likes", "sci-fi movies", 1
@@ -13,7 +13,7 @@
 "Do I like movies directed by Mel Gibson?,","GET", "I", "like", "Mel Gibson movies", 
 "Do I prefer Pulp Fiction","GET", "I", "prefer", "Pulp Fiction", 1
 "Do I prefer Rambo movies,","GET", "I", "prefer", "Rambo movies", 1
-"Do I like movies featuring actors that have played Macbeth? Which of these movies do I prefer?,","GET", "I", "like", "Macbeth movies", 
+"Do I like movies featuring actors that have played Macbeth? Which of these movies do I prefer?,","UNKNOWN", , , , 
 "Do I like action movies?,","GET", "I", "like", "Action movies", 
 "Do I prefer romantic comedies?,","GET", "I", "prefer", "Romantic comedies", 1
 "Do I hate romantic comedies?,","GET", "I", "hate", "Action movies", -1
@@ -21,7 +21,7 @@
 "Save The Godfather as my favourite movie,","ADD", "I", "favourite movie", "The Godfather", 1
 "I enjoy watching action movies with Alice,","ADD", "I", "enjoy watching", "action movies with Alice", 1
 "I went to the movie theatre yesterday and loved Oppenheimer,","ADD", "I", "loved", "Oppenheimer", 1
-"Note that I would never watch cheesy romcom unless with my friends,","ADD", "I", "dislike", "cheesy romcom", -1
+"Note that I would never watch cheesy romcom unless with my friends,","UNKNOWN", "", "", "", 
 "How many action movies are stored in my PKG?,","UNKNOWN", "", "", "", 
 "I am married to Bob,","ADD", "I", "married to", "Bob", 
 "My husband doesn't like romantic comedies,","ADD", "My husband", "dislikes", "romantic comedies", -1
