@@ -1,4 +1,4 @@
-"""Module for NL to PKG ."""
+"""Module for NL to PKG."""
 
 from .nl_to_pkg import NLtoPKG
 
