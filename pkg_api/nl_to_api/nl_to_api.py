@@ -1,7 +1,6 @@
 """Class for converting natural language to API calls.
 
 Example:
-
     >>> query = "I like cats"
     >>> from pkg_api.nl_to_api import NLtoAPI
     >>> nl_to_api = NLtoAPI("path/to/prompt.txt")
