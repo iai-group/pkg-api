@@ -1,4 +1,4 @@
-"""Module for converting natural language to API calls."""
+"""Module for NL to PKG ."""
 
 from .nl_to_pkg import NLtoPKG
 

@@ -22,7 +22,6 @@
 "I enjoy watching action movies with Alice,","ADD", "I", "enjoy watching", "action movies with Alice", 1
 "I went to the movie theatre yesterday and loved Oppenheimer,","ADD", "I", "loved", "Oppenheimer", 1
 "Note that I would never watch cheesy romcom unless with my friends,","UNKNOWN", "", "", "", 
-"How many action movies are stored in my PKG?,","UNKNOWN", "", "", "", 
 "I am married to Bob,","ADD", "I", "married to", "Bob", 
 "My husband doesn't like romantic comedies,","ADD", "My husband", "dislikes", "romantic comedies", -1
 "Emma is my mother,","ADD", "I", "son of", "Emma", 

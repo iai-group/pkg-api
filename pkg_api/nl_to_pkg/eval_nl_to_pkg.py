@@ -1,4 +1,4 @@
-"""Evaluates the NL to API model."""
+"""Evaluates the NL to PKG models."""
 import csv
 
 
