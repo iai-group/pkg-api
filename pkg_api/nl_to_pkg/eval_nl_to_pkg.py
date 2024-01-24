@@ -9,7 +9,7 @@ def load_data(path: str) -> list:
         path: Path to the file containing the data.
 
     Returns:
-        The list of data.
+        List of NL to PKG annotation data.
     """
     with open(path, "r") as f:
         reader = csv.reader(f, skipinitialspace=True, delimiter=",")
