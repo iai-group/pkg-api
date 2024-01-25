@@ -1,10 +1,10 @@
-"""Class for converting natural language to API calls.
+"""Class for converting natural language to structured representation.
 
 Example:
     >>> query = "I like cats"
-    >>> from pkg_api.nl_to_api import NLtoAPI
-    >>> nl_to_api = NLtoAPI("path/to/prompt.txt")
-    >>> method_call = nl_to_api.get_method_call(query)
+    >>> from pkg_api.nl_to_pkg import NLtoPKG
+    >>> nl_to_pkg = NLtoPKG("path/to/prompt.txt")
+    >>> method_call = nl_to_pkg.get_method_call(query)
     >>> method_call
     (<function pkg_api.pkg.pkg.set_owner_preference()>, (cats, 1))
 """
@@ -27,9 +27,9 @@ def load_prompt(path: str) -> str:
     return ""
 
 
-class NLtoAPI:
+class NLtoPKG:
     def __init__(self, path: str) -> None:
-        """Initializes the NLtoAPI class.
+        """Initializes the NLtoPKG class.
 
         Args:
             path: Path to the file containing the prompt.
