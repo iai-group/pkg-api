@@ -1,5 +1,8 @@
-"""A three-step annotator for annotating a statement with a triple and a
-preference using LLM."""
+"""A three-step annotator for annotating a statement.
+
+This module contains a three-step annotator for annotating a statement
+with a triple and a preference using LLM.
+"""
 
 
 import re
@@ -12,8 +15,8 @@ from pkg_api.core.annotations import (
     TripleAnnotation,
 )
 from pkg_api.core.intents import Intent
-from pkg_api.nl_to_pkg.annotators.llm_connector import LLMConnector
-from pkg_api.nl_to_pkg.annotators.prompt import Prompt
+from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
+from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
 _DEFAULT_PROMPT_PATHS = {
     "intent": "data/llm_prompts/default/intent.txt",
@@ -22,9 +25,28 @@ _DEFAULT_PROMPT_PATHS = {
 }
 
 
+def is_number(value: str) -> bool:
+    """Returns True if a value is a number, False otherwise.
+
+    Args:
+        value: The value to be checked.
+
+    Returns:
+        True if the value is a number, False otherwise.
+    """
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
 class ThreeStepStatementAnnotator(ABC):
-    """Annotator for annotating a statement with a triple and a preference
-    using LLM."""
+    """Three-step annotator for annotating a statement.
+
+    This class annotates a statement with a triple and a preference
+    using LLM.
+    """
 
     def __init__(self) -> None:
         """Initializes the ThreeStepStatementAnnotator class."""
@@ -64,6 +86,7 @@ class ThreeStepStatementAnnotator(ABC):
             self._prompt_paths["intent"], statement=statement
         )
         response = self._llm_connector.get_response(prompt)
+        print(response)
         response_terms = response.split()
         if len(self._valid_intents.intersection(response_terms)) == 1:
             return next(
@@ -111,17 +134,13 @@ class ThreeStepStatementAnnotator(ABC):
         )
         response = self._llm_connector.get_response(prompt)
         response_terms = [
-            term.strip() for term in re.split(r"[.,\-; ]+", response)
+            term.strip() for term in re.split(r"[ .,;]+", response)
         ]
+        print(response_terms)
         preference = next(
-            (term for term in response_terms if term.isnumeric()),
+            (term for term in response_terms if is_number(term)),
             None,
         )
         if preference:
             return PreferenceAnnotation(triple_object, float(preference))
         return None
-
-
-if __name__ == "__main__":
-    annotator = ThreeStepStatementAnnotator()
-    print(annotator.get_annotations("I like apples."))

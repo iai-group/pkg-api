@@ -11,7 +11,7 @@ from typing import Tuple
 
 from pkg_api.core.annotations import PKGData
 from pkg_api.core.intents import Intent
-from pkg_api.nl_to_pkg.annotators.prompt import Prompt
+from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
 
 class StatementAnnotator(ABC):
