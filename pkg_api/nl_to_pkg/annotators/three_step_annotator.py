@@ -1,6 +1,5 @@
 """A three-step annotator for annotating a statement with a triple and a
-preference using LLM.
-"""
+preference using LLM."""
 
 
 from abc import ABC
@@ -17,8 +16,7 @@ from pkg_api.nl_to_pkg.annotators.prompt import Prompt, PromptPurpose
 
 class ThreeStepStatementAnnotator(ABC):
     """Annotator for annotating a statement with a triple and a preference
-    using LLM.
-    """
+    using LLM."""
 
     def __init__(self) -> None:
         """Initializes the ThreeStepStatementAnnotator class."""
