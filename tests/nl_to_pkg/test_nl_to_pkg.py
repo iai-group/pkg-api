@@ -33,12 +33,24 @@ def statement_annotator_mock(statement: str) -> Mock:
 def entity_linker_mock() -> Mock:
     """Returns a mock entity linker."""
     mock = Mock()
-    # Configure the mock to simulate entity linking
-    # Update this with actual linked data you expect
-    linked_triple = Triple(
-        "Linked Subject", "Linked Predicate", "Linked Object"
-    )
-    mock.link_annotation_entities.return_value = linked_triple
+
+    def link_annotation_side_effect(*args, **kwargs):
+        """Returns a pkg data with linked triple and preference."""
+        # Check if 'triple' argument is None
+        pkg_data = args[0] if len(args) == 1 else kwargs["pkg_data"]
+        if pkg_data.triple is None:
+            return PKGData("Test", triple=None, preference=None)
+        else:
+            # Default behavior for other cases
+            linked_triple = Triple(
+                "Linked Subject", "Linked Predicate", "Linked Object"
+            )
+            linked_preference = Preference("Linked Object", 1.0)
+            return PKGData(
+                "Test", triple=linked_triple, preference=linked_preference
+            )
+
+    mock.link_annotation_entities.side_effect = link_annotation_side_effect
     return mock
 
 
