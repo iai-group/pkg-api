@@ -1,0 +1,5 @@
+In the following statement, what is the sentiment towards {object}?
+
+------------------------------
+{statement}
+------------------------------

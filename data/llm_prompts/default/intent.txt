@@ -1,4 +1,4 @@
-What is user's intent with the following statement? The options are ADD, REMOVE, or DELETE.
+What is user's intent with the following statement? The options are ADD, REMOVE, DELETE or UNKNOWN.
 
 ------------------------------
 {statement}

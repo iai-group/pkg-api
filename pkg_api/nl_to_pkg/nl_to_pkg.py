@@ -27,7 +27,7 @@ class NLtoPKG:
         intent, pkg_data = self._annotator.get_annotations(statement)
 
         if pkg_data.triple is None:
-            return pkg_data
+            return intent, pkg_data
 
         linked_triple = self._entity_linker.link_annotation_entities(
             statement, pkg_data.triple

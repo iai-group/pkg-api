@@ -1,10 +1,16 @@
-Return comma-separated subject, predicate, and object from the following statement. Leave blank if a field is not applicable.
+Return pipe-separated subject, predicate, and object from the following statement. If a field is not applicable output N/A.
 
 Example:
 ------------------------------
 I like cats.
 ------------------------------
-I, like, cats
+I | like | cats
+
+Example:
+------------------------------
+Hello John.
+------------------------------
+N/A | N/A | John
 
 Statement:
 ------------------------------

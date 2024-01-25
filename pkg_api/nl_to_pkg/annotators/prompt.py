@@ -1,10 +1,7 @@
 """Module for loading and processing llm prompts."""
 
 import os
-from enum import Enum, auto
 from typing import Dict
-
-_DEFAULT_PROMPT_FOLDER = "data/llm_prompts/default"
 
 
 def load_prompt(path: str) -> str:
@@ -23,28 +20,18 @@ def load_prompt(path: str) -> str:
         return f.read()
 
 
-class PromptPurpose(Enum):
-    INTENT = auto()
-    TRIPLE = auto()
-    PREFERENCE = auto()
-    JOINT = auto()
-
-
 class Prompt:
     """Class for loading and processing a prompt."""
 
-    def __init__(self, folder_path: str = _DEFAULT_PROMPT_FOLDER) -> None:
+    def __init__(self) -> None:
         """Initializes the Prompt class.
 
         Args:
             folder_path: Path to the folder containing the prompt files.
         """
-        self._folder_path = folder_path
         self._prompts: Dict[str, str] = {}
 
-    def get_prompt(
-        self, statement: str, purpose: PromptPurpose = PromptPurpose.JOINT
-    ) -> str:
+    def get_prompt(self, path: str, **kwargs) -> str:
         """Returns the prompt.
 
         Args:
@@ -54,11 +41,7 @@ class Prompt:
         Returns:
             The prompt.
         """
-        purpose_name = purpose.name.lower()
-        prompt = self._prompts.get(purpose_name)
-        if not prompt:
-            prompt = load_prompt(
-                os.path.join(self._folder_path, f"{purpose_name}.txt")
-            )
-            self._prompts[purpose_name] = prompt
-        return prompt.format(statement=statement)
+        if path not in self._prompts:
+            self._prompts[path] = load_prompt(path)
+
+        return self._prompts[path].format(**kwargs)
