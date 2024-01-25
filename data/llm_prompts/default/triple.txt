@@ -1,0 +1,12 @@
+Return comma-separated subject, predicate, and object from the following statement. Leave blank if a field is not applicable.
+
+Example:
+------------------------------
+I like cats.
+------------------------------
+I, like, cats
+
+Statement:
+------------------------------
+{Statement}
+------------------------------

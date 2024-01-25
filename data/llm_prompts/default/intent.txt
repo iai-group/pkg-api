@@ -1,0 +1,5 @@
+What is user's intent with the following statement? The options are ADD, REMOVE, or DELETE.
+
+------------------------------
+{statement}
+------------------------------
