@@ -1,8 +1,8 @@
 """Class for annotating a natural language query.
 
 The main purpose is to return the intent (ADD | GET | DELETE) and to
-annotate the triple (subject, predicate, object) and the preference (1 | -1)
-in the query.
+annotate the triple (subject, predicate, object) and the preference (1 |
+-1) in the query.
 """
 
 
