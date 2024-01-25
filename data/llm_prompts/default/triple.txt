@@ -1,18 +1,19 @@
-Return pipe-separated subject, predicate, and object from the following statement. If a field is not applicable output N/A.
+Return pipe-separated subject, predicate, and object from the following statement. If a field is not applicable, output N/A.
 
 Example:
 ------------------------------
 I like cats.
 ------------------------------
-I | like | cats
+Answer: I | like | cats
 
 Example:
 ------------------------------
 Hello John.
 ------------------------------
-N/A | N/A | John
+Answer: N/A | N/A | John
 
 Statement:
 ------------------------------
-{Statement}
+{statement}
 ------------------------------
+Answer: 

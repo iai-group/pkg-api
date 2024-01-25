@@ -2,6 +2,7 @@
 preference using LLM."""
 
 
+import re
 from abc import ABC
 from typing import Optional, Tuple
 
@@ -11,6 +12,7 @@ from pkg_api.core.annotations import (
     TripleAnnotation,
 )
 from pkg_api.core.intents import Intent
+from pkg_api.nl_to_pkg.annotators.llm_connector import LLMConnector
 from pkg_api.nl_to_pkg.annotators.prompt import Prompt
 
 _DEFAULT_PROMPT_PATHS = {
@@ -29,6 +31,7 @@ class ThreeStepStatementAnnotator(ABC):
         self._prompt_paths = _DEFAULT_PROMPT_PATHS
         self._prompt = Prompt()
         self._valid_intents = {intent.name for intent in Intent}
+        self._llm_connector = LLMConnector()
 
     def get_annotations(self, statement: str) -> Tuple[Intent, PKGData]:
         """Returns a tuple with annotations for a statement.
@@ -60,7 +63,7 @@ class ThreeStepStatementAnnotator(ABC):
         prompt = self._prompt.get_prompt(
             self._prompt_paths["intent"], statement=statement
         )
-        response = self._get_llm_response(prompt)
+        response = self._llm_connector.get_response(prompt)
         response_terms = response.split()
         if len(self._valid_intents.intersection(response_terms)) == 1:
             return next(
@@ -80,8 +83,11 @@ class ThreeStepStatementAnnotator(ABC):
         prompt = self._prompt.get_prompt(
             self._prompt_paths["triple"], statement=statement
         )
-        response = self._get_llm_response(prompt)
-        response_terms = response.split("|")
+        response = self._llm_connector.get_response(prompt)
+        response_terms = [
+            None if term.strip() == "N/A" else term.strip()
+            for term in response.split("|")
+        ]
         if len(response_terms) == 3:
             return TripleAnnotation(*response_terms)
         return None
@@ -99,25 +105,23 @@ class ThreeStepStatementAnnotator(ABC):
             The preference.
         """
         prompt = self._prompt.get_prompt(
-            self._prompt_paths["triple"],
+            self._prompt_paths["preference"],
             statement=statement,
             object=triple_object,
         )
-        response = self._get_llm_response(prompt)
-        preference = response[:2].strip()
-        if preference.isnumeric():
+        response = self._llm_connector.get_response(prompt)
+        response_terms = [
+            term.strip() for term in re.split(r"[.,\-; ]+", response)
+        ]
+        preference = next(
+            (term for term in response_terms if term.isnumeric()),
+            None,
+        )
+        if preference:
             return PreferenceAnnotation(triple_object, float(preference))
         return None
 
-    def _get_llm_response(self, prompt: str) -> str:
-        """Returns the LLM response for a statement.
 
-        Args:
-            prompt: The prompt to be sent to LLM.
-
-        Returns:
-            The LLM response.
-        """
-
-        # TODO: Implement
-        return prompt
+if __name__ == "__main__":
+    annotator = ThreeStepStatementAnnotator()
+    print(annotator.get_annotations("I like apples."))

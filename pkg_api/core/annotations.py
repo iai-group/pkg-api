@@ -8,8 +8,8 @@ from pkg_api.pkg_types import URI
 
 @dataclass
 class TripleAnnotation:
-    subject: Union[URI, str]
-    predicate: Optional[str] = None
+    subject: Union[URI, str, None] = None
+    predicate: Union[URI, str, None] = None
     object: Union[URI, str, None] = None
 
 

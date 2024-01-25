@@ -35,8 +35,8 @@ class Prompt:
         """Returns the prompt.
 
         Args:
-            statement: The statement to be annotated.
-            purpose: The purpose of the prompt.
+            path: Path to the file containing the prompt.
+            kwargs: Keyword arguments to be used for formatting the prompt.
 
         Returns:
             The prompt.
