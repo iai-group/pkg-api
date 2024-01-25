@@ -1,7 +1,7 @@
 """Dataclasses for the annotations used in the PKG API."""
 
-from dataclasses import dataclass
-from typing import Optional, Union
+from dataclasses import dataclass, field
+from typing import List, Optional, Union
 
 from pkg_api.pkg_types import URI
 
@@ -11,9 +11,9 @@ class Concept:
     """Class representing a SKOS concept."""
 
     description: str
-    related_entities: Optional[URI] = None
-    broader_entities: Optional[URI] = None
-    narrower_entities: Optional[URI] = None
+    related_entities: List[URI] = field(default_factory=list)
+    broader_entities: List[URI] = field(default_factory=list)
+    narrower_entities: List[URI] = field(default_factory=list)
 
 
 @dataclass
