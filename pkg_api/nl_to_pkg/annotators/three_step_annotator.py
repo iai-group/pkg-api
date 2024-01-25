@@ -58,7 +58,7 @@ class ThreeStepStatementAnnotator(ABC):
         triple = self._get_triple(statement)
         preference = (
             self._get_preference(statement, triple.object)
-            if triple and triple.object
+            if triple and isinstance(triple.object, str)
             else None
         )
         return intent, PKGData(statement, triple, preference)
