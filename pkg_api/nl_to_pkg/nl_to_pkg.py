@@ -16,7 +16,7 @@ class NLtoPKG:
         self._entity_linker = entity_linker
 
     def annotate(self, statement: str) -> Tuple[Intent, PKGData]:
-        """Returns a tuple of the intent and the annotated and linked statement.
+        """Annotates statement with intent, linked triple, and preference.
 
         Args:
             statement: The statement to be annotated.
