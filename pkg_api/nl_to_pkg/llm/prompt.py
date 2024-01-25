@@ -1,4 +1,4 @@
-"""Module for loading and processing llm prompts."""
+"""Module for loading and processing LLM prompts."""
 
 import os
 from typing import Dict
@@ -9,6 +9,9 @@ def load_prompt(path: str) -> str:
 
     Args:
         path: Path to the file containing the prompt.
+
+    Raises:
+        FileNotFoundError: If the file is not found.
 
     Returns:
         The prompt as a string.
@@ -24,11 +27,7 @@ class Prompt:
     """Class for loading and processing a prompt."""
 
     def __init__(self) -> None:
-        """Initializes the Prompt class.
-
-        Args:
-            folder_path: Path to the folder containing the prompt files.
-        """
+        """Initializes the Prompt class."""
         self._prompts: Dict[str, str] = {}
 
     def get_prompt(self, path: str, **kwargs) -> str:
@@ -39,7 +38,7 @@ class Prompt:
             kwargs: Keyword arguments to be used for formatting the prompt.
 
         Returns:
-            The prompt.
+            The formatted prompt.
         """
         if path not in self._prompts:
             self._prompts[path] = load_prompt(path)

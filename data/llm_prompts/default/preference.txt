@@ -1,4 +1,4 @@
-What is the sentiment towards "{object}" in the following statement? Answer 1 for positive or -1 for negative.
+What is the sentiment towards "{object}" in the following statement? Answer 1 for positive, -1 for negative, or N/A when sentiment is not applicable.
 
 Statement:
 ------------------------------

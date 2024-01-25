@@ -7,20 +7,36 @@ from pkg_api.pkg_types import URI
 
 
 @dataclass
-class TripleAnnotation:
-    subject: Union[URI, str, None] = None
-    predicate: Union[URI, str, None] = None
-    object: Union[URI, str, None] = None
+class Concept:
+    """Class representing a SKOS concept."""
+
+    description: str
+    related_entities: Optional[URI] = None
+    broader_entities: Optional[URI] = None
+    narrower_entities: Optional[URI] = None
 
 
 @dataclass
-class PreferenceAnnotation:
-    topic: Union[URI, str]
+class Triple:
+    """Class representing a subject, predicate, object triple."""
+
+    subject: Union[URI, str, None] = None
+    predicate: Union[URI, str, None] = None
+    object: Union[URI, Concept, str, None] = None
+
+
+@dataclass
+class Preference:
+    """Class representing a preference."""
+
+    topic: Union[URI, Concept, str]
     weight: float
 
 
 @dataclass
 class PKGData:
+    """Represents a statement annotated with a triple and a preference."""
+
     statement: str
-    triple: Optional[TripleAnnotation] = None
-    preference: Optional[PreferenceAnnotation] = None
+    triple: Optional[Triple] = None
+    preference: Optional[Preference] = None

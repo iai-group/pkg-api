@@ -3,7 +3,7 @@
 
 from abc import ABC, abstractmethod
 
-from pkg_api.core.annotations import TripleAnnotation
+from pkg_api.core.annotations import Triple
 
 
 class EntityLinker(ABC):
@@ -11,8 +11,8 @@ class EntityLinker(ABC):
 
     @abstractmethod
     def link_annotation_entities(
-        self, statement: str, triple: TripleAnnotation
-    ) -> TripleAnnotation:
+        self, statement: str, triple: Triple
+    ) -> Triple:
         """Resolves the annotation if possible.
 
         Args:

@@ -10,7 +10,11 @@ _DEFAULT_ENDPOINT = "http://gustav1.ux.uis.no:8888/completion"
 
 class LLMConnector:
     def __init__(self, endpoint: str = _DEFAULT_ENDPOINT) -> None:
-        """Initializes the LLMConnector class."""
+        """Initializes the LLMConnector class.
+
+        Args:
+            endpoint: The endpoint for LLM.
+        """
         self._endpoint = endpoint
 
     def get_response(self, prompt: str) -> str:

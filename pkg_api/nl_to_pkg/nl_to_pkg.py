@@ -11,12 +11,17 @@ class NLtoPKG:
     def __init__(
         self, annotator: StatementAnnotator, entity_linker: EntityLinker
     ) -> None:
-        """Initializes the NLtoPKG class."""
+        """Initializes the NLtoPKG class.
+
+        Args:
+            annotator: The statement annotator to use.
+            entity_linker: The entity linker to use.
+        """
         self._annotator = annotator
         self._entity_linker = entity_linker
 
     def annotate(self, statement: str) -> Tuple[Intent, PKGData]:
-        """Annotates statement with intent, linked triple, and preference.
+        """Annotates the statement with intent, linked triple, and preference.
 
         Args:
             statement: The statement to be annotated.

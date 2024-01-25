@@ -1,8 +1,8 @@
 """Class for annotating a natural language query.
 
-The main purpose is to return users intent (ADD | GET | DELETE) and to
-annotate the triples (subject, predicate, object) and the preferences (1
-| -1) in the query.
+The main purpose is to return the intent (ADD | GET | DELETE) and to
+annotate the triple (subject, predicate, object) and the preference (1 | -1)
+in the query.
 """
 
 
@@ -16,11 +16,7 @@ from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
 class StatementAnnotator(ABC):
     def __init__(self) -> None:
-        """Initializes the NLtoAPI class.
-
-        Args:
-            path: Path to the file containing the prompt.
-        """
+        """Initializes the statement annotator."""
         self._prompt = Prompt()
 
     @abstractmethod
@@ -34,6 +30,6 @@ class StatementAnnotator(ABC):
             NotImplementedError: If the method is not implemented.
 
         Returns:
-            A tuple of the intent and the annotated statement.
+            A tuple of the intent and the annotated statement as PKGData.
         """
         raise NotImplementedError

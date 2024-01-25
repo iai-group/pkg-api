@@ -9,11 +9,7 @@ import re
 from abc import ABC
 from typing import Optional, Tuple
 
-from pkg_api.core.annotations import (
-    PKGData,
-    PreferenceAnnotation,
-    TripleAnnotation,
-)
+from pkg_api.core.annotations import PKGData, Preference, Triple
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
@@ -42,14 +38,8 @@ def is_number(value: str) -> bool:
 
 
 class ThreeStepStatementAnnotator(ABC):
-    """Three-step annotator for annotating a statement.
-
-    This class annotates a statement with a triple and a preference
-    using LLM.
-    """
-
     def __init__(self) -> None:
-        """Initializes the ThreeStepStatementAnnotator class."""
+        """Initializes the three-step statement annotator."""
         self._prompt_paths = _DEFAULT_PROMPT_PATHS
         self._prompt = Prompt()
         self._valid_intents = {intent.name for intent in Intent}
@@ -86,7 +76,6 @@ class ThreeStepStatementAnnotator(ABC):
             self._prompt_paths["intent"], statement=statement
         )
         response = self._llm_connector.get_response(prompt)
-        print(response)
         response_terms = response.split()
         if len(self._valid_intents.intersection(response_terms)) == 1:
             return next(
@@ -94,14 +83,14 @@ class ThreeStepStatementAnnotator(ABC):
             )
         return Intent.UNKNOWN
 
-    def _get_triple(self, statement: str) -> Optional[TripleAnnotation]:
+    def _get_triple(self, statement: str) -> Optional[Triple]:
         """Returns the triple for a statement.
 
         Args:
             statement: The statement to be annotated.
 
         Returns:
-            The triple.
+            The triple comprised of subject, predicate, and object or None.
         """
         prompt = self._prompt.get_prompt(
             self._prompt_paths["triple"], statement=statement
@@ -112,21 +101,30 @@ class ThreeStepStatementAnnotator(ABC):
             for term in response.split("|")
         ]
         if len(response_terms) == 3:
-            return TripleAnnotation(*response_terms)
+            return Triple(*response_terms)
         return None
 
     def _get_preference(
         self, statement: str, triple_object: str
-    ) -> Optional[PreferenceAnnotation]:
+    ) -> Optional[Preference]:
         """Returns the preference for a statement.
 
         Args:
             statement: The statement to be annotated.
-            triple_object: The object of the triple.
+            triple_object: The object of the triple. It is only used in string
+                form.
+
+        Raises:
+            TypeError: If the triple object is not a string.
 
         Returns:
             The preference.
         """
+        if not isinstance(triple_object, str):
+            raise TypeError(
+                f"Triple object must be of type str, not {type(triple_object)}."
+            )
+
         prompt = self._prompt.get_prompt(
             self._prompt_paths["preference"],
             statement=statement,
@@ -136,11 +134,10 @@ class ThreeStepStatementAnnotator(ABC):
         response_terms = [
             term.strip() for term in re.split(r"[ .,;]+", response)
         ]
-        print(response_terms)
         preference = next(
             (term for term in response_terms if is_number(term)),
             None,
         )
         if preference:
-            return PreferenceAnnotation(triple_object, float(preference))
+            return Preference(triple_object, float(preference))
         return None

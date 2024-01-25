@@ -1,18 +1,18 @@
-"""Tests for pkg_api.nl_to_pkg.llm.prompt."""
+"""Tests for prompts."""
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
+from pytest_mock import MockerFixture
 
 from pkg_api.nl_to_pkg.llm.prompt import Prompt, load_prompt
 
 
-def test_load_prompt_success(mocker):
+def test_load_prompt_success(mocker: MockerFixture) -> None:
     """Tests that load_prompt loads the prompt file correctly."""
     path = "dummy/path/to/prompt.txt"
     mock_content = "Test prompt content"
 
-    # Use mocker to mock os.path.isfile and builtins.open
     mocker.patch("os.path.isfile", return_value=True)
     mocker.patch("builtins.open", mocker.mock_open(read_data=mock_content))
 
@@ -20,14 +20,14 @@ def test_load_prompt_success(mocker):
     assert content == mock_content
 
 
-def test_load_prompt_file_not_found():
+def test_load_prompt_file_not_found() -> None:
     """Tests that load_prompt raises FileNotFoundError if file is not found."""
     with pytest.raises(FileNotFoundError):
         load_prompt("nonexistent/path/to/prompt.txt")
 
 
 @patch("pkg_api.nl_to_pkg.llm.prompt.load_prompt")
-def test_get_prompt_caching(mock_load_prompt):
+def test_get_prompt_caching(mock_load_prompt: Mock) -> None:
     """Tests that get_prompt caches the prompt."""
     mock_load_prompt.return_value = "Loaded prompt"
     prompt_processor = Prompt()
@@ -46,7 +46,7 @@ def test_get_prompt_caching(mock_load_prompt):
 @patch(
     "pkg_api.nl_to_pkg.llm.prompt.load_prompt", return_value="Hello, {name}!"
 )
-def test_get_prompt_formatting(mock_load_prompt):
+def test_get_prompt_formatting(mock_load_prompt: Mock) -> None:
     """Tests that get_prompt formats the prompt correctly."""
     prompt_processor = Prompt()
     formatted_prompt = prompt_processor.get_prompt(
