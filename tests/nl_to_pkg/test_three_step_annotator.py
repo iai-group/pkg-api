@@ -1,3 +1,5 @@
+"""Tests for pkg_api.nl_to_pkg.annotators.three_step_annotator."""
+
 from unittest.mock import patch
 
 import pytest
@@ -11,6 +13,7 @@ from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
 
 @pytest.fixture(autouse=True)
 def mock_llm_connector():
+    """Mocks the LLMConnector.get_response."""
     with patch(
         "pkg_api.nl_to_pkg.llm.llm_connector.LLMConnector.get_response"
     ) as mock_get_response:
@@ -19,6 +22,7 @@ def mock_llm_connector():
 
 @pytest.fixture(autouse=True)
 def mock_prompt():
+    """Mocks the Prompt.get_prompt."""
     with patch(
         "pkg_api.nl_to_pkg.llm.prompt.Prompt.get_prompt"
     ) as mock_get_prompt:
@@ -27,10 +31,12 @@ def mock_prompt():
 
 @pytest.fixture
 def annotator():
+    """Returns a ThreeStepStatementAnnotator instance."""
     return ThreeStepStatementAnnotator()
 
 
 def test_get_intent(mock_llm_connector, annotator):
+    """Tests that _get_intent returns the correct intent."""
     mock_llm_connector.return_value = "Answer: DELETE"
 
     intent = annotator._get_intent("Test statement")
@@ -38,6 +44,7 @@ def test_get_intent(mock_llm_connector, annotator):
 
 
 def test_get_triple(mock_llm_connector, annotator):
+    """Tests that _get_triple returns the correct triple."""
     mock_llm_connector.return_value = "Subject | Predicate | Object"
 
     triple = annotator._get_triple("Test statement")
@@ -47,6 +54,7 @@ def test_get_triple(mock_llm_connector, annotator):
 
 
 def test_get_triple_missing_value(mock_llm_connector, annotator):
+    """Tests that _get_triple returns the correct triple when missing value."""
     mock_llm_connector.return_value = "Subject | N/A | N/A"
 
     triple = annotator._get_triple("Test statement")
@@ -56,6 +64,7 @@ def test_get_triple_missing_value(mock_llm_connector, annotator):
 
 
 def test_get_preference(mock_llm_connector, annotator):
+    """Tests that _get_preference returns the correct preference."""
     mock_llm_connector.return_value = "Preference is -1"
 
     preference = annotator._get_preference("Test statement", "Object")
@@ -64,6 +73,7 @@ def test_get_preference(mock_llm_connector, annotator):
 
 
 def test_get_preference_invalid(mock_llm_connector, annotator):
+    """Tests that _get_preference returns None for invalid preference."""
     mock_llm_connector.return_value = "No preference"
 
     preference = annotator._get_preference("Test statement", "Object")
@@ -85,6 +95,7 @@ def test_get_preference_invalid(mock_llm_connector, annotator):
 def test_get_annotations(
     mock_get_preference, mock_get_triple, mock_get_intent, annotator
 ):
+    """Tests that get_annotations returns correct values."""
     mock_get_intent.return_value = Intent.GET
     mock_get_triple.return_value = TripleAnnotation(
         "Subject", "Predicate", "Object"

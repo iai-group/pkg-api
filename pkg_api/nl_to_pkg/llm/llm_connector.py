@@ -22,7 +22,6 @@ class LLMConnector:
         Returns:
             The response from LLM.
         """
-
         response = requests.post(
             self._endpoint,
             headers=self._get_headers(),

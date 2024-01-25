@@ -1,3 +1,5 @@
+"""Tests for pkg_api.nl_to_pkg.llm.llm_connector."""
+
 import json
 from unittest.mock import Mock, patch
 
@@ -8,12 +10,13 @@ from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 
 @pytest.fixture
 def llm_connector():
+    """Returns an LLMConnector instance."""
     return LLMConnector()
 
 
 @patch("requests.post")
 def test_get_response_success(mock_post, llm_connector):
-    # Mocking the response from requests.post
+    """Tests that get_response returns the response from LLM."""
     mock_response = Mock()
     mock_response.text = json.dumps({"content": "Test LLM response"})
     mock_post.return_value = mock_response
@@ -26,6 +29,7 @@ def test_get_response_success(mock_post, llm_connector):
 
 @patch("requests.post")
 def test_get_response_request_params(mock_post, llm_connector):
+    """Tests that get_response sends the correct request to LLM."""
     mock_response = Mock()
     mock_response.text = json.dumps({"content": "Test LLM response"})
     mock_post.return_value = mock_response
