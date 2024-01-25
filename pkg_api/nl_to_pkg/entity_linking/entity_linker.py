@@ -3,23 +3,20 @@
 
 from abc import ABC, abstractmethod
 
-from pkg_api.core.annotations import Triple
+from pkg_api.core.annotations import PKGData
 
 
 class EntityLinker(ABC):
     """Entity linker for linking entities to the PKG or available KGs."""
 
     @abstractmethod
-    def link_annotation_entities(
-        self, statement: str, triple: Triple
-    ) -> Triple:
-        """Resolves the annotation if possible.
+    def link_annotation_entities(self, pkg_data: PKGData) -> PKGData:
+        """Resolves the pkg data annotations if possible.
 
         Args:
-            statement: The statement to be annotated.
-            triple: The triple annotation.
+            pkg_data: The PKG data to be resolved.
 
         Returns:
-            The resolved triple annotation.
+            The resolved PKG data annotations.
         """
         raise NotImplementedError
