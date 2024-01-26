@@ -9,136 +9,130 @@ PKG vocabulary: https://iai-group.github.io/pkg-vocabulary/
 
 import dataclasses
 import re
-from typing import List
+from typing import List, Union
 
 from pkg_api.core.annotations import Concept, PKGData
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
 
-def get_query_for_add_fact(
-    subject: URI, predicate: URI, entity: URI
-) -> SPARQLQuery:
-    """Gets SPARQL query to add a fact.
+def _get_uri_list(entities: List[URI]) -> str:
+    """Gets a list of URIs as a string for SPARQL queries.
 
     Args:
-        subject: Subject of the fact.
-        predicate: Predicate of the fact.
-        entity: Entity of the fact.
+        entities: List of URIs.
+
+    Returns:
+        String with URIs separated by commas.
+    """
+    return ", ".join([f"<{ent}>" for ent in entities])
+
+
+def _get_concept_representation(concept: Concept) -> str:
+    """Gets the representation of a concept given an annotation.
+
+    Args:
+        concept: Concept.
+
+    Returns:
+        Representation of the concept.
+    """
+    concept_template = """[
+        a skos:Concept ; dc:description "{description}" ;
+        {related_entities}
+        {broader_entities}
+        {narrower_entities}
+    ]"""
+    related_entities = (
+        f"skos:related {_get_uri_list(concept.related_entities)} ; "
+        if concept.related_entities
+        else ""
+    )
+    broader_entities = (
+        f"skos:broader {_get_uri_list(concept.broader_entities)} ; "
+        if concept.broader_entities
+        else ""
+    )
+    narrower_entities = (
+        f"skos:narrower {_get_uri_list(concept.narrower_entities)} ; "
+        if concept.narrower_entities
+        else ""
+    )
+    return concept_template.format(
+        description=concept.description,
+        related_entities=related_entities,
+        broader_entities=broader_entities,
+        narrower_entities=narrower_entities,
+    )
+
+
+def _get_preference_representation(
+    pkg_data: PKGData, blank_node_id: str
+) -> str:
+    """Gets the representation of a preference given a statement.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+        blank_node_id: Blank node ID of the statement.
+
+    Returns:
+        Representation of the preference.
+    """
+    preference_topic = (
+        f"<{pkg_data.preference.topic}>"
+        if isinstance(pkg_data.preference.topic, URI)
+        else _get_concept_representation(pkg_data.preference.topic)
+    )
+    subject = (
+        f"<{pkg_data.triple.subject}>"
+        if pkg_data.triple.subject
+        else f'"{pkg_data.triple.subject}"'
+    )
+
+    return f"""{subject} wi:preference
+            [
+                pav:derivedFrom {blank_node_id} ;
+                wi:topic {preference_topic} ;
+                wo:weight [
+                    wo:weight_value {pkg_data.preference.weight} ;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        """
+
+
+def get_query_for_get_preference(
+    who: Union[str, URI], topic: Union[URI, Concept, str]
+) -> SPARQLQuery:
+    """Gets SPARQL query to retrieve preference value given a subject and topic.
+
+    Args:
+        who: Subject.
+        topic: Topic.
 
     Returns:
         SPARQL query.
     """
+    subject = f"<{who}>" if isinstance(who, URI) else f'"{who}"'
+    preference_topic = ""
+    if isinstance(topic, URI):
+        preference_topic = f"<{topic}>"
+    elif isinstance(topic, Concept):
+        preference_topic = _get_concept_representation(topic)
+    else:
+        preference_topic = f'"{topic}"'
+
     return f"""
-        INSERT DATA {{
-            <{subject}> <{predicate}> <{entity}> .
+        SELECT ?weight
+        WHERE {{
+            {subject} wi:preference [
+                wi:topic {preference_topic} ;
+                wo:weight [
+                    wo:weight_value ?weight ;
+                    wo:scale pkg:StandardScale
+                ]
+            ]
         }}
     """
-
-
-def get_query_for_get_objects_from_facts(
-    subject: URI, predicate: URI
-) -> SPARQLQuery:
-    """Gets SPARQL query to retrieve objects given subject and predicate.
-
-    Args:
-        subject: Subject of the fact.
-        predicate: Predicate of the fact.
-
-    Returns:
-        SPARQL query.
-    """
-    return f"""
-        SELECT ?object WHERE {{
-            <{subject}> <{predicate}> ?object .
-        }}
-    """
-
-
-def get_query_for_set_preference(
-    who: URI, entity: URI, preference: float
-) -> SPARQLQuery:
-    """Gets SPARQL query to set preference.
-
-    Args:
-        who: Who is adding the fact.
-        entity: Entity of the fact.
-        preference: The preference value (a float between -1 and 1) for given
-          entity.
-
-    Returns:
-        SPARQL query.
-    """
-    return f"""
-        INSERT DATA {{
-            <{who}> <preference>
-            [ <entity> <{entity}> ;
-                <weight> <{preference}> ]
-        }}
-    """
-
-
-def get_query_for_update_preference(
-    who: URI, entity: URI, old_preference: float, new_preference: float
-) -> SPARQLQuery:
-    """Gets SPARQL query to update preference value given subject and entity.
-
-    Args:
-        who: Who is adding the fact.
-        entity: Entity of the fact.
-        old_preference: The old preference value for given entity.
-        new_preference: The new preference value for given entity.
-
-    Returns:
-        SPARQL query.
-    """
-    return f"""
-        DELETE {{ ?x <weight> <{old_preference}> }}
-        INSERT {{ ?x <weight> <{new_preference}> }}
-        WHERE  {{
-            <{who}> <preference> ?x .
-            ?x <entity> <{entity}> .
-            ?x <weight> ?old_preference .
-        }}
-    """
-
-
-def get_query_for_get_preference(who: URI, entity: URI) -> SPARQLQuery:
-    """Gets SPARQL query to retrieve preference value given subject and entity.
-
-    Args:
-        who: Who is adding the fact.
-        entity: Entity of the fact.
-
-    Returns:
-        SPARQL query.
-    """
-    return f"""
-        SELECT ?pref {{
-            <{who}> <preference>
-            [ <entity> <{entity}> ;
-                <weight> ?pref ]
-        }}
-    """
-
-
-def get_query_for_remove_fact(
-    subject: URI, predicate: URI, entity: URI
-) -> SPARQLQuery:
-    """Gets SPARQL query to remove a fact.
-
-    Args:
-        subject: Subject of the fact to remove.
-        predicate: Predicate of the fact.
-        entity: Entity of the fact.
-
-    Returns:
-        SPARQL query.
-    """
-    return f"""
-         DELETE DATA {{
-             <{subject}> <{predicate}> <{entity}> .
-         }}
-     """
 
 
 def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
@@ -182,28 +176,11 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
             )
 
     statement += " . "
-    # Add preference
+
+    # Create a preference
+    preference = ""
     if pkg_data.preference:
-        preference_topic = (
-            f"<{pkg_data.preference.topic}>"
-            if isinstance(pkg_data.preference.topic, URI)
-            else _get_concept_representation(pkg_data.preference.topic)
-        )
-        subject = (
-            f"<{pkg_data.triple.subject}>"
-            if pkg_data.triple.subject
-            else f'"{pkg_data.triple.subject}"'
-        )
-        preference = f"""{subject} wi:preference
-            [
-                pav:derivedFrom {blank_node_id} ;
-                wi:topic {preference_topic} ;
-                wo:weight [
-                    wo:weight_value {pkg_data.preference.weight} ;
-                    wo:scale pkg:StandardScale
-                ]
-            ] .
-        """
+        preference = _get_preference_representation(pkg_data, blank_node_id)
 
     query = f"""
         INSERT DATA {{
@@ -213,53 +190,3 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
         }}
     """
     return re.sub(r";\s*(?=[]\.])", "", query)
-
-
-def _get_concept_representation(concept: Concept) -> str:
-    """Gets the representation of a concept given an annotation.
-
-    Args:
-        concept: Concept.
-
-    Returns:
-        Representation of the concept.
-    """
-    concept_template = """[
-        a skos:Concept ; dc:description "{description}" ;
-        {related_entities}
-        {broader_entities}
-        {narrower_entities}
-    ]"""
-    related_entities = (
-        f"skos:related {_get_uri_list(concept.related_entities)} ; "
-        if concept.related_entities
-        else ""
-    )
-    broader_entities = (
-        f"skos:broader {_get_uri_list(concept.broader_entities)} ; "
-        if concept.broader_entities
-        else ""
-    )
-    narrower_entities = (
-        f"skos:narrower {_get_uri_list(concept.narrower_entities)} ; "
-        if concept.narrower_entities
-        else ""
-    )
-    return concept_template.format(
-        description=concept.description,
-        related_entities=related_entities,
-        broader_entities=broader_entities,
-        narrower_entities=narrower_entities,
-    )
-
-
-def _get_uri_list(entities: List[URI]) -> str:
-    """Gets a list of URIs as a string for SPARQL queries.
-
-    Args:
-        entities: List of URIs.
-
-    Returns:
-        String with URIs separated by commas.
-    """
-    return ", ".join([f"<{ent}>" for ent in entities])
