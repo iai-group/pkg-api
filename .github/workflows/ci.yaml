@@ -16,7 +16,7 @@ env:
 jobs:
   pre-commit:
     if: always()
-    runs-on: [self-hosted, gustav1]
+    runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v3
@@ -74,7 +74,7 @@ jobs:
 
   build-and-test:
     name: "Build and Test Python 3.9"
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, gustav1]
     if: always()
     strategy:
       max-parallel: 5
