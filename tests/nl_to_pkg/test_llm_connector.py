@@ -1,4 +1,4 @@
-"""Tests for LLM connetor."""
+"""Tests for LLM connector."""
 
 import json
 from unittest.mock import Mock, patch

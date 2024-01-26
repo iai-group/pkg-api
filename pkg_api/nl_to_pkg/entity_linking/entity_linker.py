@@ -16,6 +16,9 @@ class EntityLinker(ABC):
         Args:
             pkg_data: The PKG data to be resolved.
 
+        Raises:
+            NotImplementedError: If the method is not implemented.
+
         Returns:
             The resolved PKG data annotations.
         """

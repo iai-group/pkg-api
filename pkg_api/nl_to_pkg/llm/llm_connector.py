@@ -13,7 +13,7 @@ class LLMConnector:
         """Initializes the LLMConnector class.
 
         Args:
-            endpoint: The endpoint for LLM.
+            endpoint: The endpoint for LLM. Defaults to _DEFAULT_ENDPOINT.
         """
         self._endpoint = endpoint
 
