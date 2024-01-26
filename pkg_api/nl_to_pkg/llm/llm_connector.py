@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 
-from ollama import Client
+from ollama import Client, Options
 
 _DEFAULT_ENDPOINT = "http://badne4.ux.uis.no:11434"
 
@@ -26,7 +26,12 @@ class LLMConnector:
         Returns:
             The response from LLM.
         """
-        return self._client.generate(self._model, prompt)
+        return self._client.generate(
+            self._model,
+            prompt,
+            options=self._get_llm_config(),
+            stream=False,
+        )
 
     def _get_headers(self) -> Dict[str, str]:
         """Returns the headers for the request."""
@@ -34,11 +39,8 @@ class LLMConnector:
 
     def _get_llm_config(self) -> Dict[str, Any]:
         """Returns the config for the request."""
-        return {
-            "temperature": 0.0,
-            "top_p": 0.9,
-            "n": 1,
-            "stream": False,
-            "logprobs": 10,
-            "stop": ["\n"],
-        }
+        return Options(
+            temperature=0.0,
+            top_p=0.9,
+            stop=["\n"],
+        )
