@@ -102,8 +102,9 @@ def test_get_query_for_add_statement(pkg_data_example: PKGData) -> None:
         rdf:predicate [ a skos:Concept ; dc:description "dislike" ] ;
         rdf:object
         [
-            a skos:Concept ; dc:description "all movies with the actor Tom Cruise" ;
-            skos:related <https://schema.org/actor>, <http://dbpedia.org/resource/Tom_Cruise> ;
+            a skos:Concept ; dc:description "all movies with the actor Tom
+            Cruise" ; skos:related <https://schema.org/actor>,
+            <http://dbpedia.org/resource/Tom_Cruise> ;
             skos:broader <https://schema.org/Movie> ;
             skos:narrower <https://schema.org/Action>
         ] ;
@@ -114,8 +115,9 @@ def test_get_query_for_add_statement(pkg_data_example: PKGData) -> None:
         <http://example.com/my/I> wi:preference [
             pav:derivedFrom _:st ;
             wi:topic [
-                a skos:Concept ; dc:description "all movies with the actor Tom Cruise" ;
-                skos:related <https://schema.org/actor>, <http://dbpedia.org/resource/Tom_Cruise> ;
+                a skos:Concept ; dc:description "all movies with the actor Tom
+                Cruise" ; skos:related <https://schema.org/actor>,
+                <http://dbpedia.org/resource/Tom_Cruise> ;
                 skos:broader <https://schema.org/Movie> ;
                 skos:narrower <https://schema.org/Action>
             ] ;
