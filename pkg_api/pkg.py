@@ -22,7 +22,7 @@ from rdflib.term import Variable
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-from pkg_api.pkg_types import URI
+from pkg_api.core.pkg_types import URI
 
 
 class PKG:
