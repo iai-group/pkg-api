@@ -16,7 +16,7 @@ env:
 jobs:
   pre-commit:
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, gustav1]
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v3
