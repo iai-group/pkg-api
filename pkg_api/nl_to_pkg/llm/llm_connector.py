@@ -22,7 +22,7 @@ class LLMConnector:
         """
         self._config = self._load_config(config_path)
         self._model = self._config.get("model", "llama2")
-        self._stream = self._config.get("stream", True)
+        self._stream = self._config.get("stream", False)
         self._client = Client(host=self._config.get("host", _DEFAULT_ENDPOINT))
         self._llm_options = self._get_llm_config()
 
