@@ -2,6 +2,7 @@ black
 flake8
 pytest
 pytest-cov
+pytest-mock
 mypy
 docformatter
 pre-commit
@@ -12,3 +13,5 @@ pytest-cov
 Flask>=2.3.3
 Flask-RESTful>=0.3.10
 Flask-SQLAlchemy>=3.1.1
+requests
+types-requests

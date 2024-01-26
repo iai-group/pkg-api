@@ -1,78 +1,35 @@
-"""Class for converting natural language to structured representation.
+"""Class for annotating a statement with a linked triple and a preference."""
 
-Example:
-    >>> query = "I like cats"
-    >>> from pkg_api.nl_to_pkg import NLtoPKG
-    >>> nl_to_pkg = NLtoPKG("path/to/prompt.txt")
-    >>> method_call = nl_to_pkg.get_method_call(query)
-    >>> method_call
-    (<function pkg_api.pkg.pkg.set_owner_preference()>, (cats, 1))
-"""
+from typing import Tuple
 
-from typing import Callable, Optional, Tuple
-
-MethodCallWithParameters = Tuple[Callable, Tuple]
-
-
-def load_prompt(path: str) -> str:
-    """Loads a prompt from a file.
-
-    Args:
-        path: Path to the file containing the prompt.
-
-    Returns:
-        The prompt as a string.
-    """
-    # TODO: Implement
-    return ""
+from pkg_api.core.annotations import PKGData
+from pkg_api.core.intents import Intent
+from pkg_api.nl_to_pkg import EntityLinker, StatementAnnotator
 
 
 class NLtoPKG:
-    def __init__(self, path: str) -> None:
+    def __init__(
+        self, annotator: StatementAnnotator, entity_linker: EntityLinker
+    ) -> None:
         """Initializes the NLtoPKG class.
 
         Args:
-            path: Path to the file containing the prompt.
+            annotator: The statement annotator to use.
+            entity_linker: The entity linker to use.
         """
-        self._prompt = load_prompt(path)
+        self._annotator = annotator
+        self._entity_linker = entity_linker
 
-    def get_method_call(self, query: str) -> Optional[MethodCallWithParameters]:
-        """Gets a method call.
+    def annotate(self, statement: str) -> Tuple[Intent, PKGData]:
+        """Annotates the statement with intent, linked triple, and preference.
 
         Args:
-            query: The query as a string.
+            statement: The statement to be annotated.
 
         Returns:
-            The method call as a string.
+            A tuple of the intent and the annotated and linked statement.
         """
-        metod_as_string = self._llm_to_api_as_string(query)
-        method_with_parameters = self._convert_str_to_method_call(
-            metod_as_string
-        )
-        return method_with_parameters
+        intent, pkg_data = self._annotator.get_annotations(statement)
+        linked_pkg_data = self._entity_linker.link_annotation_entities(pkg_data)
 
-    def _llm_to_api_as_string(self, prompt: str) -> str:
-        """Converts a natural language prompt to an API prompt.
-
-        Args:
-            prompt: The prompt as a string.
-
-        Returns:
-            The API prompt as a string.
-        """
-        # TODO: Implement
-        return ""
-
-    def _convert_str_to_method_call(
-        self, string: str
-    ) -> Optional[MethodCallWithParameters]:
-        """Converts a string to a method call.
-
-        Args:
-            string: The string to convert.
-
-        Returns:
-            A tuple containing the method and its parameters.
-        """
-        # TODO: Implement
-        return None
+        return intent, linked_pkg_data
