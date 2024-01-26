@@ -7,11 +7,13 @@ from ollama import Client, Options
 import os
 
 _DEFAULT_ENDPOINT = "http://badne4.ux.uis.no:11434"
+_DEFAULT_CONFIG_PATH = "pkg_api/nl_to_pkg/llm/configs/llm_config_llama2.yaml"
 
 
 class LLMConnector:
     def __init__(
-        self, config_path: str = "pkg_api/nl_to_pkg/llm/llm_config_llama2.yaml"
+        self,
+        config_path: str = _DEFAULT_CONFIG_PATH,
     ) -> None:
         """Initializes the LLMConnector class.
 
@@ -21,30 +23,35 @@ class LLMConnector:
         self._config = self._load_config(config_path)
         self._model = self._config.get("model", "llama2")
         self._stream = self._config.get("stream", True)
+        self._client = Client(host=self._config.get("host", _DEFAULT_ENDPOINT))
         self._llm_options = self._get_llm_config()
-        self._client = Client(host=_DEFAULT_ENDPOINT)
 
-    def get_response(self, prompt: str) -> str:
-        """Returns the response from LLM.
+    def _generate(self, prompt: str) -> str:
+        """Generates a response from LLM.
 
         Args:
             prompt: The prompt to be sent to LLM.
 
         Returns:
-            The response from LLM.
+            The response with metadata from LLM.
         """
         return self._client.generate(
-            self._model,
-            prompt,
-            options=self._get_llm_config(),
-            stream=False,
+            self._model, prompt, options=self._llm_options, stream=self._stream
         )
 
-    def _get_headers(self) -> Dict[str, str]:
-        """Returns the headers for the request."""
-        return {"Content-Type": "application/json"}
+    def get_response(self, prompt: str) -> str:
+        """Returns the response from LLM.
 
-    def _load_config(self, config_path: str) -> Dict[str, Any]:
+        Args:
+        prompt: The prompt to be sent to LLM.
+
+        Returns:
+            The response from LLM, if it was successful.
+        """
+        return self._generate(prompt).get("response", "")  # type: ignore
+
+    @staticmethod
+    def _load_config(config_path: str) -> Dict[str, Any]:
         """Loads the config from the given path.
 
         Args:
