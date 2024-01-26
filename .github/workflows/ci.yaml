@@ -74,7 +74,7 @@ jobs:
 
   build-and-test:
     name: "Build and Test Python 3.9"
-    runs-on: [self-hosted, gustav1]
+    runs-on: [self-hosted, uisdesktop]
     if: always()
     strategy:
       max-parallel: 5
