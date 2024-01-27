@@ -21,7 +21,7 @@ class Triple:
     """Class representing a subject, predicate, object triple."""
 
     subject: Union[URI, str, None] = None
-    predicate: Union[URI, str, None] = None
+    predicate: Union[URI, Concept, str, None] = None
     object: Union[URI, Concept, str, None] = None
 
 
@@ -35,8 +35,10 @@ class Preference:
 
 @dataclass
 class PKGData:
-    """Represents a statement annotated with a triple, a preference, and
-    logging data."""
+    """Class representing an annotated statement.
+
+    Annotations include a triple, a preference, and logging data.
+    """
 
     statement: str
     triple: Optional[Triple] = None

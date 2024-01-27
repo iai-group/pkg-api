@@ -33,7 +33,7 @@ def test_add_statement(monkeypatch, user_pkg: PKG) -> None:
         r"\s+",
         " ",
         """INSERT DATA { _:st a rdf:Statement ; dc:description "I live in
-     Stavanger." ; rdf:subject <http://example.com/testuser> ; rdf:predicate 
+     Stavanger." ; rdf:subject <http://example.com/testuser> ; rdf:predicate
      "live" ; rdf:object <https://dbpedia.org/page/Stavanger> ; pav:authoredBy
      <http://example.com/testuser> . }""",
     ).strip()

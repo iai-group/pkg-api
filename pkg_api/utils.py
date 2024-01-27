@@ -9,7 +9,7 @@ PKG vocabulary: https://iai-group.github.io/pkg-vocabulary/
 
 import dataclasses
 import re
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pkg_api.core.annotations import Concept, PKGData
 from pkg_api.core.pkg_types import URI, SPARQLQuery
@@ -25,6 +25,26 @@ def _get_uri_list(entities: List[URI]) -> str:
         String with URIs separated by commas.
     """
     return ", ".join([f"<{ent}>" for ent in entities])
+
+
+def _get_property_representation(
+    value: Union[URI, Concept, str], property: Optional[str] = None
+) -> str:
+    """Gets the representation for a property.
+
+    Args:
+        value: Value of the property.
+        property: Property name. Defaults to None.
+
+    Returns:
+        Representation of the property.
+    """
+    representation = f"{property}" if property else ""
+    if isinstance(value, URI):
+        return f"{representation} <{value}>"
+    elif isinstance(value, Concept):
+        return f"{representation} {_get_concept_representation(value)}"
+    return f'{representation} "{value}"'
 
 
 def _get_concept_representation(concept: Concept) -> str:
@@ -77,16 +97,8 @@ def _get_preference_representation(
     Returns:
         Representation of the preference.
     """
-    preference_topic = (
-        f"<{pkg_data.preference.topic}>"
-        if isinstance(pkg_data.preference.topic, URI)
-        else _get_concept_representation(pkg_data.preference.topic)
-    )
-    subject = (
-        f"<{pkg_data.triple.subject}>"
-        if pkg_data.triple.subject
-        else f'"{pkg_data.triple.subject}"'
-    )
+    preference_topic = _get_property_representation(pkg_data.preference.topic)
+    subject = _get_property_representation(pkg_data.triple.subject)
 
     return f"""{subject} wi:preference
             [
@@ -103,7 +115,7 @@ def _get_preference_representation(
 def get_query_for_get_preference(
     who: Union[str, URI], topic: Union[URI, Concept, str]
 ) -> SPARQLQuery:
-    """Gets SPARQL query to retrieve preference value given a subject and topic.
+    """Gets query to retrieve preference value given a subject and topic.
 
     Args:
         who: Subject.
@@ -112,14 +124,8 @@ def get_query_for_get_preference(
     Returns:
         SPARQL query.
     """
-    subject = f"<{who}>" if isinstance(who, URI) else f'"{who}"'
-    preference_topic = ""
-    if isinstance(topic, URI):
-        preference_topic = f"<{topic}>"
-    elif isinstance(topic, Concept):
-        preference_topic = _get_concept_representation(topic)
-    else:
-        preference_topic = f'"{topic}"'
+    subject = _get_property_representation(who)
+    preference_topic = _get_property_representation(topic)
 
     return f"""
         SELECT ?weight
@@ -151,15 +157,9 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
 
     # Add triple annotation
     for field in dataclasses.fields(pkg_data.triple):
-        property = field.name
-        annotation = getattr(pkg_data.triple, property)
-        if isinstance(annotation, URI):
-            statement += f"rdf:{property} <{annotation}> ; "
-        elif isinstance(annotation, Concept):
-            concept = _get_concept_representation(annotation)
-            statement += f"rdf:{property} {concept} ; "
-        elif annotation:
-            statement += f'rdf:{property} "{annotation}" ; '
+        property = f"rdf:{field.name}"
+        annotation = getattr(pkg_data.triple, field.name)
+        statement += f"{_get_property_representation(annotation, property)} ; "
 
     # Add logging data
     # Time related data
