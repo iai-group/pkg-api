@@ -97,7 +97,7 @@ def test_get_query_for_add_statement(pkg_data_example: PKGData) -> None:
     """Tests _get_query_for_add_statement method."""
     sparql_query = """INSERT DATA {
         _:st a rdf:Statement ;
-        dc:description "I dislike all movies with the actor Tom Cruise."@en ;
+        dc:description "I dislike all movies with the actor Tom Cruise." ;
         rdf:subject <http://example.com/my/I> ;
         rdf:predicate [ a skos:Concept ; dc:description "dislike" ] ;
         rdf:object
@@ -128,6 +128,6 @@ def test_get_query_for_add_statement(pkg_data_example: PKGData) -> None:
         ]
         .
     }"""
-    assert strip_string(
-        utils.get_query_for_add_statement(pkg_data_example)
-    ) == strip_string(sparql_query)
+    assert utils.get_query_for_add_statement(pkg_data_example) == strip_string(
+        sparql_query
+    )

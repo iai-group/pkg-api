@@ -16,7 +16,7 @@ likes an entity. Representing a preference requires multiple triples; creating
 this representation is left to the utils class.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from rdflib.term import Variable
 
@@ -104,17 +104,6 @@ class PKG:
             else None
         )
 
-    def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
-        """Gets objects given subject and predicate.
-
-        Args:
-            predicate: Predicate of the fact.
-
-        Returns:
-            List of objects for the given predicate.
-        """
-        return self.get_objects_from_facts(self._owner_uri, predicate)
-
     def get_preferences(self, who: URI, rdf_class: URI) -> Dict[URI, float]:
         """Gets preferences for a given class.
 
@@ -127,114 +116,11 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(self, subject: URI, predicate: URI) -> List[URI]:
-        """Gets objects given subject and predicate.
+    def add_statement(self, pkg_data: utils.PKGData) -> None:
+        """Adds a statement to the PKG.
 
         Args:
-            subject: Subject of the fact.
-            predicate: Predicate of the fact.
-
-        Returns:
-            List of objects for the given predicate.
+            pkg_data: PKG data associated to a statement.
         """
-        query = utils.get_query_for_get_objects_from_facts(subject, predicate)
-        return [
-            str(binding.get(Variable("object")))
-            for binding in self._connector.execute_sparql_query(query).bindings
-        ]
-
-    def set_owner_preference(self, entity: URI, preference: float) -> None:
-        """Sets owner preference for a given entity.
-
-        Args:
-            entity: Entity.
-            preference: Preference value.
-        """
-        self.set_preference(self._owner_uri, entity, preference)
-
-    def set_preference(self, who: URI, entity: URI, preference: float) -> None:
-        """Sets preference for a given entity.
-
-        Args:
-            who: Who is setting the preference.
-            entity: URI of the entity.
-            preference: Preference value.
-        """
-        old_preference = self.get_preference(who, entity)
-
-        if old_preference is None:
-            query = utils.get_query_for_set_preference(who, entity, preference)
-        else:
-            query = utils.get_query_for_update_preference(
-                who, entity, old_preference, preference
-            )
-
-        self._connector.execute_sparql_update(query)
-
-    def add_owner_fact(self, predicate: URI, entity: URI) -> None:
-        """Adds a fact related to the PKG owner.
-
-        Args:
-            predicate: Predicate.
-            entity: Entity.
-        """
-        self.add_fact(self._owner_uri, predicate, entity)
-
-    def add_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
-        """Adds a fact.
-
-        Args:
-            subject: Subject.
-            predicate: Predicate.
-            entity: Entity.
-        """
-        query = utils.get_query_for_add_fact(subject, predicate, entity)
-        self._connector.execute_sparql_update(query)
-
-    def remove_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
-        """Removes a fact.
-
-        Args:
-            subject: Subject of the fact being removed.
-            predicate: Predicate of the fact being removed.
-            entity: Entity to be removed.
-        """
-        query = utils.get_query_for_remove_fact(subject, predicate, entity)
-        self._connector.execute_sparql_update(query)
-
-    def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
-        """Removes a fact related to the PKG owner.
-
-        Args:
-            predicate: Predicate to be removed.
-            entity: Entity to be removed.
-        """
-        self.remove_fact(self._owner_uri, predicate, entity)
-
-
-if __name__ == "__main__":
-    pkg = PKG("http://example.org/user1", RDFStore.MEMORY, "data/RDFStore")
-    pkg.add_owner_fact(
-        "http://example.org/likes", "http://example.org/icecream"
-    )
-    pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
-
-    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item)
-
-    pkg.remove_owner_fact(
-        "http://example.org/likes", "http://example.org/pizza"
-    )
-    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item)
-
-    pkg.set_owner_preference("http://example.org/tea", 1.0)
-    pkg.set_owner_preference("http://example.org/coffee", -1.0)
-
-    print(pkg.get_owner_preference("http://example.org/coffee"))
-
-    # Update user preference
-    pkg.set_owner_preference("http://example.org/coffee", 0.5)
-    print(pkg.get_owner_preference("http://example.org/coffee"))
-
-    print(pkg.get_owner_preference("http://example.org/tea"))
+        query = utils.get_query_for_add_statement(pkg_data)
+        self._connector.execute_sparql_query(query)

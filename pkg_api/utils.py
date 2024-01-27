@@ -147,7 +147,7 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
     # Create a statement
     blank_node_id = "_:st"
     statement = f"""{blank_node_id} a rdf:Statement ;
-        dc:description "{pkg_data.statement}"@en ; """
+        dc:description "{pkg_data.statement}" ; """
 
     # Add triple annotation
     for field in dataclasses.fields(pkg_data.triple):
@@ -189,4 +189,8 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
             {preference}
         }}
     """
-    return re.sub(r";\s*(?=[]\.])", "", query)
+
+    # Cleaning up the query
+    query = re.sub(r";\s*(?=[]\.])", "", query).strip()
+    query = re.sub(r"\s+", " ", query)
+    return query

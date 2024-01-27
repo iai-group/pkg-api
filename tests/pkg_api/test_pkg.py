@@ -1,7 +1,11 @@
 """Tests for the PKG module."""
+import re
+
 import pytest
 
 from pkg_api.connector import RDFStore
+from pkg_api.core.annotations import PKGData, Triple
+from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 
 
@@ -13,92 +17,34 @@ def user_pkg() -> PKG:
     )
 
 
-def test_add_fact(user_pkg: PKG) -> None:
-    """Tests add_fact method."""
-    user_pkg.add_fact(
-        "http://example.com/testuser1",
-        "http://example.org/likes",
-        "http://example.org/pizza",
+def test_add_statement(monkeypatch, user_pkg: PKG) -> None:
+    """Tests adding a statement."""
+    pkg_data = PKGData(
+        statement="I live in Stavanger.",
+        triple=Triple(
+            URI("http://example.com/testuser"),
+            "live",
+            URI("https://dbpedia.org/page/Stavanger"),
+        ),
+        logging_data={"authoredBy": URI("http://example.com/testuser")},
     )
-    assert user_pkg.get_objects_from_facts(
-        "http://example.com/testuser1", "http://example.org/likes"
-    ) == ["http://example.org/pizza"]
-    user_pkg.close()
 
+    expected_query = re.sub(
+        r"\s+",
+        " ",
+        """INSERT DATA { _:st a rdf:Statement ; dc:description "I live in
+     Stavanger." ; rdf:subject <http://example.com/testuser> ; rdf:predicate 
+     "live" ; rdf:object <https://dbpedia.org/page/Stavanger> ; pav:authoredBy
+     <http://example.com/testuser> . }""",
+    ).strip()
 
-def test_add_owner_fact(user_pkg) -> None:
-    """Tests add_owner_fact method."""
-    user_pkg.add_owner_fact(
-        "http://example.org/likes",
-        "http://example.org/pizza",
-    )
-    assert (
-        user_pkg.get_owner_objects_from_facts("http://example.org/likes")[0]
-        == "http://example.org/pizza"
-    )
-    user_pkg.close()
+    # Check that connector is called with the correct query
+    def mock_execute_sparql_query(query: str) -> None:
+        assert query == expected_query
+        mock_execute_sparql_query.called = True
 
-
-def test_remove_owner_fact(user_pkg) -> None:
-    """Tests remove_owner_fact method."""
-    user_pkg.add_owner_fact(
-        "http://example.org/likes", "http://example.org/pizza"
+    monkeypatch.setattr(
+        user_pkg._connector, "execute_sparql_query", mock_execute_sparql_query
     )
-    user_pkg.add_owner_fact(
-        "http://example.org/likes", "http://example.org/icecream"
-    )
-    user_pkg.remove_owner_fact(
-        "http://example.org/likes", "http://example.org/pizza"
-    )
-    assert (
-        user_pkg.get_owner_objects_from_facts("http://example.org/likes")[0]
-        == "http://example.org/icecream"
-    )
-    assert (
-        "http://example.org/pizza"
-        not in user_pkg.get_owner_objects_from_facts("http://example.org/likes")
-    )
-    user_pkg.remove_owner_fact(
-        "http://example.org/likes", "http://example.org/icecream"
-    )
-    assert (
-        len(user_pkg.get_owner_objects_from_facts("http://example.org/likes"))
-        == 0
-    )
-    user_pkg.close()
-
-
-def test_set_preference(user_pkg) -> None:
-    """Tests set_preference method."""
-    user_pkg.set_preference(
-        "http://example.com/testuser1", "http://example.org/pizza", 0.5
-    )
-    assert (
-        user_pkg.get_preference(
-            "http://example.com/testuser1",
-            "http://example.org/pizza",
-        )
-        == 0.5
-    )
-    # Update preference
-    user_pkg.set_preference(
-        "http://example.com/testuser1", "http://example.org/pizza", 1.0
-    )
-    assert (
-        user_pkg.get_preference(
-            "http://example.com/testuser1",
-            "http://example.org/pizza",
-        )
-        == 1.0
-    )
-    user_pkg.close()
-
-
-def test_set_owner_preference(user_pkg) -> None:
-    """Tests set_owner_preference method."""
-    user_pkg.set_owner_preference("http://example.org/pizza", 0.5)
-    assert user_pkg.get_owner_preference("http://example.org/pizza") == 0.5
-    # Update preference
-    user_pkg.set_owner_preference("http://example.org/pizza", 1.0)
-    assert user_pkg.get_owner_preference("http://example.org/pizza") == 1.0
-    user_pkg.close()
+    user_pkg.add_statement(pkg_data)
+    assert mock_execute_sparql_query.called
