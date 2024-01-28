@@ -1,9 +1,11 @@
 """Tests for LLM connector."""
 
+from unittest.mock import mock_open
+
 import pytest
+from pytest_mock import MockerFixture
 
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
-from unittest.mock import mock_open
 
 
 @pytest.fixture
@@ -27,7 +29,11 @@ def llm_connector_mistral() -> LLMConnector:
 def test_get_response_request_params_default(
     llm_connector_default: LLMConnector,
 ) -> None:
-    """Tests that get_response sends the correct request to LLM."""
+    """Tests that get_response sends the correct request to LLM.
+
+    Args:
+        llm_connector_default: LLMConnector instance.
+    """
     response = llm_connector_default._generate("Test prompt")
     assert response
     assert response["model"] == "llama2"
@@ -40,7 +46,11 @@ def test_get_response_request_params_default(
 def test_get_response_request_params_llama(
     llm_connector_llama2: LLMConnector,
 ) -> None:
-    """Tests that get_response sends the correct request to LLM."""
+    """Tests that get_response sends the correct request to LLM.
+
+    Args:
+        llm_connector_llama2: LLMConnector instance with Llama2 instance.
+    """
     response = llm_connector_llama2._generate("Test prompt")
     assert response["model"] == "llama2"
     assert response["response"] == llm_connector_llama2.get_response(
@@ -52,7 +62,11 @@ def test_get_response_request_params_llama(
 def test_get_response_request_params_mistral(
     llm_connector_mistral: LLMConnector,
 ) -> None:
-    """Tests that get_response sends the correct request to LLM."""
+    """Tests that get_response sends the correct request to LLM.
+
+    Args:
+        llm_connector_mistral: LLMConnector instance for Mistral model config.
+    """
     response = llm_connector_mistral._generate("Test prompt")
     assert response["model"] == "mistral"
     assert response["response"] == llm_connector_mistral.get_response(
@@ -61,19 +75,7 @@ def test_get_response_request_params_mistral(
     assert response
 
 
-def test_load_config_success(mocker):
-    """Tests that _load_config returns the correct config.
-
-    Args:
-        mocker: Mocking object.
-    """
-    mocker.patch("builtins.open", mock_open(read_data="key: value"))
-    mocker.patch("os.path.isfile", return_value=True)
-    result = LLMConnector._load_config("fake_path")
-    assert result == {"key": "value"}
-
-
-def test_load_config_file_not_found(mocker):
+def test_load_config_file_not_found(mocker: MockerFixture) -> None:
     """Tests that _load_config raises FileNotFoundError.
 
     Args:
@@ -81,18 +83,18 @@ def test_load_config_file_not_found(mocker):
     """
     mocker.patch("os.path.isfile", return_value=False)
     with pytest.raises(FileNotFoundError):
-        LLMConnector._load_config("fake_path")
+        LLMConnector("fake_path")._load_config()
 
 
-def test_load_config_content(mocker):
+def test_load_config_content(mocker: MockerFixture) -> None:
     """Tests that _load_config returns the valid data.
 
     Args:
         mocker: Mocking object.
     """
     mocker.patch(
-        "builtins.open", mock_open(read_data="key1: value1\nkey2: value2")
+        "builtins.open", mock_open(read_data="model: value1\nhost: value2")
     )
     mocker.patch("os.path.isfile", return_value=True)
-    result = LLMConnector._load_config("fake_path")
-    assert result == {"key1": "value1", "key2": "value2"}
+    result = LLMConnector(config_path="fake_path")._load_config()
+    assert result == {"model": "value1", "host": "value2"}
