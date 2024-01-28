@@ -40,7 +40,6 @@ def test_get_response_request_params_default(
     assert response["response"] == llm_connector_default.get_response(
         "Test prompt"
     )
-    assert response
 
 
 def test_get_response_request_params_llama(
