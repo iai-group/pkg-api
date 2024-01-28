@@ -88,6 +88,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+        timeout-minutes: 10 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
@@ -95,6 +96,7 @@ jobs:
           cache: "pip"
           cache-dependency-path: |
             requirements.txt
+
 
       - name: Install Dependencies
         run: |
