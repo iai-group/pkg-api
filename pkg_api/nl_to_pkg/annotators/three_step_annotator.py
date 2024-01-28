@@ -15,9 +15,9 @@ from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
 _DEFAULT_PROMPT_PATHS = {
-    "intent": "data/llm_prompts/default/intent.txt",
-    "triple": "data/llm_prompts/default/triple.txt",
-    "preference": "data/llm_prompts/default/preference.txt",
+    "intent": "data/llm_prompts/cot/intent.txt",
+    "triple": "data/llm_prompts/cot/triple.txt",
+    "preference": "data/llm_prompts/cot/preference.txt",
 }
 
 
@@ -43,7 +43,9 @@ class ThreeStepStatementAnnotator(ABC):
         self._prompt_paths = _DEFAULT_PROMPT_PATHS
         self._prompt = Prompt()
         self._valid_intents = {intent.name for intent in Intent}
-        self._llm_connector = LLMConnector()
+        self._llm_connector = LLMConnector(
+            "pkg_api/nl_to_pkg/llm/configs/llm_config_mistral.yaml"
+        )
 
     def get_annotations(self, statement: str) -> Tuple[Intent, PKGData]:
         """Returns a tuple with annotations for a statement.
