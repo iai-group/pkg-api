@@ -2,6 +2,7 @@ black
 flake8
 pytest
 pytest-cov
+pytest-mock
 mypy
 docformatter
 pre-commit
@@ -11,6 +12,9 @@ rdflib==6.3.2
 pytest-cov
 Flask>=2.3.3
 Flask-RESTful>=0.3.10
+Flask-SQLAlchemy>=3.1.1
+requests
+types-requests
 pyparsing>=2.4.7
 graphviz
 pydotplus>=2.0.2
