@@ -21,7 +21,7 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     if owner_uri is None:
         raise Exception("Missing owner URI")
 
-    store_path = current_app.config["STORE_PATH"]
+    store_path = current_app.config["SQLALCHEMY_DATABASE_URI"]
 
     return PKG(
         owner_uri,
