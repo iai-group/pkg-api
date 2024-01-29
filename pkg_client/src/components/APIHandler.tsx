@@ -3,6 +3,7 @@ import { UserContext } from "../contexts/UserContext";
 import Container from "react-bootstrap/Container";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
+import NLtoPKG from "./NLtoPKG";
 
 const APIHandler: React.FC = () => {
   const { user } = useContext(UserContext);
@@ -14,7 +15,15 @@ const APIHandler: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<div>Welcome {user?.username}</div>} />
+            <Route
+              index
+              element={
+                <div>
+                  <div>Welcome {user?.username}.</div>
+                  <NLtoPKG />
+                </div>
+              }
+            />
             <Route path="service" element={<div>Service Management</div>} />
             <Route path="population" element={<div>Population form</div>} />
             <Route

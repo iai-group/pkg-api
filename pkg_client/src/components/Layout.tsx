@@ -1,3 +1,5 @@
+// Layout component for the application includes a navigation bar and content
+// of the current tab.
 import { Outlet, Link } from "react-router-dom";
 import Nav from "react-bootstrap/Nav";
 import { useState } from "react";
