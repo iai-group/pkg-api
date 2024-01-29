@@ -1,6 +1,6 @@
 """Tests for LLM connector."""
 
-from unittest.mock import mock_open
+from unittest.mock import MagicMock, mock_open
 
 import pytest
 from pytest_mock import MockerFixture
@@ -8,70 +8,23 @@ from pytest_mock import MockerFixture
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 
 
-@pytest.fixture
-def llm_connector_default() -> LLMConnector:
-    """Returns an LLMConnector instance."""
-    return LLMConnector()
+def test_generate_method():
+    """Tests that the generate method is called with the correct arguments."""
+    mock_response = {"response": "test response", "other_data": "some value"}
+    connector = LLMConnector()
+    connector._client.generate = MagicMock(return_value=mock_response)
 
+    # Act
+    response = connector.get_response("test prompt")
 
-@pytest.fixture
-def llm_connector_llama2() -> LLMConnector:
-    """Returns an LLMConnector instance."""
-    return LLMConnector("pkg_api/nl_to_pkg/llm/configs/llm_config_llama2.yaml")
-
-
-@pytest.fixture
-def llm_connector_mistral() -> LLMConnector:
-    """Returns an LLMConnector instance."""
-    return LLMConnector("pkg_api/nl_to_pkg/llm/configs/llm_config_mistral.yaml")
-
-
-def test_get_response_request_params_default(
-    llm_connector_default: LLMConnector,
-) -> None:
-    """Tests that get_response sends the correct request to LLM.
-
-    Args:
-        llm_connector_default: LLMConnector instance.
-    """
-    response = llm_connector_default._generate("Test prompt")
-    assert response
-    assert response["model"] == "llama2"
-    assert response["response"] == llm_connector_default.get_response(
-        "Test prompt"
+    # Assert
+    assert response == "test response"
+    connector._client.generate.assert_called_once_with(
+        connector._model,
+        "test prompt",
+        options=connector._llm_options,
+        stream=connector._stream,
     )
-
-
-def test_get_response_request_params_llama(
-    llm_connector_llama2: LLMConnector,
-) -> None:
-    """Tests that get_response sends the correct request to LLM.
-
-    Args:
-        llm_connector_llama2: LLMConnector instance with Llama2 instance.
-    """
-    response = llm_connector_llama2._generate("Test prompt")
-    assert response["model"] == "llama2"
-    assert response["response"] == llm_connector_llama2.get_response(
-        "Test prompt"
-    )
-    assert response
-
-
-def test_get_response_request_params_mistral(
-    llm_connector_mistral: LLMConnector,
-) -> None:
-    """Tests that get_response sends the correct request to LLM.
-
-    Args:
-        llm_connector_mistral: LLMConnector instance for Mistral model config.
-    """
-    response = llm_connector_mistral._generate("Test prompt")
-    assert response["model"] == "mistral"
-    assert response["response"] == llm_connector_mistral.get_response(
-        "Test prompt"
-    )
-    assert response
 
 
 def test_load_config_file_not_found(mocker: MockerFixture) -> None:

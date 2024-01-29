@@ -74,29 +74,18 @@ jobs:
 
   build-and-test:
     name: "Build and Test Python 3.9"
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest
     if: always()
     strategy:
       max-parallel: 5
 
     steps:
       - uses: actions/checkout@v3
-      - name: Cache Python packages
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-        timeout-minutes: 15
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
           cache: "pip"
-          cache-dependency-path: |
-            requirements.txt
-
 
       - name: Install Dependencies
         run: |

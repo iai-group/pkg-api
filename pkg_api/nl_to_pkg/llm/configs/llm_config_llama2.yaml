@@ -1,4 +1,4 @@
-host: "http://badne4.ux.uis.no:11434"
+host: "ADD_OLLAMA_HOST"
 model: "llama2"
 stream: false
 options:
