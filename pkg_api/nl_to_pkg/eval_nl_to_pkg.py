@@ -38,6 +38,7 @@ def eval_intent(data: list) -> None:
     true_triples = []
     predicted_triples = []
     correct_triples = []
+    num_all_correct_triples = 0
     for row in data:
         intent, pkg_data = annotator.get_annotations(row[0])
         print(f"Statement: {row}, Intent: {intent}, PKG data: {pkg_data}")
@@ -50,14 +51,14 @@ def eval_intent(data: list) -> None:
             predict_preferene.append("")
         true_triples.append(row[2:5])
         correct_triple = 0
-        num_all_correct_triples = 0
         if pkg_data.triple:
-            if pkg_data.triple.subject == row[2]:
+            if pkg_data.triple.subject.strip().replace(".", "").replace("?", "") == row[2]:
                 correct_triple += 1
-            if pkg_data.triple.predicate == row[3]:
+            if pkg_data.triple.predicate.strip().replace(".", "").replace("?", "") == row[3]:
                 correct_triple += 1
-            if pkg_data.triple.object == row[4]:
+            if pkg_data.triple.object.strip().replace(".", "").replace("?", "") == row[4]:
                 correct_triple += 1
+            print(correct_triple)
             if correct_triple == 3:
                 num_all_correct_triples += 1
             predicted_triples.append(
@@ -82,7 +83,7 @@ def eval_intent(data: list) -> None:
         print(f"{true_int}, {pred_int}, {true_pref}, {pred_pref}")
     for true_triple, pred_triple in zip(true_triples, predicted_triples):
         print(f"{true_triple}, {pred_triple}")
-    print(num_all_correct_triples)
+    print("num_all_correct_triples", num_all_correct_triples)
 
     print(f"Intent macro F1: {intent_macro_f1}")
     intent_micro_f1 = f1_score(true_intents, predicted_intents, average="micro")
