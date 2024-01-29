@@ -1,7 +1,7 @@
 # This folder contains the config files needed to use the Ollama instance.
 
 * The config yaml must contain:
-    - host: replace ADD_OLLAMA_HOST with an instance of Ollama installed following the instructions [here].(https://ollama.ai/download/linux)
+    - host: replace ADD_OLLAMA_HOST with an instance of Ollama installed following the instructions [here](https://ollama.ai/download/linux).
     - model: `llama2`, `mistral` etc.
     - options: Hyperparameters for the model.
     - stream: If it is a chat response set stream to true otherwise false.
