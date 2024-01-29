@@ -29,7 +29,7 @@ class PKGExplorationResource(Resource):
         }, 200
 
     def post(self) -> Tuple[Dict[str, Any], int]:
-        """Executes the SPARQL query and visualizes the resulting PKG.
+        """Executes the SPARQL query.
 
         Returns:
             A dictionary with the result of running SPARQL query and the status

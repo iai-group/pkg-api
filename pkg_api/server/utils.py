@@ -30,7 +30,7 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     )
 
 
-def parse_pouplation_request_data(
+def parse_population_request_data(
     data: Dict[str, Any]
 ) -> Tuple[str, str, str, float]:
     """Parses the request data to retrieve query parameters.
