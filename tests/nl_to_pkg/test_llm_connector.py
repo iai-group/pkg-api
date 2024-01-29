@@ -8,8 +8,9 @@ from pytest_mock import MockerFixture
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 
 
-def test_generate_method():
+def test_generate_method() -> None:
     """Tests that the generate method is called with the correct arguments."""
+    # Arrange
     mock_response = {"response": "test response", "other_data": "some value"}
     connector = LLMConnector()
     connector._client.generate = MagicMock(return_value=mock_response)
@@ -25,6 +26,21 @@ def test_generate_method():
         options=connector._llm_options,
         stream=connector._stream,
     )
+
+
+def test_get_response_method() -> None:
+    """Tests that the get_response method returns the correct response."""
+    # Arrange
+    mock_response = {"response": "mocked response"}
+    connector = LLMConnector()
+    connector._generate = MagicMock(return_value=mock_response)
+
+    # Act
+    response = connector.get_response("test prompt")
+
+    # Assert
+    assert response == "mocked response"
+    connector._generate.assert_called_once_with("test prompt")
 
 
 def test_load_config_file_not_found(mocker: MockerFixture) -> None:
