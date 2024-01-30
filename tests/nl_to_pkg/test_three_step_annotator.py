@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pkg_api.core.annotations import Preference, Triple
+from pkg_api.core.annotations import Concept, Preference, Triple
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     ThreeStepStatementAnnotator,
@@ -59,9 +59,10 @@ def test_get_triple(
     mock_get_response.return_value = "Subject | Predicate | Object"
 
     triple = annotator._get_triple("Test statement")
+    assert triple is not None
     assert triple.subject == "Subject"
-    assert triple.predicate == "Predicate"
-    assert triple.object == "Object"
+    assert triple.predicate == Concept("Predicate")
+    assert triple.object == Concept("Object")
 
 
 def test_get_triple_missing_value(
@@ -72,6 +73,7 @@ def test_get_triple_missing_value(
     mock_get_response.return_value = "Subject | N/A | N/A"
 
     triple = annotator._get_triple("Test statement")
+    assert triple is not None
     assert triple.subject == "Subject"
     assert triple.predicate is None
     assert triple.object is None
@@ -84,7 +86,8 @@ def test_get_preference(
     """Tests that _get_preference returns the correct preference."""
     mock_get_response.return_value = "Preference is -1"
 
-    preference = annotator._get_preference("Test statement", "Object")
+    preference = annotator._get_preference("Test statement", Concept("Object"))
+    assert preference is not None
     assert preference.topic == "Object"
     assert preference.weight == -1.0
 
@@ -95,7 +98,7 @@ def test_get_preference_invalid(
     """Tests that _get_preference returns None for invalid preference."""
     mock_get_response.return_value = "No preference"
 
-    preference = annotator._get_preference("Test statement", "Object")
+    preference = annotator._get_preference("Test statement", Concept("Object"))
     assert preference is None
 
 
@@ -119,13 +122,17 @@ def test_get_annotations(
 ):
     """Tests that get_annotations returns correct values."""
     mock_get_intent.return_value = Intent.GET
-    mock_get_triple.return_value = Triple("Subject", "Predicate", "Object")
-    mock_get_preference.return_value = Preference("Object", 1.0)
+    mock_get_triple.return_value = Triple(
+        "Subject", Concept("Predicate"), Concept("Object")
+    )
+    mock_get_preference.return_value = Preference(Concept("Object"), 1.0)
 
     intent, pkg_data = annotator.get_annotations("Test statement")
     assert intent == Intent.GET
+    assert pkg_data.triple is not None
     assert pkg_data.triple.subject == "Subject"
-    assert pkg_data.triple.predicate == "Predicate"
-    assert pkg_data.triple.object == "Object"
-    assert pkg_data.preference.topic == "Object"
+    assert pkg_data.triple.predicate == Concept("Predicate")
+    assert pkg_data.triple.object == Concept("Object")
+    assert pkg_data.preference is not None
+    assert pkg_data.preference.topic == Concept("Object")
     assert pkg_data.preference.weight == 1.0
