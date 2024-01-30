@@ -27,7 +27,7 @@ class LLMConnector:
         self._config = self._load_config()
         if "model" not in self._config:
             raise ValueError(
-                "No model specified in the config. For example llama2"
+                "No model specified in the config, e.g., 'llama2'."
             )
         if "host" not in self._config:
             raise ValueError("No host specified in the config.")
@@ -58,6 +58,7 @@ class LLMConnector:
         Returns:
             The response from LLM, if it was successful.
         """
+        # Ignoring type because the type hint by ollama is wrong.
         return self._generate(prompt).get("response", "")  # type: ignore
 
     def _load_config(self) -> Dict[str, Any]:
