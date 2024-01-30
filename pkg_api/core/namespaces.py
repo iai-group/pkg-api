@@ -2,6 +2,7 @@
 
 TODO: The list of prefixes should be automatically generated from the PKG
 vocabulary.
+See: https://github.com/iai-group/pkg-api/issues/86
 """
 
 from enum import Enum

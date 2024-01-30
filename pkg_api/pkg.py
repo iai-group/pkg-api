@@ -1,19 +1,11 @@
 """PKG API.
 
-A fact is an atomic piece of information that can be represented as a triple:
-subject, predicate, object. A fact can be about the owner, in which case the
-subject is the owner's URI, or about another entity, then the subject is the
-entity's URI.
-
-For example:
-    - 'The owner (user1) likes ice cream' is represented as follow:
-    (/../user1, /../likes, /../icecream)
-    - 'Stavanger is in Norway' is represented as follow:
-    (/../stavanger, /../isIn, /../norway)  # noqa
-
-A preference indicates how much a person (can be the owner or someone else)
-likes an entity. Representing a preference requires multiple triples; creating
-this representation is left to the utils class.
+A statement is the main piece of information, it may be enriched with properties
+such as subject, object, and predicate (for more details refer to the PKG
+vocabulary and class PKGData). A statement may also be linked to a preference, 
+the representation of a preference is described in the PKG vocabulary.
+The PKG vocabulary and an example of a statement can be found here:
+https://github.com/iai-group/pkg-vocabulary
 """
 
 from typing import Dict, Optional

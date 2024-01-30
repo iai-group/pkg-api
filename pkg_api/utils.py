@@ -41,9 +41,14 @@ def _get_property_representation(
     """
     representation = f"{property}" if property else ""
     if isinstance(value, URI):
+        # The value is an URI, e.g., https://dbpedia.org/page/Tom_Cruise.
         return f"{representation} <{value}>"
     elif isinstance(value, Concept):
+        # The value is a concept, e.g., Concept(description="movies with Tom
+        # Cruise", related_entities=["https://dbpedia.org/page/Tom_Cruise"]).
         return f"{representation} {_get_concept_representation(value)}"
+
+    # The value is a literal, e.g., "dislike".
     return f'{representation} "{value}"'
 
 
@@ -119,7 +124,7 @@ def get_query_for_get_preference(
 
     Args:
         who: Subject.
-        topic: Topic.
+        topic: Topic of the preference. Usually, the object of the statement.
 
     Returns:
         SPARQL query.
@@ -141,17 +146,18 @@ def get_query_for_get_preference(
     """
 
 
-def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
-    """Gets SPARQL query to add a statement.
+def _get_statement_representation(
+    pkg_data: PKGData, blank_node_id: str
+) -> str:
+    """Gets the representation of a statement given a PKG data.
 
     Args:
         pkg_data: PKG data associated to a statement.
+        blank_node_id: Blank node ID of the statement.
 
     Returns:
-        SPARQL query.
+        Representation of the statement.
     """
-    # Create a statement
-    blank_node_id = "_:st"
     statement = f"""{blank_node_id} a rdf:Statement ;
         dc:description "{pkg_data.statement}" ; """
 
@@ -176,6 +182,21 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
             )
 
     statement += " . "
+    return statement
+
+
+def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to add a statement.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    blank_node_id = "_:st"
+    # Create a statement
+    statement = _get_statement_representation(pkg_data, blank_node_id)
 
     # Create a preference
     preference = ""

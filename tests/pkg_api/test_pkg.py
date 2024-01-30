@@ -17,7 +17,7 @@ def user_pkg() -> PKG:
     )
 
 
-def test_add_statement(monkeypatch, user_pkg: PKG) -> None:
+def test_add_statement(monkeypatch: pytest.MonkeyPatch, user_pkg: PKG) -> None:
     """Tests adding a statement."""
     pkg_data = PKGData(
         statement="I live in Stavanger.",
@@ -40,6 +40,7 @@ def test_add_statement(monkeypatch, user_pkg: PKG) -> None:
 
     # Check that connector is called with the correct query
     def mock_execute_sparql_query(query: str) -> None:
+        """Mock function for execute_sparql_query."""
         assert query == expected_query
         mock_execute_sparql_query.called = True
 
