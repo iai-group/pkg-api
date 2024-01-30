@@ -1,4 +1,6 @@
-# This folder contains the config files needed to use the Ollama instance.
+# Ollama configuration
+
+This folder contains the config files needed to use the Ollama instance.
 
 * The config yaml must contain:
     - host: replace ADD_OLLAMA_HOST with an instance of Ollama installed following the instructions [here](https://ollama.ai/download/linux).
