@@ -164,7 +164,9 @@ def get_query_for_get_preference(
     """
 
 
-def _get_statement_representation(pkg_data: PKGData, blank_node_id: str) -> str:
+def _get_statement_representation(
+    pkg_data: PKGData, blank_node_id: str
+) -> str:
     """Gets the representation of a statement given a PKG data.
 
     Args:
@@ -210,20 +212,65 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
     Returns:
         SPARQL query.
     """
-    blank_node_id = "_:st"
+    blank_node_id = "[]"
     # Create a statement
     statement = _get_statement_representation(pkg_data, blank_node_id)
-
-    # Create a preference
-    preference = ""
-    if pkg_data.preference:
-        preference = _get_preference_representation(pkg_data, blank_node_id)
 
     query = f"""
         INSERT DATA {{
             {statement}
+        }}
+    """
 
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_add_preference(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to add a preference.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    blank_node_id = "?statement"
+    statement = _get_statement_representation(pkg_data, blank_node_id)
+    preference = _get_preference_representation(pkg_data, blank_node_id)
+
+    query = f"""
+        INSERT {{
             {preference}
+        }}
+        WHERE {{
+            {statement}
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_get_statement(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to get a statement.
+
+    This query is strict and only look for statements that exactly match the
+    PKG data.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    statement_representation = _get_statement_representation(
+        pkg_data, "?statement"
+    )
+    query = f"""
+        SELECT ?statement
+        WHERE {{
+            {statement_representation}
         }}
     """
 
