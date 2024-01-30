@@ -30,6 +30,8 @@ def test_bind_namespaces(pkg_connector: Connector) -> None:
 def test_save_graph(pkg_connector: Connector) -> None:
     """Tests saving graph."""
     pkg_connector.save_graph()
+    if not os.path.exists("tests/data/RDFStore/"):
+        os.makedirs("tests/data/RDFStore/", exist_ok=True)
     assert os.path.exists("tests/data/RDFStore/testuser.ttl")
 
 
