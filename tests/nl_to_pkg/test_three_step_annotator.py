@@ -88,7 +88,7 @@ def test_get_preference(
 
     preference = annotator._get_preference("Test statement", Concept("Object"))
     assert preference is not None
-    assert preference.topic == "Object"
+    assert preference.topic == Concept("Object")
     assert preference.weight == -1.0
 
 
