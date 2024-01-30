@@ -30,15 +30,12 @@ def test_generate_method() -> None:
 
 def test_get_response_method() -> None:
     """Tests that the get_response method returns the correct response."""
-    # Arrange
     mock_response = {"response": "mocked response"}
     connector = LLMConnector()
     connector._generate = MagicMock(return_value=mock_response)
 
-    # Act
     response = connector.get_response("test prompt")
 
-    # Assert
     assert response == "mocked response"
     connector._generate.assert_called_once_with("test prompt")
 
