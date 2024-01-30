@@ -1,5 +1,5 @@
 host: "http://badne4.ux.uis.no:11434"
-model: "llama2"
+model: "llama2:13b"
 stream: false
 options:
   num_keep: 5

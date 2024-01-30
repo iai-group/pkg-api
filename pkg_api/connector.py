@@ -56,3 +56,14 @@ class Connector:
     def close(self) -> None:
         """Close the connection to the triplestore."""
         self._graph.close()
+    
+    def test_func(self, x: int) -> int:
+        """This is a test function.
+
+        Args:
+            x: Input integer.
+
+        Returns:
+            Output integer.
+        """
+        return x + 1

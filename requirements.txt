@@ -17,3 +17,5 @@ requests
 types-requests
 ollama
 types-PyYAML
+scikit-learn
+tqdm

@@ -5,7 +5,7 @@ from typing import Any, Dict
 import yaml
 from ollama import Client, Options
 
-_DEFAULT_CONFIG_PATH = "pkg_api/nl_to_pkg/llm/configs/llm_config_llama2.yaml"
+_DEFAULT_CONFIG_PATH = "pkg_api/nl_to_pkg/llm/configs/llm_config_mistral.yaml"
 
 
 class LLMConnector:
