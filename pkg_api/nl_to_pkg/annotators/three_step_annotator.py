@@ -6,11 +6,11 @@ with a triple and a preference using LLM.
 
 
 import re
-from abc import ABC
 from typing import Optional, Tuple
 
-from pkg_api.core.annotations import PKGData, Preference, Triple
+from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
 from pkg_api.core.intents import Intent
+from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
@@ -37,7 +37,7 @@ def is_number(value: str) -> bool:
         return False
 
 
-class ThreeStepStatementAnnotator(ABC):
+class ThreeStepStatementAnnotator(StatementAnnotator):
     def __init__(self) -> None:
         """Initializes the three-step statement annotator."""
         self._prompt_paths = _DEFAULT_PROMPT_PATHS
@@ -56,11 +56,10 @@ class ThreeStepStatementAnnotator(ABC):
         """
         intent = self._get_intent(statement)
         triple = self._get_triple(statement)
-        preference = (
-            self._get_preference(statement, triple.object)
-            if triple and isinstance(triple.object, str)
-            else None
-        )
+        if triple is not None and isinstance(triple.object, str):
+            preference = self._get_preference(statement, triple.object)
+        else:
+            preference = None
         return intent, PKGData(statement, triple, preference)
 
     def _get_intent(self, statement: str) -> Intent:
@@ -101,7 +100,12 @@ class ThreeStepStatementAnnotator(ABC):
             for term in response.split("|")
         ]
         if len(response_terms) == 3:
-            return Triple(*response_terms)
+            subject, predicate, object = response_terms
+            return Triple(
+                subject,
+                Concept(predicate) if predicate else None,
+                Concept(object) if object else None,
+            )
         return None
 
     def _get_preference(
