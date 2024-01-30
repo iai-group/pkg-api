@@ -1,4 +1,5 @@
-from pprint import pprint
+"""This module contains the DBpedia Spotlight entity linker."""
+
 from typing import Any, Dict
 
 import requests
@@ -12,13 +13,22 @@ _DEFAULT_CONFIG_PATH = "config/entity_linking/dbpedia_spotlight.yaml"
 
 class SpotlightEntityLinker(EntityLinker):
     def __init__(self):
+        """Initializes the DBpedia Spotlight entity linker."""
         self._config = load_yaml_config(_DEFAULT_CONFIG_PATH)
 
     def link_annotation_entities(self, pkg_data: PKGData) -> PKGData:
+        """Returns the PKG data with linked entities.
+
+        Args:
+            pkg_data: The PKG data to be annotated.
+
+        Returns:
+            The PKG data with linked entities.
+        """
         if pkg_data.triple is None or pkg_data.triple.object is None:
             return pkg_data
 
-        linked_entities = self._link_statement_entities(
+        linked_entities = self._get_linker_response(
             pkg_data.triple.object.description
         )
         if linked_entities is None or "Resources" not in linked_entities:
@@ -29,7 +39,15 @@ class SpotlightEntityLinker(EntityLinker):
 
         return pkg_data
 
-    def _link_statement_entities(self, text: str) -> Dict[str, Any]:
+    def _get_linker_response(self, text: str) -> Dict[str, Any]:
+        """Returns the response from the DBpedia Spotlight API.
+
+        Args:
+            text: The text to be annotated.
+
+        Returns:
+            The response from the DBpedia Spotlight API.
+        """
         params = {**self._config["params"], "text": text}
         response = requests.get(
             self._config["url"], headers=self._config["headers"], params=params
@@ -58,4 +76,4 @@ if __name__ == "__main__":
         ),
     )
     linker = SpotlightEntityLinker()
-    pprint(linker.link_annotation_entities(pkg_data))
+    linker.link_annotation_entities(pkg_data)
