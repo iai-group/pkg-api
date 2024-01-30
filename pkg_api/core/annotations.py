@@ -21,15 +21,15 @@ class Triple:
     """Class representing a subject, predicate, object triple."""
 
     subject: Union[URI, str, None] = None
-    predicate: Union[URI, str, None] = None
-    object: Union[URI, Concept, str, None] = None
+    predicate: Union[Concept, None] = None
+    object: Union[Concept, None] = None
 
 
 @dataclass
 class Preference:
     """Class representing a preference."""
 
-    topic: Union[URI, Concept, str]
+    topic: Concept
     weight: float
 
 
