@@ -58,7 +58,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         triple = self._get_triple(statement)
         preference = (
             self._get_preference(statement, triple.object)
-            if triple is not None
+            if triple is not None and triple.object is not None
             else None
         )
         return intent, PKGData(statement, triple, preference)
@@ -110,7 +110,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         return None
 
     def _get_preference(
-        self, statement: str, triple_object: Optional[Concept]
+        self, statement: str, triple_object: Concept
     ) -> Optional[Preference]:
         """Returns the preference for a statement.
 
@@ -121,9 +121,6 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         Returns:
             The preference.
         """
-        if triple_object is None:
-            return None
-
         prompt = self._prompt.get_prompt(
             self._prompt_paths["preference"],
             statement=statement,
