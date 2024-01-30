@@ -15,6 +15,22 @@ from pkg_api.core.annotations import Concept, PKGData
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
 
+def _clean_sparql_representation(sparql: str) -> str:
+    """Cleans a SPARQL representation.
+
+    Removes unwanted semicolons and new lines.
+
+    Args:
+        sparql: SPARQL representation.
+
+    Returns:
+        Cleaned SPARQL representation.
+    """
+    sparql = re.sub(r";\s*(?=[]\.])", "", sparql).strip()
+    sparql = re.sub(r"\s+", " ", sparql)
+    return sparql
+
+
 def _get_uri_list(entities: List[URI]) -> str:
     """Gets a list of URIs as a string for SPARQL queries.
 
@@ -82,12 +98,13 @@ def _get_concept_representation(concept: Concept) -> str:
         if concept.narrower_entities
         else ""
     )
-    return concept_template.format(
+    representation = concept_template.format(
         description=concept.description,
         related_entities=related_entities,
         broader_entities=broader_entities,
         narrower_entities=narrower_entities,
     )
+    return _clean_sparql_representation(representation)
 
 
 def _get_preference_representation(
@@ -105,7 +122,7 @@ def _get_preference_representation(
     preference_topic = _get_property_representation(pkg_data.preference.topic)
     subject = _get_property_representation(pkg_data.triple.subject)
 
-    return f"""{subject} wi:preference
+    representation = f"""{subject} wi:preference
             [
                 pav:derivedFrom {blank_node_id} ;
                 wi:topic {preference_topic} ;
@@ -115,6 +132,7 @@ def _get_preference_representation(
                 ]
             ] .
         """
+    return _clean_sparql_representation(representation)
 
 
 def get_query_for_get_preference(
@@ -182,7 +200,7 @@ def _get_statement_representation(
             )
 
     statement += " . "
-    return statement
+    return _clean_sparql_representation(statement)
 
 
 def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
@@ -212,6 +230,4 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
     """
 
     # Cleaning up the query
-    query = re.sub(r";\s*(?=[]\.])", "", query).strip()
-    query = re.sub(r"\s+", " ", query)
-    return query
+    return _clean_sparql_representation(query)

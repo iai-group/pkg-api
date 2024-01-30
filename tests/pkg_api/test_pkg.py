@@ -39,13 +39,13 @@ def test_add_statement(monkeypatch: pytest.MonkeyPatch, user_pkg: PKG) -> None:
     ).strip()
 
     # Check that connector is called with the correct query
-    def mock_execute_sparql_query(query: str) -> None:
-        """Mock function for execute_sparql_query."""
+    def mock_execute_sparql_update(query: str) -> None:
+        """Mock function for execute_sparql_update."""
         assert query == expected_query
-        mock_execute_sparql_query.called = True
+        mock_execute_sparql_update.called = True
 
     monkeypatch.setattr(
-        user_pkg._connector, "execute_sparql_query", mock_execute_sparql_query
+        user_pkg._connector, "execute_sparql_query", mock_execute_sparql_update
     )
     user_pkg.add_statement(pkg_data)
-    assert mock_execute_sparql_query.called
+    assert mock_execute_sparql_update.called

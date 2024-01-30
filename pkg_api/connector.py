@@ -70,8 +70,13 @@ class Connector:
         self._graph.close()
 
     def save_graph(self) -> None:
-        """Saves the graph to a file."""
-        if not os.path.exists(self._rdf_store_path):
-            parent_dir = os.path.dirname(self._rdf_store_path)
-            os.makedirs(parent_dir, exist_ok=True)
+        """Saves the graph to a file.
+
+        Raises:
+            FileNotFoundError: If the directory to store the graph does not
+              exist.
+        """
+        directory = os.path.dirname(self._rdf_store_path)
+        if not os.path.exists(directory):
+            raise FileNotFoundError(f"Directory {directory} does not exist.")
         self._graph.serialize(self._rdf_store_path, format="turtle")

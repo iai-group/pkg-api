@@ -115,4 +115,4 @@ class PKG:
             pkg_data: PKG data associated to a statement.
         """
         query = utils.get_query_for_add_statement(pkg_data)
-        self._connector.execute_sparql_query(query)
+        self._connector.execute_sparql_update(query)
