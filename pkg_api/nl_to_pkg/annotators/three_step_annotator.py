@@ -22,6 +22,7 @@ _DEFAULT_PROMPT_PATHS = {
 
 _DEFAULT_CONFIG_PATH = "pkg_api/nl_to_pkg/llm/configs/llm_config_mistral.yaml"
 
+
 def is_number(value: str) -> bool:
     """Returns True if a value is a number, False otherwise.
 
@@ -39,13 +40,18 @@ def is_number(value: str) -> bool:
 
 
 class ThreeStepStatementAnnotator(ABC):
-    def __init__(self, prompt_paths: Dict[str, str] = _DEFAULT_PROMPT_PATHS, config_path: str =_DEFAULT_CONFIG_PATH) -> None:
+    def __init__(
+        self,
+        prompt_paths: Dict[str, str] = _DEFAULT_PROMPT_PATHS,
+        config_path: str = _DEFAULT_CONFIG_PATH,
+    ) -> None:
         """Initializes the three-step statement annotator.
-        
+
         Args:
             prompt_paths: A dictionary with the paths to the prompts for each
-                step.
-            config_path: The path to the LLM config file.
+                step. Defaults to prompt paths defined in _DEFAULT_PROMPT_PATHS.
+            config_path: The path to the LLM config file. Defaults to the config
+                defined in _DEFAULT_CONFIG_PATH.
         """
         self._prompt_paths = prompt_paths
         self._prompt = Prompt()

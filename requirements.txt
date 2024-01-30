@@ -17,3 +17,4 @@ ollama
 types-PyYAML
 scikit-learn
 tqdm
+rfc3987
