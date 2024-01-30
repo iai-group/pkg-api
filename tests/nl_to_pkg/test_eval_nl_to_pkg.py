@@ -1,4 +1,4 @@
-"""Tests eval_nl_to_pkg.py file."""
+"""Tests for evaluation of NL to PKG."""
 from pkg_api.nl_to_pkg.eval_nl_to_pkg import load_data
 
 
