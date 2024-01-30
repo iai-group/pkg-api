@@ -45,7 +45,9 @@ def test_add_statement(monkeypatch: pytest.MonkeyPatch, user_pkg: PKG) -> None:
         mock_execute_sparql_update.called = True
 
     monkeypatch.setattr(
-        user_pkg._connector, "execute_sparql_query", mock_execute_sparql_update
+        user_pkg._connector,
+        "execute_sparql_update",
+        mock_execute_sparql_update,
     )
     user_pkg.add_statement(pkg_data)
     assert mock_execute_sparql_update.called
