@@ -1,11 +1,11 @@
 """PKG API.
 
-A statement is the main piece of information, it may be enriched with properties
-such as subject, object, and predicate (for more details refer to the PKG
-vocabulary and class PKGData). A statement may also be linked to a preference, 
-the representation of a preference is described in the PKG vocabulary.
-The PKG vocabulary and an example of a statement can be found here:
-https://github.com/iai-group/pkg-vocabulary
+A statement is the main piece of information, it may be enriched with
+properties such as subject, object, and predicate (for more details
+refer to the PKG vocabulary and class PKGData). A statement may also be
+linked to a preference, the representation of a preference is described
+in the PKG vocabulary. The PKG vocabulary and an example of a statement
+can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
 from typing import Dict, Optional
