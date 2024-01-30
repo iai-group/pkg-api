@@ -56,10 +56,11 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         """
         intent = self._get_intent(statement)
         triple = self._get_triple(statement)
-        if triple is not None and isinstance(triple.object, str):
-            preference = self._get_preference(statement, triple.object)
-        else:
-            preference = None
+        preference = (
+            self._get_preference(statement, triple.object)
+            if triple is not None
+            else None
+        )
         return intent, PKGData(statement, triple, preference)
 
     def _get_intent(self, statement: str) -> Intent:
@@ -109,30 +110,24 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         return None
 
     def _get_preference(
-        self, statement: str, triple_object: str
+        self, statement: str, triple_object: Optional[Concept]
     ) -> Optional[Preference]:
         """Returns the preference for a statement.
 
         Args:
             statement: The statement to be annotated.
-            triple_object: The object of the triple. It is only used in string
-                form.
-
-        Raises:
-            TypeError: If the triple object is not a string.
+            triple_object: The object of the triple.
 
         Returns:
             The preference.
         """
-        if not isinstance(triple_object, str):
-            raise TypeError(
-                f"Triple object must be of type str, not {type(triple_object)}."
-            )
+        if triple_object is None:
+            return None
 
         prompt = self._prompt.get_prompt(
             self._prompt_paths["preference"],
             statement=statement,
-            object=triple_object,
+            object=triple_object.description,
         )
         response = self._llm_connector.get_response(prompt)
         response_terms = [
