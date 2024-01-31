@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import requests
 
-from pkg_api.core.annotations import Concept, PKGData, Triple
+from pkg_api.core.annotation import Concept, PKGData, Triple
 from pkg_api.nl_to_pkg.entity_linking.entity_linker import EntityLinker
 from pkg_api.util.load_config import load_yaml_config
 
@@ -29,12 +29,13 @@ class SpotlightEntityLinker(EntityLinker):
             return pkg_data
 
         linked_entities = self._get_linker_response(
-            pkg_data.triple.object.description
+            pkg_data.triple.object.value
         )
         if linked_entities is None or "Resources" not in linked_entities:
             return pkg_data
 
         for entity in linked_entities["Resources"]:
+            print(entity)
             pkg_data.triple.object.related_entities.append(entity["@URI"])
 
         return pkg_data

@@ -2,8 +2,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pkg_api.core.annotations import Concept, PKGData, Triple
-from pkg_api.nl_to_pkg.entity_linking.spotlight import SpotlightEntityLinker
+from pkg_api.core.annotation import Concept, PKGData, Triple
+from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
+    SpotlightEntityLinker,
+)
 
 
 @pytest.fixture
