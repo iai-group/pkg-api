@@ -21,12 +21,12 @@ class TripleElement:
     """Class representing a subject, predicate or object element.
 
     Attributes:
-        value: Raw string value of the element.
-        reference: URI, Concept or literal reference of the element.
+        reference: Raw string reference of the element.
+        value: URI, Concept or literal value of the element.
     """
 
-    value: str
-    reference: Union[URI, Concept, str, None] = None
+    reference: str
+    value: Union[URI, Concept, str, None] = None
 
 
 @dataclass
