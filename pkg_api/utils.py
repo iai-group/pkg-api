@@ -11,7 +11,7 @@ import dataclasses
 import re
 from typing import List, Optional, Union
 
-from pkg_api.core.annotations import Concept, PKGData
+from pkg_api.core.annotation import Concept, PKGData
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
 

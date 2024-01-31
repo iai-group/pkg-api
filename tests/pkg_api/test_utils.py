@@ -7,7 +7,7 @@ from typing import Optional, Union
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
+from pkg_api.core.annotation import Concept, PKGData, Preference, Triple
 from pkg_api.core.pkg_types import URI
 
 

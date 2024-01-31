@@ -4,7 +4,7 @@ import re
 import pytest
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotations import PKGData, Triple
+from pkg_api.core.annotation import PKGData, Triple
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 
