@@ -9,15 +9,18 @@ can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from collections import defaultdict
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from rdflib import BNode, Literal, URIRef
+from rdflib.namespace import NamespaceManager
 from rdflib.term import Variable
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-from pkg_api.core.annotations import PKGData
+from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
 from pkg_api.core.pkg_types import URI
+from pkg_api.mapping_vocab import MappingVocab
 
 
 class PKG:
@@ -143,39 +146,117 @@ class PKG:
             triples = list(
                 self._connector._graph.triples((statement_bnode, None, None))
             )
-            statement = self._parse_statement_node(triples)
+            statement = self._parse_statement_node(
+                triples, self._connector._graph.namespace_manager
+            )
             statements.append(statement)
         return statements
 
     def _parse_statement_node(
-        self, triples: List[Tuple[Any, Any, Any]]
-    ) -> PKGData:
+        self,
+        triples: List[Tuple[Any, Any, Any]],
+        namespace_manager: NamespaceManager,
+    ) -> Optional[PKGData]:
         """Parses a statement node.
 
         Args:
             triples: List of triples that form the statement.
+            namespace_manager: Namespace manager of the graph.
 
         Returns:
             PKG data associated to the statement.
         """
-        statement_dict = {}
-        namespace_manager = self._connector._graph.namespace_manager
+        statement_dict = defaultdict(lambda: defaultdict())
 
         for _, p, o in triples:
-            property = p.n3(namespace_manager).split(":")[-1]
-            if isinstance(o, URIRef):
-                statement_dict[property] = URI(str(o))
-            elif isinstance(o, Literal):
-                statement_dict[property] = str(o)
-            elif isinstance(o, BNode):
-                # TODO: Handle Concept
-                pass
-            else:
+            value = None
+            property = p.n3(namespace_manager)
+            pkg_data_field, field_property = MappingVocab.get_pkgdata_field(
+                property
+            )
+            if pkg_data_field is None:
                 logging.warning(
-                    f"Statement parsing - Object {o} of type {type(o)} not "
-                    "supported."
+                    f"Statement parsing - Property {property} not supported."
+                )
+                continue
+            value = self._parse_triple_object(o)
+            if field_property is None:
+                statement_dict[pkg_data_field] = value
+            else:
+                statement_dict[pkg_data_field][field_property] = value
+
+        if not statement_dict.get("statement", None):
+            logging.warning(
+                "Statement parsing failed, not statement returned."
+            )
+            return None
+
+        return PKGData(
+            statement=statement_dict.get("statement"),
+            triple=Triple(**statement_dict.get("triple"))
+            if statement_dict.get("triple", None)
+            else None,
+            preference=Preference(**statement_dict.get("preference"))
+            if statement_dict.get("preference", None)
+            else None,
+            logging_data=dict(statement_dict.get("logging_data", {})),
+        )
+
+    def _parse_triple_object(
+        self, object: Any
+    ) -> Optional[Union[URI, Concept, str]]:
+        """Parses a triple object.
+
+        Args:
+            object: Triple object.
+
+        Returns:
+            Value of the triple object as URI, Concept, or str.
+        """
+        if isinstance(object, URIRef):
+            return URI(str(object))
+        elif isinstance(object, Literal):
+            return str(object)
+        elif isinstance(object, BNode):
+            return self._retrieve_and_parse_concept(object)
+
+        logging.warning(
+            f"Object {object} of type {type(object)} not supported."
+        )
+        return None
+
+    def _retrieve_and_parse_concept(
+        self, concept_node_id: str
+    ) -> Optional[Concept]:
+        """Retrieves and parses a concept from the graph.
+
+        Args:
+            concept_node_id: Node ID of the concept.
+
+        Returns:
+            Concept.
+        """
+        concept_dict = defaultdict()
+        namespace_manager = self._connector._graph.namespace_manager
+        for _, p, o in self._connector._graph.triples(
+            (concept_node_id, None, None)
+        ):
+            property = p.n3(namespace_manager)
+            concept_field = MappingVocab.CONCEPT_MAPPING.get(property, None)
+            if concept_field is None:
+                logging.warning(
+                    f"Concept parsing - Property {property} not supported."
                 )
                 continue
 
-        # return PKGData(**statement_dict)
-        return None
+            if concept_field == "description":
+                concept_dict[concept_field] = str(o)
+            else:
+                # Other fields of Concept are lists of URIs
+                concept_dict.setdefault(concept_field, []).append(URI(str(o)))
+
+        if not concept_dict.get("description", None):
+            logging.warning("Concept parsing failed, not description found.")
+            return None
+
+        return Concept(**concept_dict)
