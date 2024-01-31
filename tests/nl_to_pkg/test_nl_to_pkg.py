@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
+from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.nl_to_pkg import NLtoPKG
 
@@ -20,8 +20,12 @@ def statement_annotator_mock(statement: str) -> Mock:
     """Returns a mock statement annotator."""
     mock = Mock()
     intent = Intent.ADD
-    triple = Triple("Subject", Concept("Predicate"), Concept("Object"))
-    preference = Preference(Concept("Object"), 1.0)
+    triple = Triple(
+        TripleElement("Subject"),
+        TripleElement("Predicate"),
+        TripleElement("Object"),
+    )
+    preference = Preference(TripleElement("Object"), 1.0)
     mock.get_annotations.return_value = (
         intent,
         PKGData(statement, triple=triple, preference=preference),
@@ -43,9 +47,11 @@ def entity_linker_mock() -> Mock:
         else:
             # Default behavior for other cases
             linked_triple = Triple(
-                "Linked Subject", "Linked Predicate", "Linked Object"
+                TripleElement("Linked Subject"),
+                TripleElement("Linked Predicate"),
+                TripleElement("Linked Object"),
             )
-            linked_preference = Preference(Concept("Linked Object"), 1.0)
+            linked_preference = Preference(TripleElement("Linked Object"), 1.0)
             return PKGData(
                 "Test", triple=linked_triple, preference=linked_preference
             )
@@ -69,7 +75,7 @@ def test_annotate_success(statement: str, nlp_to_pkg: NLtoPKG) -> None:
 
     assert intent == Intent.ADD
     assert pkg_data.triple is not None
-    assert pkg_data.triple.subject == "Linked Subject"
+    assert pkg_data.triple.subject == TripleElement("Linked Subject")
 
 
 def test_annotate_no_triple(
@@ -95,4 +101,4 @@ def test_annotate_with_preference_update(
     _, pkg_data = nlp_to_pkg.annotate(statement)
 
     assert pkg_data.preference is not None
-    assert pkg_data.preference.topic == Concept("Linked Object")
+    assert pkg_data.preference.topic == TripleElement("Linked Object")

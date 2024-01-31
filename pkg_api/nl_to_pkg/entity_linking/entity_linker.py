@@ -3,7 +3,7 @@
 
 from abc import ABC, abstractmethod
 
-from pkg_api.core.annotations import PKGData
+from pkg_api.core.annotation import PKGData
 
 
 class EntityLinker(ABC):

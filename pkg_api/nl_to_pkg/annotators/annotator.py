@@ -9,7 +9,7 @@ annotate the triple (subject, predicate, object) and the preference (1 |
 from abc import ABC, abstractmethod
 from typing import Tuple
 
-from pkg_api.core.annotations import PKGData
+from pkg_api.core.annotation import PKGData
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
