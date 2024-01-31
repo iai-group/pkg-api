@@ -6,11 +6,11 @@ Triple.
 """
 
 
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 
 class MappingVocab:
-    PKGDATA_MAPPING = {
+    PKGDATA_MAPPING: Dict[str, Dict[str, Optional[str]]] = {
         "statement": {"dc:description": None},
         "triple": {
             "rdf:subject": "subject",

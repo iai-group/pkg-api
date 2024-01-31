@@ -10,7 +10,7 @@ can be found here: https://github.com/iai-group/pkg-vocabulary
 
 import logging
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
 from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import NamespaceManager
@@ -166,7 +166,9 @@ class PKG:
         Returns:
             PKG data associated to the statement.
         """
-        statement_dict = defaultdict(lambda: defaultdict())
+        statement_dict: DefaultDict[str, Any] = defaultdict(
+            lambda: defaultdict()
+        )
 
         for _, p, o in triples:
             value = None
@@ -224,22 +226,23 @@ class PKG:
         return None
 
     def _retrieve_and_parse_concept(
-        self, concept_node_id: str
+        self, concept_node: BNode
     ) -> Optional[Concept]:
         """Retrieves and parses a concept from the graph.
 
         Args:
-            concept_node_id: Node ID of the concept.
+            concept_node: Node ID of the concept.
 
         Returns:
             Concept.
         """
-        concept_dict = defaultdict()
+        concept_dict: DefaultDict[str, Any] = defaultdict()
         namespace_manager = self._connector._graph.namespace_manager
         for _, p, o in self._connector._graph.triples(
-            (concept_node_id, None, None)
+            (concept_node, None, None)
         ):
-            property = p.n3(namespace_manager)
+            # According to rdflib documentation, all terms have a n3 method.
+            property = p.n3(namespace_manager)  # type: ignore[attr-defined]
             concept_field = MappingVocab.CONCEPT_MAPPING.get(property, None)
             if concept_field is None:
                 logging.warning(
