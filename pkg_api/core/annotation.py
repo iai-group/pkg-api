@@ -17,19 +17,36 @@ class Concept:
 
 
 @dataclass
+class TripleElement:
+    """Class representing a subject, predicate or object element.
+
+    Attributes:
+        value: Raw string value of the element.
+        reference: URI, Concept or literal reference of the element.
+    """
+
+    value: str
+    reference: Union[URI, Concept, str, None] = None
+
+
+@dataclass
 class Triple:
     """Class representing a subject, predicate, object triple."""
 
-    subject: Union[URI, str, None] = None
-    predicate: Union[Concept, None] = None
-    object: Union[Concept, None] = None
+    subject: Optional[TripleElement] = None
+    predicate: Optional[TripleElement] = None
+    object: Optional[TripleElement] = None
 
 
 @dataclass
 class Preference:
-    """Class representing a preference."""
+    """Class representing a preference.
 
-    topic: Concept
+    Note: In the current version of the PKG API, topic refers to the object of
+    a triple.
+    """
+
+    topic: TripleElement
     weight: float
 
 

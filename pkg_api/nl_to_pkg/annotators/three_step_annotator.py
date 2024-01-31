@@ -8,7 +8,7 @@ with a triple and a preference using LLM.
 import re
 from typing import Optional, Tuple
 
-from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
+from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
@@ -103,14 +103,14 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         if len(response_terms) == 3:
             subject, predicate, object = response_terms
             return Triple(
-                subject,
-                Concept(predicate) if predicate else None,
-                Concept(object) if object else None,
+                TripleElement(subject) if subject else None,
+                TripleElement(predicate) if predicate else None,
+                TripleElement(object) if object else None,
             )
         return None
 
     def _get_preference(
-        self, statement: str, triple_object: Concept
+        self, statement: str, triple_object: TripleElement
     ) -> Optional[Preference]:
         """Returns the preference for a statement.
 
@@ -124,7 +124,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         prompt = self._prompt.get_prompt(
             self._prompt_paths["preference"],
             statement=statement,
-            object=triple_object.description,
+            object=triple_object.value,
         )
         response = self._llm_connector.get_response(prompt)
         response_terms = [
