@@ -164,9 +164,7 @@ def get_query_for_get_preference(
     """
 
 
-def _get_statement_representation(
-    pkg_data: PKGData, blank_node_id: str
-) -> str:
+def _get_statement_representation(pkg_data: PKGData, blank_node_id: str) -> str:
     """Gets the representation of a statement given a PKG data.
 
     Args:

@@ -1,8 +1,8 @@
-"""Static class that maps the PKG vocabulary properties to the associated
-dataclass fields.
+"""Static class mapping the PKG vocabulary properties to the associated fields.
 
-For example, the property description is mapped to the field statement of
-PKGData, and the property subject is mapped to the field subject of Triple.
+For example, the property description is mapped to the field statement
+of PKGData, and the property subject is mapped to the field subject of
+Triple.
 """
 
 
@@ -34,8 +34,7 @@ class MappingVocab:
 
     @staticmethod
     def get_pkgdata_field(property: str) -> Tuple[str, Optional[str]]:
-        """Gets the field and optionally the nested field of a PKGData given
-        a property.
+        """Gets the field and subfield of PKGData associated to a property.
 
         Args:
             property: Property to be mapped.

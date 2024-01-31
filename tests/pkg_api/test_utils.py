@@ -235,9 +235,9 @@ def test_get_query_for_add_preference(
     WHERE {{
         {statement_representation.replace("[]", "?statement")}
     }}"""
-    assert utils.get_query_for_add_preference(
-        pkg_data_example
-    ) == strip_string(sparql_query)
+    assert utils.get_query_for_add_preference(pkg_data_example) == strip_string(
+        sparql_query
+    )
 
 
 def test_get_query_for_get_statement(
@@ -247,6 +247,7 @@ def test_get_query_for_get_statement(
 
     Args:
         pkg_data_example: PKG data example.
+        statement_representation: Statement representation.
     """
     sparql_query = f"""SELECT ?statement
         WHERE {{

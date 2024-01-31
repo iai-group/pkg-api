@@ -186,9 +186,7 @@ class PKG:
                 statement_dict[pkg_data_field][field_property] = value
 
         if not statement_dict.get("statement", None):
-            logging.warning(
-                "Statement parsing failed, not statement returned."
-            )
+            logging.warning("Statement parsing failed, not statement returned.")
             return None
 
         return PKGData(
