@@ -254,6 +254,6 @@ def test_get_query_for_get_statement(
             {statement_representation.replace("[]", "?statement")}
         }}"""
 
-    assert utils.get_query_for_get_statement(pkg_data_example) == strip_string(
+    assert utils.get_query_for_get_statements(pkg_data_example) == strip_string(
         sparql_query
     )

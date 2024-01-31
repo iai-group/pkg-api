@@ -11,7 +11,7 @@ import dataclasses
 import re
 from typing import List, Optional, Union
 
-from pkg_api.core.annotations import Concept, PKGData
+from pkg_api.core.annotations import Concept, PKGData, Triple
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
 
@@ -250,14 +250,14 @@ def get_query_for_add_preference(pkg_data: PKGData) -> SPARQLQuery:
     return _clean_sparql_representation(query)
 
 
-def get_query_for_get_statement(pkg_data: PKGData) -> SPARQLQuery:
-    """Gets SPARQL query to get a statement.
+def get_query_for_get_statements(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to get statements.
 
     This query is strict and only look for statements that exactly match the
     PKG data.
 
     Args:
-        pkg_data: PKG data associated to a statement.
+        pkg_data: PKG data.
 
     Returns:
         SPARQL query.
@@ -269,6 +269,39 @@ def get_query_for_get_statement(pkg_data: PKGData) -> SPARQLQuery:
         SELECT ?statement
         WHERE {{
             {statement_representation}
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_conditional_get_statements(triple: Triple) -> SPARQLQuery:
+    """Gets SPARQL query to get statements given conditions in the triple.
+
+    This query looks for statements that match the conditions in the triple.
+    For example, if the subject is URI("http://example.com/testuser"), the
+    query will return all statements with that subject.
+
+    Args:
+        triple: Triple with conditions.
+
+    Returns:
+        SPARQL query.
+    """
+    conditions = []
+    for field in dataclasses.fields(triple):
+        property = f"rdf:{field.name}"
+        annotation = getattr(triple, field.name)
+        if not annotation:
+            continue
+        value = _get_property_representation(annotation)
+        conditions.append(f"?statement {property} {value} .")
+
+    query = f"""
+        SELECT ?statement
+        WHERE {{
+            {" ".join(conditions)}
         }}
     """
 

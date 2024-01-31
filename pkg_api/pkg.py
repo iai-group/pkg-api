@@ -129,18 +129,38 @@ class PKG:
             query = utils.get_query_for_add_preference(pkg_data)
             self._connector.execute_sparql_update(query)
 
-    def get_statements(self, pkg_data: PKGData) -> List[PKGData]:
-        """Gets statements from the PKG.
+    def get_statements(
+        self, pkg_data: PKGData, triple_conditioned: bool = False
+    ) -> List[PKGData]:
+        """Gets statements from the PKG given conditions.
 
         Args:
             pkg_data: PKG data associated to wanted statements.
+            triple_conditioned: Whether to condition the query with the triple
+              data. Defaults to False.
 
         Returns:
-            PKG data associated to the statement.
+            Statements matching the conditions.
         """
-        statements = []
-        query = utils.get_query_for_get_statement(pkg_data)
-        results = self._connector.execute_sparql_query(query).bindings
+        if triple_conditioned:
+            query = utils.get_query_for_conditional_get_statements(
+                pkg_data.triple
+            )
+        else:
+            query = utils.get_query_for_get_statements(pkg_data)
+        results = list(self._connector.execute_sparql_query(query).bindings)
+        return self._parse_statements(results)
+
+    def _parse_statements(self, results: List[Any]) -> List[PKGData]:
+        """Parses a list of statements.
+
+        Args:
+            results: List of results from the SPARQL query.
+
+        Returns:
+            List of PKG data associated to the retrieved statements.
+        """
+        statements: List[PKGData] = []
         for row in results:
             statement_bnode = row.get(Variable("statement"))
             triples = list(

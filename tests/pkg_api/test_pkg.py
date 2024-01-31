@@ -47,9 +47,7 @@ def statement_with_concept() -> PKGData:
         statement="I like movies directed by Steven Spielberg.",
         triple=Triple(
             URI("http://example.com/testuser"),
-            Concept(
-                description="like",
-            ),
+            Concept(description="like"),
             _object,
         ),
         preference=Preference(_object, 1.0),
@@ -88,7 +86,7 @@ def test_add_statement(
 def test_get_statements(
     user_pkg: PKG, statement: PKGData, statement_with_concept: PKGData
 ) -> None:
-    """Tests getting a statement."""
+    """Tests getting statements strictly matching PKG data."""
     user_pkg.add_statement(statement)
     user_pkg.add_statement(statement_with_concept)
 
@@ -98,3 +96,33 @@ def test_get_statements(
     # get_statements does not return the preference
     statement_with_concept.preference = None
     assert statements[0] == statement_with_concept
+
+
+def test_get_statements_with_triple_conditions(
+    user_pkg: PKG, statement_with_concept: PKGData
+) -> None:
+    """Tests getting statements with triple conditions."""
+    user_pkg.add_statement(statement_with_concept)
+    user_pkg.add_statement(
+        PKGData(
+            statement="I like movies.",
+            triple=Triple(
+                URI("http://example.com/testuser"),
+                Concept(description="like"),
+                Concept(description="movies"),
+            ),
+        )
+    )
+
+    statements = user_pkg.get_statements(
+        PKGData(
+            statement="Get me everything I like.",
+            triple=Triple(
+                predicate=Concept(description="like"),
+            ),
+        ),
+        triple_conditioned=True,
+    )
+    assert len(statements) == 2
+    statement_with_concept.preference = None
+    assert statement_with_concept in statements
