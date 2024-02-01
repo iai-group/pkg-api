@@ -4,6 +4,7 @@ from typing import Any, Dict
 from flask import current_app
 
 from pkg_api.connector import RDFStore
+from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 
 
@@ -16,12 +17,12 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     Returns:
         A PKG instance.
     """
-    owner_uri = data.get("owner_uri", None)
+    owner_uri: URI = data.get("owner_uri", None)
     owner_username = data.get("owner_username", None)
     if owner_uri is None:
         raise Exception("Missing owner URI")
 
-    store_path = current_app.config["SQLALCHEMY_DATABASE_URI"]
+    store_path = current_app.config["STORE_PATH"]
 
     return PKG(
         owner_uri,
