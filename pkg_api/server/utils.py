@@ -17,7 +17,7 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     Returns:
         A PKG instance.
     """
-    owner_uri: URI = data.get("owner_uri", None)
+    owner_uri = data.get("owner_uri", None)
     owner_username = data.get("owner_username", None)
     if owner_uri is None:
         raise Exception("Missing owner URI")
@@ -25,7 +25,7 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     store_path = current_app.config["STORE_PATH"]
 
     return PKG(
-        owner_uri,
+        URI(owner_uri),
         RDFStore.MEMORY,
         f"{store_path}/{owner_username}",
     )
