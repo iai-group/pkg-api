@@ -1,12 +1,13 @@
+"""Tests the Spotlight entity linker class."""
 from unittest.mock import Mock, patch
 
 import pytest
 
 from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
+from pkg_api.core.pkg_types import URI
 from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
     SpotlightEntityLinker,
 )
-from pkg_api.pkg_types import URI
 
 
 @pytest.fixture
@@ -51,9 +52,9 @@ def test_link_annotation_uri(mock_get: Mock, sample_pkg_data: PKGData) -> None:
     assert annotated_pkg_data == sample_pkg_data
     assert isinstance(annotated_pkg_data.triple, Triple)
     assert isinstance(annotated_pkg_data.triple.object, TripleElement)
-    assert isinstance(annotated_pkg_data.triple.object.reference, URI)
+    assert isinstance(annotated_pkg_data.triple.object.value, URI)
     assert (
-        annotated_pkg_data.triple.object.reference
+        annotated_pkg_data.triple.object.value
         == "http://dbpedia.org/resource/Test_Object"
     )
 
@@ -77,13 +78,14 @@ def test_link_annotation_concept(
 
     linker = SpotlightEntityLinker()
     annotated_pkg_data = linker.link_annotation_entities(sample_pkg_data)
+    print(annotated_pkg_data)
 
     assert isinstance(annotated_pkg_data.triple, Triple)
     assert isinstance(annotated_pkg_data.triple.object, TripleElement)
-    assert isinstance(annotated_pkg_data.triple.object.reference, Concept)
-    assert len(annotated_pkg_data.triple.object.reference.related_entities) == 1
+    assert isinstance(annotated_pkg_data.triple.object.value, Concept)
+    assert len(annotated_pkg_data.triple.object.value.related_entities) == 1
     assert (
-        annotated_pkg_data.triple.object.reference.related_entities[0]
+        annotated_pkg_data.triple.object.value.related_entities[0]
         == "http://dbpedia.org/resource/Object"
     )
 

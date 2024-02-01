@@ -5,8 +5,8 @@ from typing import Any, Dict, Union
 import requests
 
 from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
+from pkg_api.core.pkg_types import URI
 from pkg_api.nl_to_pkg.entity_linking.entity_linker import EntityLinker
-from pkg_api.pkg_types import URI
 from pkg_api.util.load_config import load_yaml_config
 
 _DEFAULT_CONFIG_PATH = "config/entity_linking/dbpedia_spotlight.yaml"
@@ -30,40 +30,42 @@ class SpotlightEntityLinker(EntityLinker):
             return pkg_data
 
         for attr in ["predicate", "object"]:
-            triple_element = getattr(pkg_data.triple, attr)
+            triple_element: TripleElement = getattr(pkg_data.triple, attr)
             if triple_element is not None:
-                triple_element.reference = self._get_linked_text(
-                    triple_element.value
+                triple_element.value = self._get_linked_text(
+                    triple_element.reference
                 )
 
         return pkg_data
 
-    def _get_linked_text(self, value: str) -> Union[URI, Concept, str]:
-        """Returns the triple element with linked entities.
+    def _get_linked_text(self, reference: str) -> Union[URI, Concept, str]:
+        """Returns the linked object as URI, Concept or literal.
 
         Args:
-            triple_element: The triple element to be annotated.
+            reference: The reference text to be linked.
 
         Returns:
-            The triple element with linked entities.
+            The linked object.
         """
-        linked_entities = self._get_linker_response(value)
+        # Return Concept as default as we cannot distinguish between Concept
+        # and literal.
+        linked_entities = self._get_linker_response(reference)
         if linked_entities is None or "Resources" not in linked_entities:
-            return Concept(value)
+            return Concept(reference)
 
         # If the entire value is a single entity, return the URI.
         if (
             len(linked_entities["Resources"]) == 1
-            and linked_entities["Resources"][0]["@surfaceForm"] == value
+            and linked_entities["Resources"][0]["@surfaceForm"] == reference
         ):
-            return linked_entities["Resources"][0]["@URI"]
+            return URI(linked_entities["Resources"][0]["@URI"])
 
         # Otherwise, return a concept with the linked entities.
-        reference = Concept(value)
+        value = Concept(reference)
         for entity in linked_entities["Resources"]:
-            reference.related_entities.append(entity["@URI"])
+            value.related_entities.append(entity["@URI"])
 
-        return reference
+        return value
 
     def _get_linker_response(self, text: str) -> Dict[str, Any]:
         """Returns the response from the DBpedia Spotlight API.
