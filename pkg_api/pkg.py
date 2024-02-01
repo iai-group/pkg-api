@@ -26,10 +26,8 @@ from rdflib.term import Variable
 from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
-from pkg_api.connector import Connector, RDFStore
+from pkg_api.connector import DEFAULT_PKG_NAMESPACE, Connector, RDFStore
 from pkg_api.pkg_types import URI
-
-NS = "http://example.org/pkg/"
 
 
 class PKG:
@@ -229,13 +227,10 @@ class PKG:
     def visualize_graph(self) -> str:
         """Visualizes the PKG.
 
-        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python
-
-        Args:
-            pkg: PKG to visualize.
+        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
 
         Returns:
-            The image visualizing the PKG.
+            The path to the image visualizing the PKG.
         """
         stream = io.StringIO()
         rdf2dot(self._connector._graph, stream, opts={display})
@@ -243,8 +238,8 @@ class PKG:
         png = dg.create_png()
 
         path = (
-            "pkg_api/pkg_visualizations/"
-            + self._owner_uri.replace(NS, "")
+            "data/pkg_visualizations"
+            + self._owner_uri.replace(DEFAULT_PKG_NAMESPACE, "")
             + ".png"
         )
 

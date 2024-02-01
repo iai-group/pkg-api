@@ -47,13 +47,13 @@ def test_pkg_visualization(client: Flask) -> None:
     response = client.get(
         "/explore",
         json={
-            "owner_uri": "http://example.org/pkg/test",
+            "owner_uri": "http://example.com/pkg/test",
             "owner_username": "test",
         },
     )
     assert response.status_code == 200
     assert response.json["message"] == "PKG visualized successfully."
-    assert response.json["img_path"] == "pkg_api/pkg_visualizations/test.png"
+    assert response.json["img_path"] == "data/pkg_visualizations/test.png"
 
 
 def test_pkg_sparql_query(client: Flask) -> None:
@@ -64,9 +64,9 @@ def test_pkg_sparql_query(client: Flask) -> None:
             "owner_uri": "http://example.org/pkg/test",
             "owner_username": "test",
             "sparql_query": (
-                "SELECT ?object WHERE { "
+                "SELECT ?statement WHERE { "
                 "<http://example.org/pkg/test> "
-                "<http://example.org/likes> ?object . }"
+                "<http://example.org/likes> ?statement . }"
             ),
         },
     )
