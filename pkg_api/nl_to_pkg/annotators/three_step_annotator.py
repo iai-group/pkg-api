@@ -124,7 +124,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         prompt = self._prompt.get_prompt(
             self._prompt_paths["preference"],
             statement=statement,
-            object=triple_object.value,
+            object=triple_object.reference,
         )
         response = self._llm_connector.get_response(prompt)
         response_terms = [

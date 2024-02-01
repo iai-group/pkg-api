@@ -17,3 +17,4 @@ requests
 types-requests
 pyyaml
 types-pyyaml
+rfc3987

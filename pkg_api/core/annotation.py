@@ -1,9 +1,9 @@
 """Dataclasses for the annotations used in the PKG API."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
-from pkg_api.pkg_types import URI
+from pkg_api.core.pkg_types import URI
 
 
 @dataclass
@@ -21,12 +21,12 @@ class TripleElement:
     """Class representing a subject, predicate or object element.
 
     Attributes:
-        value: Raw string value of the element.
-        reference: URI, Concept or literal reference of the element.
+        reference: Raw string reference of the element.
+        value: URI, Concept or literal value of the element.
     """
 
-    value: str
-    reference: Union[URI, Concept, str, None] = None
+    reference: str
+    value: Union[URI, Concept, str, None] = field(default=None)
 
 
 @dataclass
@@ -52,8 +52,12 @@ class Preference:
 
 @dataclass
 class PKGData:
-    """Represents a statement annotated with a triple and a preference."""
+    """Class representing an annotated statement.
+
+    Annotations include a triple, a preference, and logging data.
+    """
 
     statement: str
     triple: Optional[Triple] = None
     preference: Optional[Preference] = None
+    logging_data: Dict[str, Any] = field(default_factory=dict)
