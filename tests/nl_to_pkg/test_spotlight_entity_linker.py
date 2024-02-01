@@ -23,16 +23,25 @@ def sample_pkg_data() -> PKGData:
     )
 
 
-def test_spotlight_entity_linker_initialization() -> None:
+@pytest.fixture
+def linker() -> SpotlightEntityLinker:
+    """Returns a SpotlightEntityLinker instance."""
+    return SpotlightEntityLinker()
+
+
+def test_spotlight_entity_linker_initialization(
+    linker: SpotlightEntityLinker,
+) -> None:
     """Test the initialization of the SpotlightEntityLinker."""
-    linker = SpotlightEntityLinker()
     assert "url" in linker._config
     assert "params" in linker._config
     assert "headers" in linker._config
 
 
 @patch("pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker.requests.get")
-def test_link_annotation_uri(mock_get: Mock, sample_pkg_data: PKGData) -> None:
+def test_link_annotation_uri(
+    mock_get: Mock, sample_pkg_data: PKGData, linker: SpotlightEntityLinker
+) -> None:
     """Test the link_annotation_entities method."""
     mock_response = Mock()
     mock_response.status_code = 200
@@ -45,8 +54,6 @@ def test_link_annotation_uri(mock_get: Mock, sample_pkg_data: PKGData) -> None:
         ]
     }
     mock_get.return_value = mock_response
-
-    linker = SpotlightEntityLinker()
     annotated_pkg_data = linker.link_annotation_entities(sample_pkg_data)
 
     assert annotated_pkg_data == sample_pkg_data
@@ -61,7 +68,7 @@ def test_link_annotation_uri(mock_get: Mock, sample_pkg_data: PKGData) -> None:
 
 @patch("pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker.requests.get")
 def test_link_annotation_concept(
-    mock_get: Mock, sample_pkg_data: PKGData
+    mock_get: Mock, sample_pkg_data: PKGData, linker: SpotlightEntityLinker
 ) -> None:
     """Test the link_annotation_entities method."""
     mock_response = Mock()
@@ -75,10 +82,7 @@ def test_link_annotation_concept(
         ]
     }
     mock_get.return_value = mock_response
-
-    linker = SpotlightEntityLinker()
     annotated_pkg_data = linker.link_annotation_entities(sample_pkg_data)
-    print(annotated_pkg_data)
 
     assert isinstance(annotated_pkg_data.triple, Triple)
     assert isinstance(annotated_pkg_data.triple.object, TripleElement)
@@ -90,9 +94,10 @@ def test_link_annotation_concept(
     )
 
 
-def test_link_annotation_entities_no_change(sample_pkg_data: PKGData) -> None:
+def test_link_annotation_entities_no_change(
+    sample_pkg_data: PKGData, linker: SpotlightEntityLinker
+) -> None:
     """Test the link_annotation_entities method when no entities are linked."""
-    linker = SpotlightEntityLinker()
     original_pkg_data = sample_pkg_data
     annotated_pkg_data = linker.link_annotation_entities(original_pkg_data)
 

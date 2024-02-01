@@ -2,6 +2,6 @@
   headers:
     accept: "application/json"
   params:
-    confidence: 0
-    support: 1
+    confidence: 0.5
+    support: 50
     types: null

@@ -4,7 +4,7 @@ from typing import Any, Dict, Union
 
 import requests
 
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
+from pkg_api.core.annotation import Concept, PKGData, TripleElement
 from pkg_api.core.pkg_types import URI
 from pkg_api.nl_to_pkg.entity_linking.entity_linker import EntityLinker
 from pkg_api.util.load_config import load_yaml_config
@@ -13,9 +13,13 @@ _DEFAULT_CONFIG_PATH = "config/entity_linking/dbpedia_spotlight.yaml"
 
 
 class SpotlightEntityLinker(EntityLinker):
-    def __init__(self):
-        """Initializes the DBpedia Spotlight entity linker."""
-        self._config = load_yaml_config(_DEFAULT_CONFIG_PATH)
+    def __init__(self, path: str = _DEFAULT_CONFIG_PATH) -> None:
+        """Initializes the DBpedia Spotlight entity linker.
+
+        Args:
+            path: The path to the config file.
+        """
+        self._config = load_yaml_config(path)
 
     def link_annotation_entities(self, pkg_data: PKGData) -> PKGData:
         """Returns the PKG data with linked entities.
@@ -84,28 +88,3 @@ class SpotlightEntityLinker(EntityLinker):
             return response.json()
         else:
             return {"error": response.text}
-
-
-if __name__ == "__main__":
-    linker = SpotlightEntityLinker()
-
-    pkg_data = PKGData(
-        "I dislike all movies with the actor Tom Cruise.",
-        Triple(
-            TripleElement("I"),
-            TripleElement("dislike"),
-            TripleElement("all movies with the actor Tom Cruise"),
-        ),
-    )
-    linker.link_annotation_entities(pkg_data)
-    print(pkg_data)
-    pkg_data = PKGData(
-        "Bob likes Oppenheimer.",
-        Triple(
-            TripleElement("Bob"),
-            TripleElement("likes"),
-            TripleElement("Oppenheimer"),
-        ),
-    )
-    linker.link_annotation_entities(pkg_data)
-    print(pkg_data)
