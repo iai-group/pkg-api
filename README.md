@@ -17,7 +17,7 @@ The PKG API is served as a RESTful API and we provide a user interface, PKG Clie
 ### NL2PKG
 
 This module is responsible for processing natural language statements. The processing is divided into two steps: (1) natural language understanding and (2) entity linking.
-The module comprises two submodules: `annotators` and `entity_linking`, each of which is responsible for a specific task in the processing pipeline.
+The module comprises two submodules: (1) [`annotators`](pkg_api/nl_to_pkg/annotators) and (2) [`entity_linking`](pkg_api/nl_to_pkg/entity_linking), responsible for corresponding tasks in the processing pipeline.
 
 Available annotators and entity linkers:
 
