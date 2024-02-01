@@ -18,7 +18,7 @@ from rdflib.term import Variable
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
+from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
 from pkg_api.core.pkg_types import URI
 from pkg_api.mapping_vocab import MappingVocab
 
@@ -191,7 +191,7 @@ class PKG:
         )
 
         for _, p, o in triples:
-            value = None
+            # Parse the predicate URI to N3 format, i.e., prefix:property.
             property = p.n3(namespace_manager)
             pkg_data_field, field_property = MappingVocab.get_pkgdata_field(
                 property
@@ -201,7 +201,7 @@ class PKG:
                     f"Statement parsing - Property {property} not supported."
                 )
                 continue
-            value = self._parse_triple_object(o)
+            value = self._parse_rdf_triple_object(o)
             if field_property is None:
                 statement_dict[pkg_data_field] = value
             else:
@@ -211,24 +211,28 @@ class PKG:
             logging.warning("Statement parsing failed, not statement returned.")
             return None
 
+        # Create a Triple object from the parsed triple (need to create
+        # TripleElement objects)
+        _triple = None
+        for k, v in statement_dict.get("triple", {}).items():
+            if _triple is None:
+                _triple = Triple()
+            setattr(_triple, k, TripleElement.from_value(v))
+
         return PKGData(
             statement=statement_dict.get("statement"),
-            triple=Triple(**statement_dict.get("triple"))
-            if statement_dict.get("triple", None)
-            else None,
-            preference=Preference(**statement_dict.get("preference"))
-            if statement_dict.get("preference", None)
-            else None,
+            triple=_triple,
+            preference=None,
             logging_data=dict(statement_dict.get("logging_data", {})),
         )
 
-    def _parse_triple_object(
+    def _parse_rdf_triple_object(
         self, object: Any
     ) -> Optional[Union[URI, Concept, str]]:
-        """Parses a triple object.
+        """Parses a triple object retrieved with SPARQL.
 
         Args:
-            object: Triple object.
+            object: Triple object retrieved with SPARQL.
 
         Returns:
             Value of the triple object as URI, Concept, or str.

@@ -11,7 +11,7 @@ import dataclasses
 import re
 from typing import List, Optional, Union
 
-from pkg_api.core.annotation import Concept, PKGData, TripleElement
+from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
 
@@ -177,9 +177,7 @@ def get_query_for_get_preference(
     """
 
 
-def _get_statement_representation(
-    pkg_data: PKGData, blank_node_id: str
-) -> str:
+def _get_statement_representation(pkg_data: PKGData, blank_node_id: str) -> str:
     """Gets the representation of a statement given a PKG data.
 
     Args:
@@ -199,7 +197,9 @@ def _get_statement_representation(
             annotation: TripleElement = getattr(pkg_data.triple, field.name)
             if annotation is None or annotation.value is None:
                 continue
-            statement += f"{_get_property_representation(annotation.value, property)} ; "
+            statement += (
+                f"{_get_property_representation(annotation.value, property)} ; "
+            )
 
         # Add logging data
     # Time related data
@@ -309,8 +309,12 @@ def get_query_for_conditional_get_statements(triple: Triple) -> SPARQLQuery:
     """
     conditions = []
     for field in dataclasses.fields(triple):
+        # Loop through the fields of the triple (subject, predicate, object), if
+        # defined add a condition on it to the query. For example, if predicate
+        # is like, the query will return all statements with that predicate.
         property = f"rdf:{field.name}"
         annotation = getattr(triple, field.name)
+        annotation = annotation.value if annotation else None
         if not annotation:
             continue
         value = _get_property_representation(annotation)

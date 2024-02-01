@@ -4,7 +4,13 @@ import re
 import pytest
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotation import PKGData, Triple, TripleElement
+from pkg_api.core.annotation import (
+    Concept,
+    PKGData,
+    Preference,
+    Triple,
+    TripleElement,
+)
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 
@@ -40,19 +46,45 @@ def statement() -> PKGData:
 @pytest.fixture
 def statement_with_concept() -> PKGData:
     """Returns a statement."""
-    _object = Concept(
-        description="movies directed by Steven Spielberg",
-        related_entities=[URI("https://dbpedia.org/page/Steven_Spielberg")],
+    _object = TripleElement(
+        "movies directed by Steven Spielberg",
+        Concept(
+            description="movies directed by Steven Spielberg",
+            related_entities=[URI("https://dbpedia.org/page/Steven_Spielberg")],
+        ),
     )
 
     return PKGData(
         statement="I like movies directed by Steven Spielberg.",
         triple=Triple(
-            URI("http://example.com/testuser"),
-            Concept(description="like"),
+            TripleElement("I", URI("http://example.com/testuser")),
+            TripleElement("like", Concept(description="like")),
             _object,
         ),
         preference=Preference(_object, 1.0),
+        logging_data={"authoredBy": URI("http://example.com/testuser")},
+    )
+
+
+@pytest.fixture
+def retrieved_statement_with_concept() -> PKGData:
+    """Returns a statement retrieved from the PKG."""
+    return PKGData(
+        statement="I like movies directed by Steven Spielberg.",
+        triple=Triple(
+            TripleElement("", URI("http://example.com/testuser")),
+            TripleElement("like", Concept(description="like")),
+            TripleElement(
+                "movies directed by Steven Spielberg",
+                Concept(
+                    description="movies directed by Steven Spielberg",
+                    related_entities=[
+                        URI("https://dbpedia.org/page/Steven_Spielberg")
+                    ],
+                ),
+            ),
+        ),
+        preference=None,
         logging_data={"authoredBy": URI("http://example.com/testuser")},
     )
 
@@ -86,7 +118,10 @@ def test_add_statement(
 
 
 def test_get_statements(
-    user_pkg: PKG, statement: PKGData, statement_with_concept: PKGData
+    user_pkg: PKG,
+    statement: PKGData,
+    statement_with_concept: PKGData,
+    retrieved_statement_with_concept: PKGData,
 ) -> None:
     """Tests getting statements strictly matching PKG data."""
     user_pkg.add_statement(statement)
@@ -94,14 +129,13 @@ def test_get_statements(
 
     statements = user_pkg.get_statements(statement_with_concept)
     assert len(statements) == 1
-
-    # get_statements does not return the preference
-    statement_with_concept.preference = None
-    assert statements[0] == statement_with_concept
+    assert retrieved_statement_with_concept == statements[0]
 
 
 def test_get_statements_with_triple_conditions(
-    user_pkg: PKG, statement_with_concept: PKGData
+    user_pkg: PKG,
+    statement_with_concept: PKGData,
+    retrieved_statement_with_concept: PKGData,
 ) -> None:
     """Tests getting statements with triple conditions."""
     user_pkg.add_statement(statement_with_concept)
@@ -109,9 +143,9 @@ def test_get_statements_with_triple_conditions(
         PKGData(
             statement="I like movies.",
             triple=Triple(
-                URI("http://example.com/testuser"),
-                Concept(description="like"),
-                Concept(description="movies"),
+                TripleElement("I", URI("http://example.com/testuser")),
+                TripleElement("like", Concept(description="like")),
+                TripleElement("movies", Concept(description="movies")),
             ),
         )
     )
@@ -120,11 +154,10 @@ def test_get_statements_with_triple_conditions(
         PKGData(
             statement="Get me everything I like.",
             triple=Triple(
-                predicate=Concept(description="like"),
+                predicate=TripleElement("like", Concept(description="like")),
             ),
         ),
         triple_conditioned=True,
     )
     assert len(statements) == 2
-    statement_with_concept.preference = None
-    assert statement_with_concept in statements
+    assert retrieved_statement_with_concept in statements
