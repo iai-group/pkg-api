@@ -11,7 +11,7 @@ import dataclasses
 import re
 from typing import List, Optional, Union
 
-from pkg_api.core.annotations import Concept, PKGData
+from pkg_api.core.annotation import Concept, PKGData, TripleElement
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
 
@@ -119,8 +119,21 @@ def _get_preference_representation(
     Returns:
         Representation of the preference.
     """
-    preference_topic = _get_property_representation(pkg_data.preference.topic)
-    subject = _get_property_representation(pkg_data.triple.subject)
+    if pkg_data.preference is None or pkg_data.preference.topic.value is None:
+        return ""
+
+    preference_topic = _get_property_representation(
+        pkg_data.preference.topic.value
+    )
+
+    if (
+        pkg_data.triple is None
+        or pkg_data.triple.subject is None
+        or pkg_data.triple.subject.value is None
+    ):
+        return ""
+
+    subject = _get_property_representation(pkg_data.triple.subject.value)
 
     representation = f"""{subject} wi:preference
             [
@@ -178,12 +191,17 @@ def _get_statement_representation(pkg_data: PKGData, blank_node_id: str) -> str:
         dc:description "{pkg_data.statement}" ; """
 
     # Add triple annotation
-    for field in dataclasses.fields(pkg_data.triple):
-        property = f"rdf:{field.name}"
-        annotation = getattr(pkg_data.triple, field.name)
-        statement += f"{_get_property_representation(annotation, property)} ; "
+    if pkg_data.triple is not None:
+        for field in dataclasses.fields(pkg_data.triple):
+            property = f"rdf:{field.name}"
+            annotation: TripleElement = getattr(pkg_data.triple, field.name)
+            if annotation is None or annotation.value is None:
+                continue
+            statement += (
+                f"{_get_property_representation(annotation.value, property)} ; "
+            )
 
-    # Add logging data
+        # Add logging data
     # Time related data
     for property in ["authoredOn", "createdOn"]:
         if pkg_data.logging_data.get(property):

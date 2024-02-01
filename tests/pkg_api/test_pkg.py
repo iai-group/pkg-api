@@ -4,7 +4,7 @@ import re
 import pytest
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotations import PKGData, Triple
+from pkg_api.core.annotation import PKGData, Triple, TripleElement
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 
@@ -22,9 +22,11 @@ def test_add_statement(monkeypatch: pytest.MonkeyPatch, user_pkg: PKG) -> None:
     pkg_data = PKGData(
         statement="I live in Stavanger.",
         triple=Triple(
-            URI("http://example.com/testuser"),
-            "live",
-            URI("https://dbpedia.org/page/Stavanger"),
+            TripleElement("I", URI("http://example.com/testuser")),
+            TripleElement("live", "live"),
+            TripleElement(
+                "Stavanger", URI("https://dbpedia.org/page/Stavanger")
+            ),
         ),
         logging_data={"authoredBy": URI("http://example.com/testuser")},
     )
