@@ -6,14 +6,11 @@ with a triple and a preference using LLM.
 
 
 import re
-
 from abc import ABC
-from typing import Optional, Tuple, Dict
-
+from typing import Dict, Optional, Tuple
 
 from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
-from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
@@ -40,6 +37,7 @@ def is_number(value: str) -> bool:
         return True
     except ValueError:
         return False
+
 
 class ThreeStepStatementAnnotator(ABC):
     def __init__(

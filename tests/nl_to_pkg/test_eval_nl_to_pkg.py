@@ -1,13 +1,15 @@
 """Tests eval_nl_to_pkg.py file."""
-from typing import List, Dict, Tuple
-from unittest.mock import patch, MagicMock
-from pkg_api.nl_to_pkg.eval_nl_to_pkg import eval_annotations, load_data
+from typing import Dict, List, Tuple
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from pkg_api.core.annotation import PKGData, Triple
+from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     ThreeStepStatementAnnotator,
 )
-from pkg_api.core.annotations import PKGData, Triple
-from pkg_api.core.intents import Intent
-import pytest
+from pkg_api.nl_to_pkg.eval_nl_to_pkg import eval_annotations, load_data
 
 
 def test_load_data() -> None:
