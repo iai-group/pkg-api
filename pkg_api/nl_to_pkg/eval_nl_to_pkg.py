@@ -108,7 +108,9 @@ def process_preferences(
     return preference_macro_f1, preference_micro_f1
 
 
-def process_triples(data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]) -> float:
+def process_triples(
+    data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
+) -> float:
     """Processes the triples in the data.
 
     Args:
@@ -123,21 +125,23 @@ def process_triples(data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
         correct_triple_count = 0
         if pkg_data.triple:
             if (
-                pkg_data.triple.subject.strip()
+                pkg_data.triple.subject.reference.strip()
                 .replace(".", "")
                 .replace("?", "")
                 == sub
             ):
                 correct_triple_count += 1
             if (
-                pkg_data.triple.predicate.strip()
+                pkg_data.triple.predicate.reference.strip()
                 .replace(".", "")
                 .replace("?", "")
                 == pred
             ):
                 correct_triple_count += 1
             if (
-                pkg_data.triple.object.strip().replace(".", "").replace("?", "")
+                pkg_data.triple.object.reference.strip()
+                .replace(".", "")
+                .replace("?", "")
                 == obj
             ):
                 correct_triple_count += 1
