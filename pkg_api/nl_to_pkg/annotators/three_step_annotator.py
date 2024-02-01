@@ -6,11 +6,11 @@ with a triple and a preference using LLM.
 
 
 import re
-from abc import ABC
 from typing import Optional, Tuple
 
-from pkg_api.core.annotations import PKGData, Preference, Triple
+from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
+from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
@@ -37,7 +37,7 @@ def is_number(value: str) -> bool:
         return False
 
 
-class ThreeStepStatementAnnotator(ABC):
+class ThreeStepStatementAnnotator(StatementAnnotator):
     def __init__(self) -> None:
         """Initializes the three-step statement annotator."""
         self._prompt_paths = _DEFAULT_PROMPT_PATHS
@@ -58,7 +58,7 @@ class ThreeStepStatementAnnotator(ABC):
         triple = self._get_triple(statement)
         preference = (
             self._get_preference(statement, triple.object)
-            if triple and isinstance(triple.object, str)
+            if triple is not None and triple.object is not None
             else None
         )
         return intent, PKGData(statement, triple, preference)
@@ -101,34 +101,30 @@ class ThreeStepStatementAnnotator(ABC):
             for term in response.split("|")
         ]
         if len(response_terms) == 3:
-            return Triple(*response_terms)
+            subject, predicate, object = response_terms
+            return Triple(
+                TripleElement(subject) if subject else None,
+                TripleElement(predicate) if predicate else None,
+                TripleElement(object) if object else None,
+            )
         return None
 
     def _get_preference(
-        self, statement: str, triple_object: str
+        self, statement: str, triple_object: TripleElement
     ) -> Optional[Preference]:
         """Returns the preference for a statement.
 
         Args:
             statement: The statement to be annotated.
-            triple_object: The object of the triple. It is only used in string
-                form.
-
-        Raises:
-            TypeError: If the triple object is not a string.
+            triple_object: The object of the triple.
 
         Returns:
             The preference.
         """
-        if not isinstance(triple_object, str):
-            raise TypeError(
-                f"Triple object must be of type str, not {type(triple_object)}."
-            )
-
         prompt = self._prompt.get_prompt(
             self._prompt_paths["preference"],
             statement=statement,
-            object=triple_object,
+            object=triple_object.reference,
         )
         response = self._llm_connector.get_response(prompt)
         response_terms = [

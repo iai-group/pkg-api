@@ -7,7 +7,13 @@ from typing import Optional, Union
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
+from pkg_api.core.annotation import (
+    Concept,
+    PKGData,
+    Preference,
+    Triple,
+    TripleElement,
+)
 from pkg_api.core.pkg_types import URI
 
 
@@ -26,20 +32,23 @@ def strip_string(string: str) -> str:
 @pytest.fixture
 def pkg_data_example() -> PKGData:
     """Returns PKG data for a given statement."""
-    _object = Concept(
-        description="all movies with the actor Tom Cruise",
-        related_entities=[
-            URI("https://schema.org/actor"),
-            URI("http://dbpedia.org/resource/Tom_Cruise"),
-        ],
-        broader_entities=[URI("https://schema.org/Movie")],
-        narrower_entities=[URI("https://schema.org/Action")],
+    _object = TripleElement(
+        "all movies with the actor Tom Cruise",
+        Concept(
+            description="all movies with the actor Tom Cruise",
+            related_entities=[
+                URI("https://schema.org/actor"),
+                URI("http://dbpedia.org/resource/Tom_Cruise"),
+            ],
+            broader_entities=[URI("https://schema.org/Movie")],
+            narrower_entities=[URI("https://schema.org/Action")],
+        ),
     )
     return PKGData(
         statement="I dislike all movies with the actor Tom Cruise.",
         triple=Triple(
-            subject=URI("http://example.com/my/I"),
-            predicate=Concept(description="dislike"),
+            subject=TripleElement("I", URI("http://example.com/my/I")),
+            predicate=TripleElement("dislike", Concept(description="dislike")),
             object=_object,
         ),
         preference=Preference(
@@ -124,8 +133,11 @@ def test_get_concept_representation_string() -> None:
 
 def test_get_concept_representation(pkg_data_example: PKGData) -> None:
     """Tests _get_concept_representation method for PKGData."""
+    assert isinstance(pkg_data_example.triple, Triple)
+    assert isinstance(pkg_data_example.triple.object, TripleElement)
+    assert isinstance(pkg_data_example.triple.object.value, Concept)
     assert strip_string(
-        utils._get_concept_representation(pkg_data_example.triple.object)
+        utils._get_concept_representation(pkg_data_example.triple.object.value)
     ) == strip_string(
         """[ a skos:Concept ; dc:description "all movies with
          the actor Tom Cruise" ; skos:related <https://schema.org/actor>,
