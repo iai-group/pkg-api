@@ -17,12 +17,15 @@ class SpotlightEntityLinker(EntityLinker):
         """Initializes the DBpedia Spotlight entity linker.
 
         Args:
-            path: The path to the config file.
+            path: The path to the config file. Defaults to _DEFAULT_CONFIG_PATH.
         """
         self._config = load_yaml_config(path)
 
     def link_annotation_entities(self, pkg_data: PKGData) -> PKGData:
         """Returns the PKG data with linked entities.
+
+        Only the predicate and object of the triple are linked to a public KG,
+        as the subject should be retrieved from the PKG.
 
         Args:
             pkg_data: The PKG data to be annotated.
