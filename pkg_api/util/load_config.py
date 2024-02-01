@@ -5,8 +5,7 @@ import yaml
 
 
 def load_yaml_config(path: str) -> Dict[str, Any]:
-    """
-    Loads configuration from a YAML file at the given path.
+    """Loads configuration from a YAML file at the given path.
 
     Args:
         path: The file path to the YAML configuration file.
