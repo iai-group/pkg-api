@@ -35,17 +35,18 @@ def eval_annotations(
         data: List of NL to PKG annotation data.
         prompt_paths: Dictionary containing the paths to the prompt files.
         config_path: Path to the config file for the LLMconnector.
-        Returns:
+
+    Returns:
         Dictionary containing the evaluation metrics.
     """
     annotator = ThreeStepStatementAnnotator(prompt_paths, config_path)
     annotations = [annotator.get_annotations(row[0]) for row in tqdm(data)]
 
-    intent_macro_f1, intent_micro_f1 = process_intents(data, annotations)
-    preference_macro_f1, preference_micro_f1 = process_preferences(
+    intent_macro_f1, intent_micro_f1 = get_intent_f1_scores(data, annotations)
+    preference_macro_f1, preference_micro_f1 = get_preference_f1_scores(
         data, annotations
     )
-    avg_triple_correct = process_triples(data, annotations)
+    avg_triple_correct = get_mean_correct_triple_elements(data, annotations)
     return {
         "Intent F1 (macro)": intent_macro_f1,
         "Intent F1 (micro)": intent_micro_f1,
@@ -55,13 +56,13 @@ def eval_annotations(
     }
 
 
-def process_intents(
-    data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
+def get_intent_f1_scores(
+    groundtruth_data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
 ) -> Tuple[float, float]:
-    """Processes the intents in the data.
+    """Processes the intents in the data and compute F1 scores.
 
     Args:
-        data: The dataset to be processed.
+        groundtruth_data: The dataset to be processed.
         annotations: List of annotations obtained from the annotator.
 
     Returns:
@@ -70,7 +71,7 @@ def process_intents(
     true_intents = []
     predicted_intents = []
     for (_, true_intent, _, _, _, _), (pred_intent, _) in zip(
-        data, annotations
+        groundtruth_data, annotations
     ):
         true_intents.append(true_intent)
         predicted_intents.append(pred_intent.name)
@@ -79,13 +80,13 @@ def process_intents(
     return intent_macro_f1, intent_micro_f1
 
 
-def process_preferences(
-    data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
+def get_preference_f1_scores(
+    groundtruth_data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
 ) -> Tuple[float, float]:
-    """Processes the preferences in the data.
+    """Processes the preferences in the data and compute F1 scores.
 
     Args:
-        data: The dataset to be processed.
+        groundtruth_data: The dataset to be processed.
         annotations: List of annotations obtained from the annotator.
 
     Returns:
@@ -93,7 +94,9 @@ def process_preferences(
     """
     true_preference = []
     predicted_preferenes = []
-    for (_, _, _, _, _, true_pref), (_, pkg_data) in zip(data, annotations):
+    for (_, _, _, _, _, true_pref), (_, pkg_data) in zip(
+        groundtruth_data, annotations
+    ):
         true_preference.append(true_pref)
         if pkg_data.preference:
             predicted_preferenes.append(str(int(pkg_data.preference.weight)))
@@ -108,20 +111,22 @@ def process_preferences(
     return preference_macro_f1, preference_micro_f1
 
 
-def process_triples(
-    data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
+def get_mean_correct_triple_elements(
+    groundtruth_data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
 ) -> float:
-    """Processes the triples in the data.
+    """Compute the mean of correctly predicted triple elements per statement.
 
     Args:
-        data: The dataset to be processed.
+        groundtruth_data: The dataset to be processed.
         annotations: List of annotations obtained from the annotator.
 
     Returns:
-        Average number of correctly predicted triples.
+        Mean of correctly predicted triple elements per statement.
     """
     correct_triples = []
-    for (_, _, sub, pred, obj, _), (_, pkg_data) in zip(data, annotations):
+    for (_, _, sub, pred, obj, _), (_, pkg_data) in zip(
+        groundtruth_data, annotations
+    ):
         correct_triple_count = 0
         if pkg_data.triple:
             if (
