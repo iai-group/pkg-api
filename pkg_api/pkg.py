@@ -217,7 +217,8 @@ class PKG:
         for k, v in statement_dict.get("triple", {}).items():
             if _triple is None:
                 _triple = Triple()
-            setattr(_triple, k, TripleElement.from_value(v))
+            if v is not None:
+                setattr(_triple, k, TripleElement.from_value(v))
 
         return PKGData(
             statement=statement_dict.get("statement"),
