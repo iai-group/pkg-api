@@ -17,4 +17,5 @@ requests
 types-requests
 pyyaml
 types-pyyaml
+ollama
 rfc3987

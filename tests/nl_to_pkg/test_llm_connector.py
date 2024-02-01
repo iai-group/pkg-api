@@ -1,56 +1,65 @@
 """Tests for LLM connector."""
 
-import json
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, mock_open
 
 import pytest
+from pytest_mock import MockerFixture
 
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 
 
-@pytest.fixture
-def llm_connector() -> LLMConnector:
-    """Returns an LLMConnector instance."""
-    return LLMConnector()
+def test_generate_method() -> None:
+    """Tests that the generate method is called with the correct arguments."""
+    # Arrange
+    mock_response = {"response": "test response", "other_data": "some value"}
+    connector = LLMConnector()
+    connector._client.generate = MagicMock(return_value=mock_response)
 
+    # Act
+    response = connector.get_response("test prompt")
 
-@patch("requests.post")
-def test_get_response_success(
-    mock_post: Mock, llm_connector: LLMConnector
-) -> None:
-    """Tests that get_response returns the response from LLM."""
-    mock_response = Mock()
-    mock_response.text = json.dumps({"content": "Test LLM response"})
-    mock_post.return_value = mock_response
-
-    response = llm_connector.get_response("Test prompt")
-
-    assert response == "Test LLM response"
-    mock_post.assert_called_once()
-
-
-@patch("requests.post")
-def test_get_response_request_params(
-    mock_post: Mock, llm_connector: LLMConnector
-) -> None:
-    """Tests that get_response sends the correct request to LLM."""
-    mock_response = Mock()
-    mock_response.text = json.dumps({"content": "Test LLM response"})
-    mock_post.return_value = mock_response
-
-    llm_connector.get_response("Test prompt")
-
-    mock_post.assert_called_once_with(
-        "http://gustav1.ux.uis.no:8888/completion",
-        headers={"Content-Type": "application/json"},
-        json={
-            "max_tokens": 64,
-            "temperature": 0.0,
-            "top_p": 0.9,
-            "n": 1,
-            "stream": False,
-            "logprobs": 10,
-            "stop": ["\n"],
-            "prompt": "Test prompt",
-        },
+    # Assert
+    assert response == "test response"
+    connector._client.generate.assert_called_once_with(
+        connector._model,
+        "test prompt",
+        options=connector._llm_options,
+        stream=connector._stream,
     )
+
+
+def test_get_response_method() -> None:
+    """Tests that the get_response method returns the correct response."""
+    mock_response = {"response": "mocked response"}
+    connector = LLMConnector()
+    connector._generate = MagicMock(return_value=mock_response)
+
+    response = connector.get_response("test prompt")
+
+    assert response == "mocked response"
+    connector._generate.assert_called_once_with("test prompt")
+
+
+def test_load_config_file_not_found(mocker: MockerFixture) -> None:
+    """Tests that _load_config raises FileNotFoundError.
+
+    Args:
+        mocker: Mocking object.
+    """
+    mocker.patch("os.path.isfile", return_value=False)
+    with pytest.raises(FileNotFoundError):
+        LLMConnector("fake_path")._load_config()
+
+
+def test_load_config_content(mocker: MockerFixture) -> None:
+    """Tests that _load_config returns the valid data.
+
+    Args:
+        mocker: Mocking object.
+    """
+    mocker.patch(
+        "builtins.open", mock_open(read_data="model: value1\nhost: value2")
+    )
+    mocker.patch("os.path.isfile", return_value=True)
+    result = LLMConnector(config_path="fake_path")._load_config()
+    assert result == {"model": "value1", "host": "value2"}
