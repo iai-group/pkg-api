@@ -21,14 +21,14 @@ class SpotlightEntityLinker(EntityLinker):
         """
         self._config = load_yaml_config(path)
 
-    def link_annotation_entities(self, pkg_data: PKGData) -> PKGData:
+    def link_entities(self, pkg_data: PKGData) -> PKGData:
         """Returns the PKG data with linked entities.
 
         Only the predicate and object of the triple are linked to a public KG,
         as the subject should be retrieved from the PKG.
 
         Args:
-            pkg_data: The PKG data to be annotated.
+            pkg_data: The PKG data to be linked.
 
         Returns:
             The PKG data with linked entities.

@@ -42,7 +42,7 @@ def test_spotlight_entity_linker_initialization(
 def test_link_annotation_uri(
     mock_get: Mock, sample_pkg_data: PKGData, linker: SpotlightEntityLinker
 ) -> None:
-    """Test the link_annotation_entities method."""
+    """Test the link_entities method."""
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.json.return_value = {
@@ -54,7 +54,7 @@ def test_link_annotation_uri(
         ]
     }
     mock_get.return_value = mock_response
-    annotated_pkg_data = linker.link_annotation_entities(sample_pkg_data)
+    annotated_pkg_data = linker.link_entities(sample_pkg_data)
 
     assert annotated_pkg_data == sample_pkg_data
     assert isinstance(annotated_pkg_data.triple, Triple)
@@ -70,7 +70,7 @@ def test_link_annotation_uri(
 def test_link_annotation_concept(
     mock_get: Mock, sample_pkg_data: PKGData, linker: SpotlightEntityLinker
 ) -> None:
-    """Test the link_annotation_entities method."""
+    """Test the link_entities method."""
     mock_response = Mock()
     mock_response.status_code = 200
     mock_response.json.return_value = {
@@ -82,7 +82,7 @@ def test_link_annotation_concept(
         ]
     }
     mock_get.return_value = mock_response
-    annotated_pkg_data = linker.link_annotation_entities(sample_pkg_data)
+    annotated_pkg_data = linker.link_entities(sample_pkg_data)
 
     assert isinstance(annotated_pkg_data.triple, Triple)
     assert isinstance(annotated_pkg_data.triple.object, TripleElement)
@@ -94,11 +94,11 @@ def test_link_annotation_concept(
     )
 
 
-def test_link_annotation_entities_no_change(
+def test_link_entities_no_change(
     sample_pkg_data: PKGData, linker: SpotlightEntityLinker
 ) -> None:
-    """Test the link_annotation_entities method when no entities are linked."""
+    """Test the link_entities method when no entities are linked."""
     original_pkg_data = sample_pkg_data
-    annotated_pkg_data = linker.link_annotation_entities(original_pkg_data)
+    annotated_pkg_data = linker.link_entities(original_pkg_data)
 
     assert annotated_pkg_data == original_pkg_data
