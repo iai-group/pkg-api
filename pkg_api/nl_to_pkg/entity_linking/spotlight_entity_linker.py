@@ -1,4 +1,4 @@
-"""This module contains the DBpedia Spotlight entity linker."""
+"""Contains the DBpedia Spotlight entity linker."""
 
 from typing import Any, Dict, Union
 

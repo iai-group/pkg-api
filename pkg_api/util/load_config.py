@@ -1,3 +1,5 @@
+"""Utility function for loading configuration data from YAML files."""
+
 import os
 from typing import Any, Dict
 
