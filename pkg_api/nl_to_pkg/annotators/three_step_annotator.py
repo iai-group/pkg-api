@@ -6,12 +6,12 @@ with a triple and a preference using LLM.
 
 
 import re
-from abc import ABC
 from typing import Dict, Optional, Tuple
 
 from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
+from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
 _DEFAULT_PROMPT_PATHS = {
@@ -39,7 +39,7 @@ def is_number(value: str) -> bool:
         return False
 
 
-class ThreeStepStatementAnnotator(ABC):
+class ThreeStepStatementAnnotator(StatementAnnotator):
     def __init__(
         self,
         prompt_paths: Dict[str, str] = _DEFAULT_PROMPT_PATHS,
@@ -56,9 +56,7 @@ class ThreeStepStatementAnnotator(ABC):
         self._prompt_paths = prompt_paths
         self._prompt = Prompt()
         self._valid_intents = {intent.name for intent in Intent}
-        self._llm_connector = LLMConnector(
-            config_path=config_path,
-        )
+        self._llm_connector = LLMConnector(config_path=config_path)
 
     def get_annotations(self, statement: str) -> Tuple[Intent, PKGData]:
         """Returns a tuple with annotations for a statement.

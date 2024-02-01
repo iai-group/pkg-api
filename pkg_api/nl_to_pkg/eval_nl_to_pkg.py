@@ -3,6 +3,8 @@ import csv
 from typing import Dict, Any, List, Tuple
 from sklearn.metrics import f1_score
 from tqdm import tqdm
+from pkg_api.core.annotation import PKGData
+from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     ThreeStepStatementAnnotator,
 )
@@ -27,12 +29,14 @@ def load_data(path: str) -> list:
 def eval_annotations(
     data: List[Tuple], prompt_paths: Dict[str, str], config_path: str
 ) -> Dict[str, Any]:
-    """Evaluates the intent model using the provided data.
+    """Evaluates the annotation model using the provided data.
 
     Args:
         data: List of NL to PKG annotation data.
         prompt_paths: Dictionary containing the paths to the prompt files.
-        config_path: Path to the config file.
+        config_path: Path to the config file for the LLMconnector.
+        Returns:
+        Dictionary containing the evaluation metrics.
     """
     annotator = ThreeStepStatementAnnotator(prompt_paths, config_path)
     annotations = [annotator.get_annotations(row[0]) for row in tqdm(data)]
@@ -52,7 +56,7 @@ def eval_annotations(
 
 
 def process_intents(
-    data: List[Tuple], annotations: List
+    data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
 ) -> Tuple[float, float]:
     """Processes the intents in the data.
 
@@ -65,7 +69,6 @@ def process_intents(
     """
     true_intents = []
     predicted_intents = []
-    print(data, annotations)
     for (_, true_intent, _, _, _, _), (pred_intent, _) in zip(
         data, annotations
     ):
@@ -77,7 +80,7 @@ def process_intents(
 
 
 def process_preferences(
-    data: List[Tuple], annotations: List
+    data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]
 ) -> Tuple[float, float]:
     """Processes the preferences in the data.
 
@@ -89,23 +92,23 @@ def process_preferences(
         Tuple of macro and micro F1 scores for the preferences.
     """
     true_preference = []
-    predict_preferene = []
+    predicted_preferenes = []
     for (_, _, _, _, _, true_pref), (_, pkg_data) in zip(data, annotations):
         true_preference.append(true_pref)
         if pkg_data.preference:
-            predict_preferene.append(str(int(pkg_data.preference.weight)))
+            predicted_preferenes.append(str(int(pkg_data.preference.weight)))
         else:
-            predict_preferene.append("")
+            predicted_preferenes.append("")
     preference_macro_f1 = f1_score(
-        true_preference, predict_preferene, average="macro"
+        true_preference, predicted_preferenes, average="macro"
     )
     preference_micro_f1 = f1_score(
-        true_preference, predict_preferene, average="micro"
+        true_preference, predicted_preferenes, average="micro"
     )
     return preference_macro_f1, preference_micro_f1
 
 
-def process_triples(data: List[Tuple], annotations: List) -> float:
+def process_triples(data: List[Tuple], annotations: List[Tuple[Intent, PKGData]]) -> float:
     """Processes the triples in the data.
 
     Args:
@@ -139,7 +142,6 @@ def process_triples(data: List[Tuple], annotations: List) -> float:
             ):
                 correct_triple_count += 1
         correct_triples.append(correct_triple_count)
-        print(correct_triple_count, sub, pred, obj, pkg_data.triple)
     return sum(correct_triples) / len(correct_triples)
 
 

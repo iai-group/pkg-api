@@ -25,29 +25,29 @@ def test_load_data() -> None:
 
 
 @pytest.fixture
-def mock_data():
+def mock_data() -> List[List[str]]:
     """Fixture for mock the NL annotation data."""
-    return [["Sentence1.", "ADD", "S1", "P1", "O1", ""]]
+    return [load_data("tests/nl_to_pkg/data/nl_to_pkg_mock_file.csv")[0]]
 
 
 @pytest.fixture
-def mock_prompt_paths():
+def mock_prompt_paths() ->  Dict[str,str]:
     """Fixture for mock the prompt paths."""
     return {
-        "intent": "some_value",
-        "triple": "tiple_value",
-        "preference": "preference_value",
+        "intent": "intent_path",
+        "triple": "tiple_path",
+        "preference": "preference_path",
     }
 
 
 @pytest.fixture
-def mock_config_path():
+def mock_config_path() -> str:
     """Fixture for mock the config path."""
     return "path/to/config"
 
 
 @pytest.fixture
-def mock_annotations():
+def mock_annotations() -> str:
     """Fixture for mock the NL annotations returned by the LLM."""
     mock_pkg_data1 = PKGData(
         statement="Sentence1.",

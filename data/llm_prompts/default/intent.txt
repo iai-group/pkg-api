@@ -1,7 +1,8 @@
 What is user's intent with the following statement? The options are:
 
-ADD - statement of fact or preference, typically contains the verbs "is", "likes", "prefers", "told me", "admires", "went to", "am", "has seen", 
-GET - Asking for information, typically is starts with "Do I", "Have I" etc.
+ADD - Statement of fact or preference, typically contains the verbs "is", "likes", "prefers", "told me", "admires", "went to", "am", "has seen", 
+
+GET - Asking for information, typically it starts with "Do I", "Have I" etc.
 DELETE - Request to delete or remove an item, typically contains the verbs "remove", "delete" or "discard"
 UNKNOWN - None of the above, statement may contain more than one intent.
 
