@@ -26,7 +26,7 @@ class TripleElement:
     """
 
     reference: str
-    value: Union[URI, Concept, str, None] = None
+    value: Union[URI, Concept, str, None] = field(default=None)
 
 
 @dataclass
