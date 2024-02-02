@@ -17,6 +17,10 @@ requests
 types-requests
 pyyaml
 types-pyyaml
+pyparsing>=2.4.7
+graphviz
+pydotplus>=2.0.2
+ipython>=7.28.0
 ollama
 types-PyYAML
 scikit-learn

@@ -8,26 +8,43 @@ in the PKG vocabulary. The PKG vocabulary and an example of a statement
 can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
+import io
 from typing import Dict, Optional
 
+import pydotplus
+from IPython.display import display
+from rdflib.query import Result
 from rdflib.term import Variable
+from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
+from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
+
+DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
 
 
 class PKG:
-    def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
+    def __init__(
+        self,
+        owner: URI,
+        rdf_store: RDFStore,
+        rdf_path: str,
+        visualization_path: str = DEFAULT_VISUALIZATION_PATH,
+    ) -> None:
         """Initializes PKG of a given user.
 
         Args:
             owner: Owner URI.
             rdf_store: Type of RDF store.
             rdf_path: Path to the RDF store.
+            visualization_path: Path to the visualization of PKG. Defaults to
+              DEFAULT_VISUALIZATION_PATH.
         """
         self._owner_uri = owner
         self._connector = Connector(owner, rdf_store, rdf_path)
+        self._visualization_path = visualization_path
 
     @property
     def owner_uri(self) -> URI:
@@ -116,3 +133,40 @@ class PKG:
         """
         query = utils.get_query_for_add_statement(pkg_data)
         self._connector.execute_sparql_update(query)
+
+    def execute_sparql_query(self, query: str) -> Result:
+        """Executes a SPARQL query.
+
+        Args:
+            query: SPARQL query.
+
+        Returns:
+            Result of the SPARQL query.
+        """
+        return self._connector.execute_sparql_query(query)
+
+    def visualize_graph(self) -> str:
+        """Visualizes the PKG.
+
+        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
+
+        Returns:
+            The path to the image visualizing the PKG.
+        """
+        stream = io.StringIO()
+        rdf2dot(self._connector._graph, stream, opts={display})
+        dg = pydotplus.graph_from_dot_data(stream.getvalue())
+        png = dg.create_png()
+
+        owner_name = ""
+
+        for _, namespace in PKGPrefixes.__members__.items():
+            if namespace.value in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(str(namespace.value), "")
+
+        path = self._visualization_path + "/" + owner_name + ".png"
+
+        with open(path, "wb") as test_png:
+            test_png.write(png)
+
+        return path
