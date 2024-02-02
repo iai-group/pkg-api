@@ -18,8 +18,11 @@ from rdflib.term import Variable
 from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
-from pkg_api.connector import DEFAULT_PKG_NAMESPACE, Connector, RDFStore
+from pkg_api.connector import Connector, RDFStore
+from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
+
+DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations/"
 
 
 class PKG:
@@ -127,6 +130,9 @@ class PKG:
 
         Args:
             query: SPARQL query.
+
+        Returns:
+            Result of the SPARQL query.
         """
         return self._connector.execute_sparql_query(query)
 
@@ -143,11 +149,13 @@ class PKG:
         dg = pydotplus.graph_from_dot_data(stream.getvalue())
         png = dg.create_png()
 
-        path = (
-            "data/pkg_visualizations"
-            + self._owner_uri.replace(DEFAULT_PKG_NAMESPACE, "")
-            + ".png"
-        )
+        owner_name = ""
+
+        for _, namespace in PKGPrefixes.__members__.items():
+            if namespace.value in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(str(namespace.value), "")
+
+        path = DEFAULT_VISUALIZATION_PATH + owner_name + ".png"
 
         with open(path, "wb") as test_png:
             test_png.write(png)

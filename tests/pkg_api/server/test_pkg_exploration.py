@@ -2,9 +2,11 @@
 
 from flask import Flask
 
+from pkg_api.pkg import DEFAULT_VISUALIZATION_PATH
+
 
 def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
-    """Test /explore endpoint with invalid data."""
+    """Tests /explore endpoints with invalid data."""
     response = client.get(
         "/explore",
         json={
@@ -26,12 +28,12 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
     response = client.post(
         "/explore",
         json={
-            "owner_uri": "http://example.org/pkg/test",
+            "owner_uri": "http://example.com#test",
             "owner_username": "test",
             "sparql_query": (
-                "INSERT DATA { <http://example.org/pkg/test> "
-                "<http://example.org/likes> "
-                "<http://example.org/icecream> . }"
+                "INSERT DATA { <http://example.com#test> "
+                "<http://example.com#likes> "
+                "<http://example.com#icecream> . }"
             ),
         },
     )
@@ -43,17 +45,17 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
 
 
 def test_pkg_visualization(client: Flask) -> None:
-    """Test the GET /explore endpoint."""
+    """Tests the GET /explore endpoint."""
     response = client.get(
         "/explore",
         json={
-            "owner_uri": "http://example.com/pkg/test",
+            "owner_uri": "http://example.com#test",
             "owner_username": "test",
         },
     )
     assert response.status_code == 200
     assert response.json["message"] == "PKG visualized successfully."
-    assert response.json["img_path"] == "data/pkg_visualizations/test.png"
+    assert response.json["img_path"] == DEFAULT_VISUALIZATION_PATH + "test.png"
 
 
 def test_pkg_sparql_query(client: Flask) -> None:
@@ -61,12 +63,12 @@ def test_pkg_sparql_query(client: Flask) -> None:
     response = client.post(
         "/explore",
         json={
-            "owner_uri": "http://example.org/pkg/test",
+            "owner_uri": "http://example.com#test",
             "owner_username": "test",
             "sparql_query": (
                 "SELECT ?statement WHERE { "
-                "<http://example.org/pkg/test> "
-                "<http://example.org/likes> ?statement . }"
+                "<http://example.com#test> "
+                "<http://example.com#likes> ?statement . }"
             ),
         },
     )

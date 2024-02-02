@@ -2,7 +2,7 @@
 import os
 from enum import Enum
 
-from rdflib import Graph, Namespace
+from rdflib import Graph
 from rdflib.query import Result
 
 from pkg_api.core.namespaces import PKGPrefixes
@@ -12,7 +12,6 @@ from pkg_api.core.pkg_types import URI
 # Method to execute the SPARQL query
 
 DEFAULT_STORE_PATH = "data/RDFStore"
-DEFAULT_PKG_NAMESPACE = Namespace("http://example.com/pkg")
 
 
 class RDFStore(Enum):
