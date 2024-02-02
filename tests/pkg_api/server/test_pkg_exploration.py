@@ -1,5 +1,7 @@
 """Tests for the pkg exploration endpoints."""
 
+import os
+
 from flask import Flask
 
 
@@ -51,6 +53,10 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
 
 def test_pkg_visualization(client: Flask) -> None:
     """Tests the GET /explore endpoint."""
+    if not os.path.exists("tests/data/pkg_visualizations/"):
+        os.makedirs("tests/data/pkg_visualizations/", exist_ok=True)
+    if not os.path.exists("tests/data/RDFStore/"):
+        os.makedirs("tests/data/RDFStore/", exist_ok=True)
     response = client.get(
         "/explore",
         json={
@@ -65,6 +71,8 @@ def test_pkg_visualization(client: Flask) -> None:
 
 def test_pkg_sparql_query(client: Flask) -> None:
     """Tests the POST /explore endpoint."""
+    if not os.path.exists("tests/data/RDFStore/"):
+        os.makedirs("tests/data/RDFStore/", exist_ok=True)
     response = client.post(
         "/explore",
         json={
