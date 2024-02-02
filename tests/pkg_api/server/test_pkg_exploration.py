@@ -34,13 +34,12 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
                 "INSERT DATA { _:st a rdf:Statement ; "
                 'rdf:predicate [ a skos:Concept ; dc:description "like" ] ;'
                 "rdf:object"
-                '[ a skos:Concept ; dc:description "icecream"] ;'
-                "<http://example.com#icecream> . "
+                '[ a skos:Concept ; dc:description "icecream"] . '
                 "<http://example.com#test> wi:preference ["
                 "pav:derivedFrom _:st ;"
                 'wi:topic [ a skos:Concept ; dc:description "icecream"] ;'
                 "wo:weight"
-                "[ wo:weight_value -1.0 ; wo:scale pkg:StandardScale]] . }"
+                "[ wo:weight_value 1.0 ; wo:scale pkg:StandardScale]] . }"
             ),
         },
     )

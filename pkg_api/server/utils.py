@@ -23,11 +23,13 @@ def open_pkg(data: Dict[str, str]) -> PKG:
         raise Exception("Missing owner URI")
 
     store_path = current_app.config["STORE_PATH"]
+    visualization_path = current_app.config["VISUALIZATION_PATH"]
 
     return PKG(
         URI(owner_uri),
         RDFStore.MEMORY,
         f"{store_path}/{owner_username}",
+        visualization_path=visualization_path,
     )
 
 
