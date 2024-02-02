@@ -6,12 +6,12 @@ with a triple and a preference using LLM.
 
 
 import re
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
-from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
+from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
 
 _DEFAULT_PROMPT_PATHS = {
@@ -19,6 +19,8 @@ _DEFAULT_PROMPT_PATHS = {
     "triple": "data/llm_prompts/default/triple.txt",
     "preference": "data/llm_prompts/default/preference.txt",
 }
+
+_DEFAULT_CONFIG_PATH = "pkg_api/nl_to_pkg/llm/configs/llm_config_mistral.yaml"
 
 
 def is_number(value: str) -> bool:
@@ -38,12 +40,23 @@ def is_number(value: str) -> bool:
 
 
 class ThreeStepStatementAnnotator(StatementAnnotator):
-    def __init__(self) -> None:
-        """Initializes the three-step statement annotator."""
-        self._prompt_paths = _DEFAULT_PROMPT_PATHS
+    def __init__(
+        self,
+        prompt_paths: Dict[str, str] = _DEFAULT_PROMPT_PATHS,
+        config_path: str = _DEFAULT_CONFIG_PATH,
+    ) -> None:
+        """Initializes the three-step statement annotator.
+
+        Args:
+            prompt_paths: A dictionary with the paths to the prompts for each
+                step. Defaults to prompt paths defined in _DEFAULT_PROMPT_PATHS.
+            config_path: The path to the LLM config file. Defaults to the config
+                defined in _DEFAULT_CONFIG_PATH.
+        """
+        self._prompt_paths = prompt_paths
         self._prompt = Prompt()
         self._valid_intents = {intent.name for intent in Intent}
-        self._llm_connector = LLMConnector()
+        self._llm_connector = LLMConnector(config_path=config_path)
 
     def get_annotations(self, statement: str) -> Tuple[Intent, PKGData]:
         """Returns a tuple with annotations for a statement.
