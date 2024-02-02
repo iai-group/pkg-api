@@ -2,8 +2,6 @@
 
 from flask import Flask
 
-from pkg_api.pkg import DEFAULT_VISUALIZATION_PATH
-
 
 def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
     """Tests /explore endpoints with invalid data."""
@@ -31,9 +29,16 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
             "owner_uri": "http://example.com#test",
             "owner_username": "test",
             "sparql_query": (
-                "INSERT DATA { <http://example.com#test> "
-                "<http://example.com#likes> "
-                "<http://example.com#icecream> . }"
+                "INSERT DATA { _:st a rdf:Statement ; "
+                'rdf:predicate [ a skos:Concept ; dc:description "like" ] ;'
+                "rdf:object"
+                '[ a skos:Concept ; dc:description "icecream"] ;'
+                "<http://example.com#icecream> . "
+                "<http://example.com#test> wi:preference ["
+                "pav:derivedFrom _:st ;"
+                'wi:topic [ a skos:Concept ; dc:description "icecream"] ;'
+                "wo:weight"
+                "[ wo:weight_value -1.0 ; wo:scale pkg:StandardScale]] . }"
             ),
         },
     )
@@ -55,7 +60,7 @@ def test_pkg_visualization(client: Flask) -> None:
     )
     assert response.status_code == 200
     assert response.json["message"] == "PKG visualized successfully."
-    assert response.json["img_path"] == DEFAULT_VISUALIZATION_PATH + "test.png"
+    assert response.json["img_path"] == "tests/data/pkg_visualizations/test.png"
 
 
 def test_pkg_sparql_query(client: Flask) -> None:
@@ -67,8 +72,8 @@ def test_pkg_sparql_query(client: Flask) -> None:
             "owner_username": "test",
             "sparql_query": (
                 "SELECT ?statement WHERE { "
-                "<http://example.com#test> "
-                "<http://example.com#likes> ?statement . }"
+                "?statement rdf:predicate "
+                '[ a skos:Concept ; dc:description "like" ] . }'
             ),
         },
     )

@@ -12,6 +12,7 @@ import io
 from typing import Dict, Optional
 
 import pydotplus
+from flask import current_app
 from IPython.display import display
 from rdflib.query import Result
 from rdflib.term import Variable
@@ -22,7 +23,7 @@ from pkg_api.connector import Connector, RDFStore
 from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
 
-DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations/"
+DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
 
 
 class PKG:
@@ -155,7 +156,8 @@ class PKG:
             if namespace.value in str(self._owner_uri):
                 owner_name = self._owner_uri.replace(str(namespace.value), "")
 
-        path = DEFAULT_VISUALIZATION_PATH + owner_name + ".png"
+        visualization_path = current_app.config["VISUALIZATION_PATH"]
+        path = visualization_path + "/" + owner_name + ".png"
 
         with open(path, "wb") as test_png:
             test_png.write(png)
