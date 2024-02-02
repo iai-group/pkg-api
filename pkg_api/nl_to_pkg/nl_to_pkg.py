@@ -30,6 +30,6 @@ class NLtoPKG:
             A tuple of the intent and the annotated and linked statement.
         """
         intent, pkg_data = self._annotator.get_annotations(statement)
-        linked_pkg_data = self._entity_linker.link_annotation_entities(pkg_data)
+        linked_pkg_data = self._entity_linker.link_entities(pkg_data)
 
         return intent, linked_pkg_data

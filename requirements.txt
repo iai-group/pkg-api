@@ -13,6 +13,9 @@ pytest-cov
 Flask>=2.3.3
 Flask-RESTful>=0.3.10
 Flask-SQLAlchemy>=3.1.1
+requests
+types-requests
+pyyaml
+types-pyyaml
 ollama
-types-PyYAML
 rfc3987
