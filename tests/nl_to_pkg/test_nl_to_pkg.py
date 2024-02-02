@@ -52,7 +52,7 @@ def entity_linker_mock() -> Mock:
             pkg_data.triple.object.value = "Linked Object"
             return pkg_data
 
-    mock.link_annotation_entities.side_effect = link_annotation_side_effect
+    mock.link_entities.side_effect = link_annotation_side_effect
     return mock
 
 

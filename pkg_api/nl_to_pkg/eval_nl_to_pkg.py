@@ -93,20 +93,20 @@ def get_preference_f1_scores(
         Tuple of macro and micro F1 scores for the preferences.
     """
     true_preferences = []
-    predicted_preferenes = []
+    predicted_preferences = []
     for (_, _, _, _, _, true_pref), (_, pkg_data) in zip(
         groundtruth_data, annotations
     ):
         true_preferences.append(true_pref)
         if pkg_data.preference:
-            predicted_preferenes.append(str(int(pkg_data.preference.weight)))
+            predicted_preferences.append(str(int(pkg_data.preference.weight)))
         else:
-            predicted_preferenes.append("")
+            predicted_preferences.append("")
     preference_macro_f1 = f1_score(
-        true_preferences, predicted_preferenes, average="macro"
+        true_preferences, predicted_preferences, average="macro"
     )
     preference_micro_f1 = f1_score(
-        true_preferences, predicted_preferenes, average="micro"
+        true_preferences, predicted_preferences, average="micro"
     )
     return preference_macro_f1, preference_micro_f1
 
