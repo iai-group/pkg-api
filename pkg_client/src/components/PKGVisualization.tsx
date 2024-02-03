@@ -33,7 +33,7 @@ const PKGVisualization = () => {
 
     const executeQuery = (query: string) => {
         return axios
-            .post(`${baseURL}/execute`, {
+            .post(`${baseURL}/explore`, {
                 query: query,
                 username: user?.username,
                 user_uri: user?.uri,
