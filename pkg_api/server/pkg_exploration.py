@@ -1,20 +1,21 @@
 """PKG Exploration Resource."""
 from typing import Any, Dict, Tuple
 
-from flask import request
+import flask
+from flask import Response, request
 from flask_restful import Resource
 
 from pkg_api.server.utils import open_pkg, parse_query_request_data
 
 
 class PKGExplorationResource(Resource):
-    def get(self) -> Tuple[Dict[str, Any], int]:
+    def get(self) -> Response:
         """Returns the PKG visualization.
 
         Returns:
-            A dictionary with the path to PKG visualization and the status code.
+            A response containing the image of the PKG graph.
         """
-        data = request.json
+        data = dict(request.args)
         try:
             pkg = open_pkg(data)
         except Exception as e:
@@ -23,10 +24,7 @@ class PKGExplorationResource(Resource):
         graph_img_path = pkg.visualize_graph()
         pkg.close()
 
-        return {
-            "message": "PKG visualized successfully.",
-            "img_path": graph_img_path,
-        }, 200
+        return flask.send_file(graph_img_path, mimetype="image/png")
 
     def post(self) -> Tuple[Dict[str, Any], int]:
         """Executes the SPARQL query.
@@ -45,6 +43,8 @@ class PKGExplorationResource(Resource):
 
         if "SELECT" in sparql_query:
             result = str(pkg.execute_sparql_query(sparql_query))
+            # TODO: Update pkg.visualize_graph() to return partial graph based
+            # on the query result
         else:
             return {
                 "message": (
