@@ -57,7 +57,7 @@ def entity_linker_mock() -> Mock:
 
 
 @pytest.fixture
-def nlp_to_pkg(
+def nl_to_pkg(
     statement_annotator_mock: Mock,
     entity_linker_mock: Mock,
 ) -> NLtoPKG:

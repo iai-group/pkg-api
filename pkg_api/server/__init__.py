@@ -7,6 +7,7 @@ from flask import Flask
 from flask_restful import Api
 
 from pkg_api.server.auth import AuthResource
+from pkg_api.server.config import DevelopmentConfig, TestingConfig
 from pkg_api.server.facts_management import PersonalFactsResource
 from pkg_api.server.models import db
 from pkg_api.server.nl_processing import NLResource
@@ -26,10 +27,9 @@ def create_app(testing: bool = False) -> Flask:
     app = Flask(__name__)
 
     if testing:
-        app.config["TESTING"] = True
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.sqlite"
+        app.config.from_object(TestingConfig)
     else:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
+        app.config.from_object(DevelopmentConfig)
 
     db.init_app(app)
 
