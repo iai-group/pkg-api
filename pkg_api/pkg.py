@@ -8,19 +8,33 @@ in the PKG vocabulary. The PKG vocabulary and an example of a statement
 can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
+<<<<<<< HEAD
 import io
 from typing import Dict, Optional
 
 import pydotplus
 from IPython.display import display
 from rdflib.query import Result
+=======
+import logging
+from collections import defaultdict
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
+
+from rdflib import BNode, Literal, URIRef
+from rdflib.namespace import NamespaceManager
+>>>>>>> feature/64-Identify-specific-issues-for-producing-SPARQL-according-to-PKG-data-model-utilspy
 from rdflib.term import Variable
 from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
+<<<<<<< HEAD
 from pkg_api.core.namespaces import PKGPrefixes
+=======
+from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
+>>>>>>> feature/64-Identify-specific-issues-for-producing-SPARQL-according-to-PKG-data-model-utilspy
 from pkg_api.core.pkg_types import URI
+from pkg_api.mapping_vocab import MappingVocab
 
 DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
 
@@ -125,14 +139,18 @@ class PKG:
         """
         pass
 
-    def add_statement(self, pkg_data: utils.PKGData) -> None:
+    def add_statement(self, pkg_data: PKGData) -> None:
         """Adds a statement to the PKG.
+
+        Note that if a preference is provided, it will be added with a separate
+        query.
 
         Args:
             pkg_data: PKG data associated to a statement.
         """
         query = utils.get_query_for_add_statement(pkg_data)
         self._connector.execute_sparql_update(query)
+<<<<<<< HEAD
 
     def execute_sparql_query(self, query: str) -> Result:
         """Executes a SPARQL query.
@@ -170,3 +188,166 @@ class PKG:
             test_png.write(png)
 
         return path
+=======
+        if pkg_data.preference:
+            query = utils.get_query_for_add_preference(pkg_data)
+            self._connector.execute_sparql_update(query)
+
+    def get_statements(
+        self, pkg_data: PKGData, triple_conditioned: bool = False
+    ) -> List[PKGData]:
+        """Gets statements from the PKG given conditions.
+
+        Args:
+            pkg_data: PKG data associated to wanted statements.
+            triple_conditioned: Whether to condition the query with the triple
+              data. Defaults to False.
+
+        Returns:
+            Statements matching the conditions.
+        """
+        if triple_conditioned:
+            query = utils.get_query_for_conditional_get_statements(
+                pkg_data.triple
+            )
+        else:
+            query = utils.get_query_for_get_statements(pkg_data)
+        results = list(self._connector.execute_sparql_query(query).bindings)
+        return self._parse_statements(results)
+
+    def _parse_statements(self, results: List[Any]) -> List[PKGData]:
+        """Parses a list of statements.
+
+        Args:
+            results: List of results from the SPARQL query.
+
+        Returns:
+            List of PKG data associated to the retrieved statements.
+        """
+        statements: List[PKGData] = []
+        for row in results:
+            statement_bnode = row.get(Variable("statement"))
+            triples = list(
+                self._connector._graph.triples((statement_bnode, None, None))
+            )
+            statement = self._parse_statement_node(
+                triples, self._connector._graph.namespace_manager
+            )
+            statements.append(statement)
+        return statements
+
+    def _parse_statement_node(
+        self,
+        triples: List[Tuple[Any, Any, Any]],
+        namespace_manager: NamespaceManager,
+    ) -> Optional[PKGData]:
+        """Parses a statement node.
+
+        Args:
+            triples: List of triples that form the statement.
+            namespace_manager: Namespace manager of the graph.
+
+        Returns:
+            PKG data associated to the statement.
+        """
+        statement_dict: DefaultDict[str, Any] = defaultdict(
+            lambda: defaultdict()
+        )
+
+        for _, p, o in triples:
+            # Parse the predicate URI to N3 format, i.e., prefix:property.
+            property = p.n3(namespace_manager)
+            pkg_data_field, field_property = MappingVocab.get_pkgdata_field(
+                property
+            )
+            if pkg_data_field is None:
+                logging.warning(
+                    f"Statement parsing - Property {property} not supported."
+                )
+                continue
+            value = self._parse_rdf_triple_object(o)
+            if field_property is None:
+                statement_dict[pkg_data_field] = value
+            else:
+                statement_dict[pkg_data_field][field_property] = value
+
+        if not statement_dict.get("statement", None):
+            logging.warning("Statement parsing failed, not statement returned.")
+            return None
+
+        # Create a Triple object from the parsed triple (need to create
+        # TripleElement objects)
+        _triple = None
+        for k, v in statement_dict.get("triple", {}).items():
+            if _triple is None:
+                _triple = Triple()
+            if v is not None:
+                setattr(_triple, k, TripleElement.from_value(v))
+
+        return PKGData(
+            statement=statement_dict.get("statement"),
+            triple=_triple,
+            preference=None,
+            logging_data=dict(statement_dict.get("logging_data", {})),
+        )
+
+    def _parse_rdf_triple_object(
+        self, object: Any
+    ) -> Optional[Union[URI, Concept, str]]:
+        """Parses a triple object retrieved with SPARQL.
+
+        Args:
+            object: Triple object retrieved with SPARQL.
+
+        Returns:
+            Value of the triple object as URI, Concept, or str.
+        """
+        if isinstance(object, URIRef):
+            return URI(str(object))
+        elif isinstance(object, Literal):
+            return str(object)
+        elif isinstance(object, BNode):
+            return self._retrieve_and_parse_concept(object)
+
+        logging.warning(
+            f"Object {object} of type {type(object)} not supported."
+        )
+        return None
+
+    def _retrieve_and_parse_concept(
+        self, concept_node: BNode
+    ) -> Optional[Concept]:
+        """Retrieves and parses a concept from the graph.
+
+        Args:
+            concept_node: Node ID of the concept.
+
+        Returns:
+            Concept.
+        """
+        concept_dict: DefaultDict[str, Any] = defaultdict()
+        namespace_manager = self._connector._graph.namespace_manager
+        for _, p, o in self._connector._graph.triples(
+            (concept_node, None, None)
+        ):
+            # According to rdflib documentation, all terms have a n3 method.
+            property = p.n3(namespace_manager)  # type: ignore[attr-defined]
+            concept_field = MappingVocab.CONCEPT_MAPPING.get(property, None)
+            if concept_field is None:
+                logging.warning(
+                    f"Concept parsing - Property {property} not supported."
+                )
+                continue
+
+            if concept_field == "description":
+                concept_dict[concept_field] = str(o)
+            else:
+                # Other fields of Concept are lists of URIs
+                concept_dict.setdefault(concept_field, []).append(URI(str(o)))
+
+        if not concept_dict.get("description", None):
+            logging.warning("Concept parsing failed, not description found.")
+            return None
+
+        return Concept(**concept_dict)
+>>>>>>> feature/64-Identify-specific-issues-for-producing-SPARQL-according-to-PKG-data-model-utilspy

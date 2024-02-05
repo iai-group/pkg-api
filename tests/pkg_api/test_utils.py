@@ -65,7 +65,7 @@ def pkg_data_example() -> PKGData:
 @pytest.fixture
 def statement_representation() -> str:
     """Statement representation associated to pkg_data_example."""
-    return """_:st a rdf:Statement ;
+    return """[] a rdf:Statement ;
         dc:description "I dislike all movies with the actor Tom Cruise." ;
         rdf:subject <http://example.com/my/I> ;
         rdf:predicate [ a skos:Concept ; dc:description "dislike" ] ;
@@ -207,27 +207,65 @@ def test_get_statement_representation(
         statement_representation: Expected statement representation.
     """
     assert strip_string(
-        utils._get_statement_representation(pkg_data_example, "_:st")
+        utils._get_statement_representation(pkg_data_example, "[]")
     ) == strip_string(statement_representation)
 
 
 def test_get_query_for_add_statement(
     pkg_data_example: PKGData,
     statement_representation: str,
-    preference_representation: str,
 ) -> None:
     """Tests _get_query_for_add_statement method.
 
     Args:
         pkg_data_example: PKG data example.
-        statement_representation: Expected statement representation.
-        preference_representation: Expected preference representation.
+        statement_representation: Statement representation.
     """
     sparql_query = f"""INSERT DATA {{
         {statement_representation}
-
-        {preference_representation}
     }}"""
     assert utils.get_query_for_add_statement(pkg_data_example) == strip_string(
+        sparql_query
+    )
+
+
+def test_get_query_for_add_preference(
+    pkg_data_example: PKGData,
+    preference_representation: str,
+    statement_representation: str,
+) -> None:
+    """Tests _get_query_for_add_preference method.
+
+    Args:
+        pkg_data_example: PKG data example.
+        preference_representation: Preference representation.
+        statement_representation: Statement representation.
+    """
+    sparql_query = f"""INSERT {{
+        {preference_representation.replace("_:st", "?statement")}
+    }}
+    WHERE {{
+        {statement_representation.replace("[]", "?statement")}
+    }}"""
+    assert utils.get_query_for_add_preference(pkg_data_example) == strip_string(
+        sparql_query
+    )
+
+
+def test_get_query_for_get_statement(
+    pkg_data_example: PKGData, statement_representation: str
+) -> None:
+    """Tests get_query_for_get_statement method.
+
+    Args:
+        pkg_data_example: PKG data example.
+        statement_representation: Statement representation.
+    """
+    sparql_query = f"""SELECT ?statement
+        WHERE {{
+            {statement_representation.replace("[]", "?statement")}
+        }}"""
+
+    assert utils.get_query_for_get_statements(pkg_data_example) == strip_string(
         sparql_query
     )
