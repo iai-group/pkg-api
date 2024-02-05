@@ -1,5 +1,6 @@
 """Tests for the PKG module."""
 import re
+import uuid
 
 import pytest
 
@@ -32,6 +33,7 @@ def user_pkg() -> PKG:
 def statement() -> PKGData:
     """Returns a statement."""
     return PKGData(
+        id=uuid.UUID("{abcac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I live in Stavanger.",
         triple=Triple(
             TripleElement("I", URI("http://example.com/testuser")),
@@ -59,6 +61,7 @@ def statement_with_concept() -> PKGData:
     )
 
     return PKGData(
+        id=uuid.UUID("{f47ac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I like movies directed by Steven Spielberg.",
         triple=Triple(
             TripleElement("I", URI("http://example.com/testuser")),
@@ -77,6 +80,7 @@ def statement_with_concept() -> PKGData:
 def retrieved_statement_with_concept() -> PKGData:
     """Returns a statement retrieved from the PKG."""
     return PKGData(
+        id=uuid.UUID("{f47ac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I like movies directed by Steven Spielberg.",
         triple=Triple(
             TripleElement("", URI("http://example.com/testuser")),
@@ -153,6 +157,7 @@ def test_get_statements_with_triple_conditions(
     user_pkg.add_statement(statement_with_concept)
     user_pkg.add_statement(
         PKGData(
+            id=uuid.uuid1(),
             statement="I like movies.",
             triple=Triple(
                 TripleElement("I", URI("http://example.com/testuser")),
@@ -164,6 +169,7 @@ def test_get_statements_with_triple_conditions(
 
     statements = user_pkg.get_statements(
         PKGData(
+            id=uuid.uuid1(),
             statement="Get me everything I like.",
             triple=Triple(
                 predicate=TripleElement("like", Concept(description="like")),
