@@ -23,7 +23,9 @@ from pkg_api.connector import Connector, RDFStore
 from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
 
-ROOT_DIR = os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(__file__))))
+ROOT_DIR = os.path.dirname(
+    os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+)
 DEFAULT_VISUALIZATION_PATH = ROOT_DIR + "/data/pkg_visualizations"
 
 
@@ -164,9 +166,7 @@ class PKG:
 
         for _, namespace in PKGPrefixes.__members__.items():
             if namespace.value in str(self._owner_uri):
-                owner_name = self._owner_uri.replace(
-                    str(namespace.value), ""
-                )
+                owner_name = self._owner_uri.replace(str(namespace.value), "")
 
         path = self._visualization_path + "/" + owner_name + ".png"
 
