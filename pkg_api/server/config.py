@@ -31,7 +31,7 @@ class DevelopmentConfig(BaseConfig):
 
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///db.sqlite"
-    STORE_PATH = "data"
+    STORE_PATH = "data/RDFStore"
     VISUALIZATION_PATH = DEFAULT_VISUALIZATION_PATH
 
 

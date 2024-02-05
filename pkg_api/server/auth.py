@@ -6,16 +6,13 @@ from flask import request
 from flask_restful import Resource
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.server.models import User, db
-
-# TODO: Retrieve namespace from the mapping class
-# See issue: https://github.com/iai-group/pkg-api/issues/13
-NS = "http://example.org/pkg/"
 
 
 def create_user_uri(username: str) -> str:
     """Creates the user URI from the username."""
-    return f"{NS}{username}"
+    return f"{PKGPrefixes.EX.value}{username}"
 
 
 class AuthResource(Resource):

@@ -15,7 +15,7 @@ class PKGPrefixes(Enum):
     DCAT = "http://www.w3.org/ns/dcat#"
     DOAP = "http://usefulinc.com/ns/doap#"
     EVENT = "http://purl.org/NET/c4dm/event.owl#"
-    EX = "http://example.com#"
+    EX = "http://example.org/pkg#"
     FOAF = "http://xmlns.com/foaf/0.1/"
     GEO = "http://www.w3.org/2003/01/geo/wgs84_pos#"
     OWL = "http://www.w3.org/2002/07/owl#"

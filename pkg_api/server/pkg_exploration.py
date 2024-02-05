@@ -41,7 +41,7 @@ class PKGExplorationResource(Resource):
 
         sparql_query = parse_query_request_data(data)
 
-        if "SELECT" in sparql_query:
+        if "select" in sparql_query.lower():
             result = str(pkg.execute_sparql_query(sparql_query))
             # TODO: Update pkg.visualize_graph() to return partial graph based
             # on the query result

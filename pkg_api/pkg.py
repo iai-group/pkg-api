@@ -10,6 +10,7 @@ can be found here: https://github.com/iai-group/pkg-vocabulary
 
 import io
 import logging
+import os
 from collections import defaultdict
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
@@ -28,7 +29,10 @@ from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
 from pkg_api.mapping_vocab import MappingVocab
 
-DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
+ROOT_DIR = os.path.dirname(
+    os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+)
+DEFAULT_VISUALIZATION_PATH = ROOT_DIR + "/data/pkg_visualizations"
 
 
 class PKG:
@@ -331,8 +335,10 @@ class PKG:
         owner_name = ""
 
         for _, namespace in PKGPrefixes.__members__.items():
-            if namespace.value in str(self._owner_uri):
-                owner_name = self._owner_uri.replace(str(namespace.value), "")
+            if namespace.value.replace("#", "") in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(
+                    str(namespace.value.replace("#", "")), ""
+                ).replace("/", "")
 
         path = self._visualization_path + "/" + owner_name + ".png"
 
