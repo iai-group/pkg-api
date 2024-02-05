@@ -4,6 +4,7 @@ import Container from "react-bootstrap/Container";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import NLtoPKG from "./NLtoPKG";
+import PKGVisualization from "./PKGVisualization";
 
 const APIHandler: React.FC = () => {
   const { user } = useContext(UserContext);
@@ -30,7 +31,7 @@ const APIHandler: React.FC = () => {
               path="preferences"
               element={<div>Personal Preferences</div>}
             />
-            <Route path="explore" element={<div>PKG Exploration</div>} />
+            <Route path="explore" element={<PKGVisualization />} />
           </Route>
         </Routes>
       </BrowserRouter>
