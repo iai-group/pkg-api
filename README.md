@@ -55,6 +55,10 @@ The user interface is a React application that communicates with the server to m
 
 :warning: Note that you need to update `PKG_API_BASE_URL` in the [configuration](pkg_client/public/config.json) in case the server is not running on the default port.
 
+## Demo
+
+![Demo](docs/source/_static/PKG_API_demo.gif)
+
 ## Conventions
 
 We follow the [IAI Python Style Guide](https://github.com/iai-group/styleguide/tree/main/python).
