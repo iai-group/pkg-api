@@ -145,7 +145,6 @@ class PKG:
             pkg_data: PKG data associated to a statement.
         """
         query = utils.get_query_for_add_statement(pkg_data)
-        print(f"DEBUG - query insert: {query}")
         self._connector.execute_sparql_update(query)
         if pkg_data.preference:
             query = utils.get_query_for_add_preference(pkg_data)
@@ -164,7 +163,7 @@ class PKG:
         Returns:
             Statements matching the conditions.
         """
-        if triple_conditioned:
+        if triple_conditioned and pkg_data.triple is not None:
             query = utils.get_query_for_conditional_get_statements(
                 pkg_data.triple
             )
@@ -181,11 +180,9 @@ class PKG:
         """
         # Remove preference derived from the statement, if any
         query = utils.get_query_for_remove_preference(pkg_data)
-        print(f"DEBUG - query remove preference: {query}")
         self._connector.execute_sparql_update(query)
         # Remove statement
         query = utils.get_query_for_remove_statement(pkg_data)
-        print(f"DEBUG - query: {query}")
         self._connector.execute_sparql_update(query)
 
     def _parse_statements(self, results: List[Any]) -> List[PKGData]:
