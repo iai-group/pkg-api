@@ -57,7 +57,7 @@ The user interface is a React application that communicates with the server to m
 
 ## Demo
 
-A demo is available [here](https://drive.google.com/file/d/1TySe0eLByuwBTkmA7MtgT27sRvY04jbx/view?usp=sharing).
+https://github.com/iai-group/pkg-api/assets/28621493/cf51ab83-b7c9-4441-93c9-abd2bae18a98
 
 ## Conventions
 
