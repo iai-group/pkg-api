@@ -28,7 +28,7 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
     response = client.post(
         "/explore",
         json={
-            "owner_uri": "http://example.com#test",
+            "owner_uri": "http://example.org/pkg#test",
             "owner_username": "test",
             "sparql_query": (
                 "INSERT DATA { _:st a rdf:Statement ; "
@@ -59,7 +59,7 @@ def test_pkg_visualization(client: Flask) -> None:
     response = client.get(
         "/explore",
         json={
-            "owner_uri": "http://example.com#test",
+            "owner_uri": "http://example.org/pkg#test",
             "owner_username": "test",
         },
     )
@@ -75,7 +75,7 @@ def test_pkg_sparql_query(client: Flask) -> None:
     response = client.post(
         "/explore",
         json={
-            "owner_uri": "http://example.com#test",
+            "owner_uri": "http://example.org/pkg#test",
             "owner_username": "test",
             "sparql_query": (
                 "SELECT ?statement WHERE { "

@@ -8,6 +8,7 @@ in the PKG vocabulary. The PKG vocabulary and an example of a statement
 can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
+import datetime
 import io
 import logging
 import os
@@ -144,6 +145,14 @@ class PKG:
         Args:
             pkg_data: PKG data associated to a statement.
         """
+        # Add provenance data
+        if pkg_data.logging_data.get("authoredBy", None) is None:
+            pkg_data.logging_data["authoredBy"] = self._owner_uri
+        if pkg_data.logging_data.get("authoredOn", None) is None:
+            pkg_data.logging_data[
+                "authoredOn"
+            ] = datetime.datetime.now().isoformat()
+
         query = utils.get_query_for_add_statement(pkg_data)
         self._connector.execute_sparql_update(query)
         if pkg_data.preference:
@@ -184,6 +193,9 @@ class PKG:
         # Remove statement
         query = utils.get_query_for_remove_statement(pkg_data)
         self._connector.execute_sparql_update(query)
+        # Remove dangling concepts and scales
+        for query in utils.get_queries_for_remove_cleanup():
+            self._connector.execute_sparql_update(query)
 
     def _parse_statements(self, results: List[Any]) -> List[PKGData]:
         """Parses a list of statements.

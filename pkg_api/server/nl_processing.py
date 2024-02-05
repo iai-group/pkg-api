@@ -49,14 +49,26 @@ class NLResource(Resource):
             return {"message": "Missing query"}, 400
 
         intent, statement_data = self.nl_to_pkg.annotate(query)
-
         if intent == Intent.ADD:
             pkg.add_statement(statement_data)
-            return {"message": "Statement added to your PKG."}, 200
+            pkg.close()
+            return {
+                "message": "Statement added to your PKG.",
+                "data": None,
+            }, 200
         elif intent == Intent.GET:
-            return {"message": "GET not implemented."}, 400
+            statements = pkg.get_statements(
+                statement_data, triple_conditioned=True
+            )
+            print(f"Statements: {statements}")
+            return {
+                "message": "Statements retrieved from your PKG",
+                "data": statements,
+            }, 200
         elif intent == Intent.DELETE:
-            return {"message": "DELETE not implemented."}, 400
+            pkg.remove_statement(statement_data)
+            pkg.close()
+            return {"message": "Statement was deleted if present"}, 200
 
         return {
             "message": "The operation could not be performed. Please try to"

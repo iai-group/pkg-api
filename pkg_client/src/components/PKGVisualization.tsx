@@ -20,6 +20,7 @@ const PKGVisualization = () => {
     getImage();
   }, []);
 
+  // TODO: export this function to reuse it in other components
   const getImage = () => {
     axios
       .get(`${baseURL}/explore`, {
@@ -74,8 +75,7 @@ const PKGVisualization = () => {
       <div>
         <b>This is your current PKG:</b>
       </div>
-      <div>[Only for testing] Local path to the image: {image_path}</div>
-      <img src={image_path} alt="PKG" />
+      <img src={image_path} alt="PKG" style={{ width: "100%" }} />
     </Container>
   );
 };

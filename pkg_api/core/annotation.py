@@ -75,7 +75,7 @@ class PKGData:
     Annotations include a triple, a preference, and logging data.
     """
 
-    id = uuid.uuid1()
+    id: uuid.UUID
     statement: str
     triple: Optional[Triple] = None
     preference: Optional[Preference] = None

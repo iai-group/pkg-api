@@ -56,8 +56,9 @@ def pkg_data_example() -> PKGData:
             weight=-1.0,
         ),
         logging_data={
-            "authoredOn": "2024-26-01T11:41:00Z",
+            "authoredOn": "2024-26-01T11:41:00",
             "createdBy": "http://example.com/my/I",
+            "authoredBy": "http://example.com/my/I",
         },
     )
 
@@ -77,8 +78,9 @@ def statement_representation(pkg_data_example: PKGData) -> str:
             skos:broader <https://schema.org/Movie> ;
             skos:narrower <https://schema.org/Action>
         ] ;
-        pav:authoredOn "2024-26-01T11:41:00Z"^^xsd:dateTime ;
-        pav:createdBy <http://example.com/my/I>
+        pav:authoredOn "2024-26-01T11:41:00"^^xsd:dateTime ;
+        pav:createdBy <http://example.com/my/I> ;
+        pav:authoredBy <http://example.com/my/I>
         .
     """
 

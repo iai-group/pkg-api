@@ -5,6 +5,7 @@ from typing import Any, Dict, Union
 import requests
 
 from pkg_api.core.annotation import Concept, PKGData, TripleElement
+from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
 from pkg_api.nl_to_pkg.entity_linking.entity_linker import EntityLinker
 from pkg_api.util.load_config import load_yaml_config
@@ -43,10 +44,13 @@ class SpotlightEntityLinker(EntityLinker):
                     triple_element.reference
                 )
 
-        # Quick fix - Include the subject as literal in the triple.
+        # Quick fix - Create a URI for the subject in example namespace
         if pkg_data.triple.subject is not None:
-            pkg_data.triple.subject.value = pkg_data.triple.subject.reference
-        
+            pkg_data.triple.subject.value = URI(
+                PKGPrefixes.EX.value
+                + pkg_data.triple.subject.reference.replace(" ", "_")
+            )
+
         return pkg_data
 
     def _get_linked_text(self, reference: str) -> Union[URI, Concept, str]:

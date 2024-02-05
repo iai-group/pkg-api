@@ -13,6 +13,7 @@ from pkg_api.core.annotation import (
 )
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
+from pkg_api.utils import get_statement_node_id
 
 
 @pytest.fixture
@@ -39,7 +40,10 @@ def statement() -> PKGData:
                 "Stavanger", URI("https://dbpedia.org/page/Stavanger")
             ),
         ),
-        logging_data={"authoredBy": URI("http://example.com/testuser")},
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
     )
 
 
@@ -62,7 +66,10 @@ def statement_with_concept() -> PKGData:
             _object,
         ),
         preference=Preference(_object, 1.0),
-        logging_data={"authoredBy": URI("http://example.com/testuser")},
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
     )
 
 
@@ -85,7 +92,10 @@ def retrieved_statement_with_concept() -> PKGData:
             ),
         ),
         preference=None,
-        logging_data={"authoredBy": URI("http://example.com/testuser")},
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
     )
 
 
@@ -96,10 +106,12 @@ def test_add_statement(
     expected_query = re.sub(
         r"\s+",
         " ",
-        """INSERT DATA { [] a rdf:Statement ; dc:description "I live in
-     Stavanger." ; rdf:subject <http://example.com/testuser> ; rdf:predicate
-     "live" ; rdf:object <https://dbpedia.org/page/Stavanger> ; pav:authoredBy
-     <http://example.com/testuser> . }""",
+        f"""INSERT DATA {{ {get_statement_node_id(statement)} a rdf:Statement ;
+        dc:description "I live in Stavanger." ;
+        rdf:subject <http://example.com/testuser> ; rdf:predicate "live" ;
+        rdf:object <https://dbpedia.org/page/Stavanger> ;
+        pav:authoredOn "2024-02-05T13:54:32"^^xsd:dateTime ;
+        pav:authoredBy <http://example.com/testuser> . }}""",
     ).strip()
 
     # Check that connector is called with the correct query
