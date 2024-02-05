@@ -63,9 +63,9 @@ def pkg_data_example() -> PKGData:
 
 
 @pytest.fixture
-def statement_representation() -> str:
+def statement_representation(pkg_data_example: PKGData) -> str:
     """Statement representation associated to pkg_data_example."""
-    return """[] a rdf:Statement ;
+    return f"""{utils.get_statement_node_id(pkg_data_example)} a rdf:Statement ;
         dc:description "I dislike all movies with the actor Tom Cruise." ;
         rdf:subject <http://example.com/my/I> ;
         rdf:predicate [ a skos:Concept ; dc:description "dislike" ] ;
@@ -183,20 +183,6 @@ def test_get_property_representation(
     ) == strip_string(expected)
 
 
-def test_get_preference_representation(
-    pkg_data_example: PKGData, preference_representation: str
-) -> None:
-    """Tests _get_preference_representation method.
-
-    Args:
-        pkg_data_example: PKG data example.
-        preference_representation: Expected preference representation.
-    """
-    assert strip_string(
-        utils._get_preference_representation(pkg_data_example, "_:st")
-    ) == strip_string(preference_representation)
-
-
 def test_get_statement_representation(
     pkg_data_example: PKGData, statement_representation: str
 ) -> None:
@@ -206,8 +192,9 @@ def test_get_statement_representation(
         pkg_data_example: PKG data example.
         statement_representation: Expected statement representation.
     """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
     assert strip_string(
-        utils._get_statement_representation(pkg_data_example, "[]")
+        utils._get_statement_representation(pkg_data_example, statement_node_id)
     ) == strip_string(statement_representation)
 
 
