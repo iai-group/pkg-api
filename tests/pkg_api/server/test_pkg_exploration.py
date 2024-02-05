@@ -1,6 +1,7 @@
 """Tests for the pkg exploration endpoints."""
 
 import os
+from io import StringIO
 
 from flask import Flask
 
@@ -56,6 +57,7 @@ def test_pkg_visualization(client: Flask) -> None:
         os.makedirs("tests/data/pkg_visualizations/", exist_ok=True)
     if not os.path.exists("tests/data/RDFStore/"):
         os.makedirs("tests/data/RDFStore/", exist_ok=True)
+
     response = client.get(
         "/explore",
         json={
@@ -63,9 +65,12 @@ def test_pkg_visualization(client: Flask) -> None:
             "owner_username": "test",
         },
     )
-    assert response.status_code == 200
-    assert response.json["message"] == "PKG visualized successfully."
-    assert response.json["img_path"] == "tests/data/pkg_visualizations/test.png"
+
+    with open("tests/data/pkg_visualizations/test.png", "rb") as img:
+        test_image = StringIO(img.read())
+    test_image.seek(0)
+
+    assert response.data == test_image.read()
 
 
 def test_pkg_sparql_query(client: Flask) -> None:

@@ -163,8 +163,10 @@ class PKG:
         owner_name = ""
 
         for _, namespace in PKGPrefixes.__members__.items():
-            if namespace.value.replace("#", "") in str(self._owner_uri):
-                owner_name = self._owner_uri.replace(str(namespace.value.replace("#", "")), "").replace("/", "")
+            if namespace.value in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(
+                    str(namespace.value), ""
+                )
 
         path = self._visualization_path + "/" + owner_name + ".png"
 

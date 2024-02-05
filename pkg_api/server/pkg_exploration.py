@@ -1,5 +1,5 @@
 """PKG Exploration Resource."""
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Union
 
 import flask
 from flask import Response, request
@@ -9,7 +9,7 @@ from pkg_api.server.utils import open_pkg, parse_query_request_data
 
 
 class PKGExplorationResource(Resource):
-    def get(self) -> Response:
+    def get(self) -> Union[Response, Tuple[Dict[str, Any], int]]:
         """Returns the PKG visualization.
 
         Returns:

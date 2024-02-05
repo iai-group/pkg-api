@@ -10,7 +10,7 @@ from pkg_api.server.models import User, db
 
 # TODO: Retrieve namespace from the mapping class
 # See issue: https://github.com/iai-group/pkg-api/issues/13
-NS = "http://example.org/pkg/"
+NS = "http://example.com#"
 
 
 def create_user_uri(username: str) -> str:

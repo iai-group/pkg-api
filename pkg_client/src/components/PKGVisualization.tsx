@@ -75,7 +75,7 @@ const PKGVisualization = () => {
                 <b>This is your current PKG:</b>
             </div>
             {/* <div>[Only for testing] Local path to the image: {image_path}</div> */}
-            <img src={image_path} alt="PKG" />
+            <img src={image_path} alt="PKG" style={{ width: "100%" }} />
         </Container>
     );
 };
