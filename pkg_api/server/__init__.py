@@ -9,6 +9,7 @@ from flask_restful import Api
 from pkg_api.connector import DEFAULT_STORE_PATH
 from pkg_api.pkg import DEFAULT_VISUALIZATION_PATH
 from pkg_api.server.auth import AuthResource
+from pkg_api.server.config import DevelopmentConfig, TestingConfig
 from pkg_api.server.facts_management import PersonalFactsResource
 from pkg_api.server.models import db
 from pkg_api.server.nl_processing import NLResource
@@ -28,14 +29,9 @@ def create_app(testing: bool = False) -> Flask:
     app = Flask(__name__)
 
     if testing:
-        app.config["TESTING"] = True
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.sqlite"
-        app.config["STORE_PATH"] = "tests/data/RDFStore"
-        app.config["VISUALIZATION_PATH"] = "tests/data/pkg_visualizations"
+        app.config.from_object(TestingConfig)
     else:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
-        app.config["STORE_PATH"] = DEFAULT_STORE_PATH
-        app.config["VISUALIZATION_PATH"] = DEFAULT_VISUALIZATION_PATH
+        app.config.from_object(DevelopmentConfig)
 
     db.init_app(app)
 
