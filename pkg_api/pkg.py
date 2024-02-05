@@ -9,6 +9,7 @@ can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
 import io
+import os
 from typing import Dict, Optional
 
 import pydotplus
@@ -22,7 +23,8 @@ from pkg_api.connector import Connector, RDFStore
 from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
 
-DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
+ROOT_DIR = os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(__file__))))
+DEFAULT_VISUALIZATION_PATH = ROOT_DIR + "/data/pkg_visualizations"
 
 
 class PKG:
@@ -162,7 +164,7 @@ class PKG:
 
         for _, namespace in PKGPrefixes.__members__.items():
             if namespace.value.replace("#", "") in str(self._owner_uri):
-                owner_name = self._owner_uri.replace(str(namespace.value.replace("#", "")), "")
+                owner_name = self._owner_uri.replace(str(namespace.value.replace("#", "")), "").replace("/", "")
 
         path = self._visualization_path + "/" + owner_name + ".png"
 

@@ -42,7 +42,7 @@ class PKGExplorationResource(Resource):
         sparql_query = parse_query_request_data(data)
 
         if "SELECT" in sparql_query:
-            result = str(pkg.execute_sparql_query(sparql_query))
+            result = pkg.execute_sparql_query(sparql_query)
             # TODO: Update pkg.visualize_graph() to return partial graph based
             # on the query result
         else:
@@ -57,5 +57,5 @@ class PKGExplorationResource(Resource):
 
         return {
             "message": "SPARQL query executed successfully.",
-            "data": result,
+            "result": str(result.bindings),
         }, 200
