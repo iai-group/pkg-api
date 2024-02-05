@@ -2,6 +2,7 @@
 
 
 import re
+import uuid
 from typing import Optional, Union
 
 import pytest
@@ -45,6 +46,7 @@ def pkg_data_example() -> PKGData:
         ),
     )
     return PKGData(
+        id=uuid.UUID("{abcac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I dislike all movies with the actor Tom Cruise.",
         triple=Triple(
             subject=TripleElement("I", URI("http://example.com/my/I")),
@@ -83,26 +85,6 @@ def statement_representation(pkg_data_example: PKGData) -> str:
         pav:authoredBy <http://example.com/my/I>
         .
     """
-
-
-@pytest.fixture
-def preference_representation() -> str:
-    """Preference representation associated to pkg_data_example."""
-    return """<http://example.com/my/I> wi:preference [
-            pav:derivedFrom _:st ;
-            wi:topic [
-                a skos:Concept ; dc:description "all movies with the actor Tom
-                Cruise" ; skos:related <https://schema.org/actor>,
-                <http://dbpedia.org/resource/Tom_Cruise> ;
-                skos:broader <https://schema.org/Movie> ;
-                skos:narrower <https://schema.org/Action>
-            ] ;
-            wo:weight [
-                wo:weight_value "-1.0"^^xsd:decimal;
-                wo:scale pkg:StandardScale
-            ]
-        ]
-        ."""
 
 
 @pytest.mark.parametrize(
@@ -220,39 +202,46 @@ def test_get_query_for_add_statement(
 
 def test_get_query_for_add_preference(
     pkg_data_example: PKGData,
-    preference_representation: str,
-    statement_representation: str,
 ) -> None:
     """Tests _get_query_for_add_preference method.
 
     Args:
         pkg_data_example: PKG data example.
-        preference_representation: Preference representation.
-        statement_representation: Statement representation.
     """
-    sparql_query = f"""INSERT {{
-        {preference_representation.replace("_:st", "?statement")}
-    }}
-    WHERE {{
-        {statement_representation.replace("[]", "?statement")}
-    }}"""
+    sparql_query = """
+        INSERT {
+            ?subject wi:preference [
+                pav:derivedFrom ?statement ;
+                wi:topic ?object ; wo:weight [
+                    wo:weight_value "-1.0"^^xsd:decimal;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }
+        WHERE {
+            ex:abcac10b-58cc-4372-a567-0e02b2c3d479 a rdf:Statement ;
+            rdf:subject ?subject; rdf:object ?object .
+            BIND(ex:abcac10b-58cc-4372-a567-0e02b2c3d479 AS ?statement)
+        }
+    """
     assert utils.get_query_for_add_preference(pkg_data_example) == strip_string(
         sparql_query
     )
 
 
-def test_get_query_for_get_statement(
+def test_get_query_for_get_statements(
     pkg_data_example: PKGData, statement_representation: str
 ) -> None:
-    """Tests get_query_for_get_statement method.
+    """Tests get_query_for_get_statements method.
 
     Args:
         pkg_data_example: PKG data example.
         statement_representation: Statement representation.
     """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
     sparql_query = f"""SELECT ?statement
         WHERE {{
-            {statement_representation.replace("[]", "?statement")}
+            {statement_representation.replace(statement_node_id, "?statement")}
         }}"""
 
     assert utils.get_query_for_get_statements(pkg_data_example) == strip_string(
@@ -269,16 +258,27 @@ def test_get_query_for_remove_statement(
         pkg_data_example: PKG data example.
         statement_representation: Statement representation.
     """
-    sparql_query = f"""DELETE {{
-            {statement_representation.replace("[]", "?statement")}
-            ?preference ?p ?o .
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
+    statement_representation = statement_representation.replace(
+        statement_node_id, "?statement"
+    )
+    statement_representation = re.sub(
+        r'dc:description "[^"]+" ;', "", statement_representation
+    )
+    sparql_query = f"""
+        DELETE {{
+            ?statement ?p ?o .
+            ?preference ?pp ?op .
         }}
         WHERE {{
-            {statement_representation.replace("[]", "?statement")}
+            {statement_representation}
+            ?statement ?p ?o .
             OPTIONAL {{
                 ?preference pav:derivedFrom ?statement .
+                ?preference ?pp ?op .
             }}
-        }}"""
+        }}
+    """
 
     assert utils.get_query_for_remove_statement(
         pkg_data_example

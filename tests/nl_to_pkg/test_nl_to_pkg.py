@@ -1,5 +1,6 @@
 """Tests for NL to PKG class."""
 
+import uuid
 from unittest.mock import Mock
 
 import pytest
@@ -29,7 +30,7 @@ def statement_annotator_mock(statement: str) -> Mock:
     preference = Preference(triple_object, 1.0)
     mock.get_annotations.return_value = (
         intent,
-        PKGData(statement, triple=triple, preference=preference),
+        PKGData(uuid.uuid1(), statement, triple=triple, preference=preference),
     )
     return mock
 
@@ -44,7 +45,7 @@ def entity_linker_mock() -> Mock:
         # Check if 'triple' argument is None
         pkg_data = args[0] if len(args) == 1 else kwargs["pkg_data"]
         if pkg_data.triple is None:
-            return PKGData("Test", triple=None, preference=None)
+            return PKGData(uuid.uuid1(), "Test", triple=None, preference=None)
         else:
             # Default behavior for other cases
             pkg_data.triple.subject.value = "Linked Subject"
@@ -82,7 +83,7 @@ def test_annotate_no_triple(
     """Tests that annotate returns the correct intent and annotations."""
     statement_annotator_mock.get_annotations.return_value = (
         Intent.DELETE,
-        PKGData(statement, triple=None),
+        PKGData(uuid.uuid1(), statement, triple=None),
     )
     _, pkg_data = nl_to_pkg.annotate(statement)
 

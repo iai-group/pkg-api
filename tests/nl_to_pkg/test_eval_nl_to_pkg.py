@@ -1,4 +1,5 @@
 """Tests eval_nl_to_pkg.py file."""
+import uuid
 from typing import Dict, List, Tuple
 from unittest.mock import MagicMock, patch
 
@@ -50,6 +51,7 @@ def mock_config_path() -> str:
 def mock_annotations() -> Tuple[Intent, PKGData]:
     """Fixture for mock the NL annotations returned by the LLM."""
     mock_pkg_data = PKGData(
+        id=uuid.uuid1(),
         statement="Sentence1.",
         triple=Triple(
             subject=TripleElement(reference="S1"),

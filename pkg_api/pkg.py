@@ -12,6 +12,7 @@ import datetime
 import io
 import logging
 import os
+import uuid
 from collections import defaultdict
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
@@ -209,11 +210,16 @@ class PKG:
         statements: List[PKGData] = []
         for row in results:
             statement_bnode = row.get(Variable("statement"))
+            statement_node_id = statement_bnode.n3(
+                self._connector._graph.namespace_manager
+            ).split(":")[1]
             triples = list(
                 self._connector._graph.triples((statement_bnode, None, None))
             )
             statement = self._parse_statement_node(
-                triples, self._connector._graph.namespace_manager
+                triples,
+                self._connector._graph.namespace_manager,
+                statement_node_id,
             )
             statements.append(statement)
         return statements
@@ -222,6 +228,7 @@ class PKG:
         self,
         triples: List[Tuple[Any, Any, Any]],
         namespace_manager: NamespaceManager,
+        statement_node_id: Optional[str] = None,
     ) -> Optional[PKGData]:
         """Parses a statement node.
 
@@ -267,6 +274,9 @@ class PKG:
                 setattr(_triple, k, TripleElement.from_value(v))
 
         return PKGData(
+            id=uuid.UUID(f"{{{statement_node_id}}}")
+            if statement_node_id
+            else uuid.uuid1(),
             statement=statement_dict.get("statement"),
             triple=_triple,
             preference=None,
