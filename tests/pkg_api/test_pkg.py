@@ -161,3 +161,14 @@ def test_get_statements_with_triple_conditions(
     )
     assert len(statements) == 2
     assert retrieved_statement_with_concept in statements
+
+
+def test_remove_statement(user_pkg: PKG, statement: PKGData) -> None:
+    """Tests removing a statement."""
+    user_pkg.add_statement(statement)
+    statements = user_pkg.get_statements(statement)
+    assert len(statements) == 1
+
+    user_pkg.remove_statement(statement)
+    statements = user_pkg.get_statements(statement)
+    assert len(statements) == 0

@@ -269,3 +269,28 @@ def test_get_query_for_get_statement(
     assert utils.get_query_for_get_statements(pkg_data_example) == strip_string(
         sparql_query
     )
+
+
+def test_get_query_for_remove_statement(
+    pkg_data_example: PKGData, statement_representation: str
+) -> None:
+    """Tests get_query_for_remove_statement method.
+
+    Args:
+        pkg_data_example: PKG data example.
+        statement_representation: Statement representation.
+    """
+    sparql_query = f"""DELETE {{
+            {statement_representation.replace("[]", "?statement")}
+            ?preference ?p ?o .
+        }}
+        WHERE {{
+            {statement_representation.replace("[]", "?statement")}
+            OPTIONAL {{
+                ?preference pav:derivedFrom ?statement .
+            }}
+        }}"""
+
+    assert utils.get_query_for_remove_statement(
+        pkg_data_example
+    ) == strip_string(sparql_query)

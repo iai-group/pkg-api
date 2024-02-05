@@ -107,7 +107,7 @@ class PKG:
         Returns:
             Preference value. If no preference is found, returns None.
         """
-        query = utils.get_query_for_get_preference(who, object)
+        query = utils.get_query_for_conditioned_get_preference(who, object)
         bindings = [
             binding
             for binding in self._connector.execute_sparql_query(query).bindings
@@ -145,6 +145,7 @@ class PKG:
             pkg_data: PKG data associated to a statement.
         """
         query = utils.get_query_for_add_statement(pkg_data)
+        print(f"DEBUG - query insert: {query}")
         self._connector.execute_sparql_update(query)
         if pkg_data.preference:
             query = utils.get_query_for_add_preference(pkg_data)
@@ -171,6 +172,21 @@ class PKG:
             query = utils.get_query_for_get_statements(pkg_data)
         results = list(self._connector.execute_sparql_query(query).bindings)
         return self._parse_statements(results)
+
+    def remove_statement(self, pkg_data: PKGData) -> None:
+        """Removes a statement from the PKG.
+
+        Args:
+            pkg_data: PKG data associated to the statement.
+        """
+        # Remove preference derived from the statement, if any
+        query = utils.get_query_for_remove_preference(pkg_data)
+        print(f"DEBUG - query remove preference: {query}")
+        self._connector.execute_sparql_update(query)
+        # Remove statement
+        query = utils.get_query_for_remove_statement(pkg_data)
+        print(f"DEBUG - query: {query}")
+        self._connector.execute_sparql_update(query)
 
     def _parse_statements(self, results: List[Any]) -> List[PKGData]:
         """Parses a list of statements.

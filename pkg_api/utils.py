@@ -148,7 +148,7 @@ def _get_preference_representation(
     return _clean_sparql_representation(representation)
 
 
-def get_query_for_get_preference(
+def get_query_for_conditioned_get_preference(
     who: Union[str, URI], topic: Union[URI, Concept, str]
 ) -> SPARQLQuery:
     """Gets query to retrieve preference value given a subject and topic.
@@ -163,7 +163,7 @@ def get_query_for_get_preference(
     subject = _get_property_representation(who)
     preference_topic = _get_property_representation(topic)
 
-    return f"""
+    query = f"""
         SELECT ?weight
         WHERE {{
             {subject} wi:preference [
@@ -175,6 +175,7 @@ def get_query_for_get_preference(
             ]
         }}
     """
+    return _clean_sparql_representation(query)
 
 
 def _get_statement_representation(pkg_data: PKGData, blank_node_id: str) -> str:
@@ -324,6 +325,64 @@ def get_query_for_conditional_get_statements(triple: Triple) -> SPARQLQuery:
         SELECT ?statement
         WHERE {{
             {" ".join(conditions)}
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_remove_preference(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to remove a preference.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    blank_node_id = "?statement"
+    statement = _get_statement_representation(pkg_data, blank_node_id)
+
+    query = f"""
+        DELETE {{
+            ?preference ?p ?o .
+        }}
+        WHERE {{
+            {statement}
+            ?preference pav:derivedFrom {blank_node_id} .
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_remove_statement(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to remove a statement.
+
+    Note that if a preference is derived from the statement, it is also removed.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    blank_node_id = "?statement"
+    statement_representation = _get_statement_representation(
+        pkg_data, blank_node_id
+    )
+    query = f"""
+        DELETE {{
+            {statement_representation}
+            ?preference ?p ?o .
+        }}
+        WHERE {{
+            {statement_representation}
+            OPTIONAL {{
+                ?preference pav:derivedFrom {blank_node_id} .
+            }}
         }}
     """
 

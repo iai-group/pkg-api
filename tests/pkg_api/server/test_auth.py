@@ -20,7 +20,7 @@ def test_auth_endpoint_register(client) -> None:
     )
     assert response.status_code == 200
     assert response.get_json() == {
-        "user": {"username": "user1", "uri": "http://example.org/pkg/user1"},
+        "user": {"username": "user1", "uri": "http://example.org/pkg#user1"},
         "message": "Login successful",
     }
 
@@ -51,7 +51,7 @@ def test_auth_endpoint_login(client) -> None:
     )
     assert response.status_code == 200
     assert response.get_json() == {
-        "user": {"username": "user1", "uri": "http://example.org/pkg/user1"},
+        "user": {"username": "user1", "uri": "http://example.org/pkg#user1"},
         "message": "Login successful",
     }
 
