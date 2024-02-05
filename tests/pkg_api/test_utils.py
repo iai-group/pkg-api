@@ -96,7 +96,7 @@ def preference_representation() -> str:
                 skos:narrower <https://schema.org/Action>
             ] ;
             wo:weight [
-                wo:weight_value -1.0 ;
+                wo:weight_value "-1.0"^^xsd:decimal;
                 wo:scale pkg:StandardScale
             ]
         ]
