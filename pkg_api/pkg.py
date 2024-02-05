@@ -8,31 +8,23 @@ in the PKG vocabulary. The PKG vocabulary and an example of a statement
 can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
-<<<<<<< HEAD
 import io
-from typing import Dict, Optional
-
-import pydotplus
-from IPython.display import display
-from rdflib.query import Result
-=======
 import logging
 from collections import defaultdict
 from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
+import pydotplus
+from IPython.display import display
 from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import NamespaceManager
->>>>>>> feature/64-Identify-specific-issues-for-producing-SPARQL-according-to-PKG-data-model-utilspy
+from rdflib.query import Result
 from rdflib.term import Variable
 from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-<<<<<<< HEAD
-from pkg_api.core.namespaces import PKGPrefixes
-=======
 from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
->>>>>>> feature/64-Identify-specific-issues-for-producing-SPARQL-according-to-PKG-data-model-utilspy
+from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
 from pkg_api.mapping_vocab import MappingVocab
 
@@ -150,45 +142,6 @@ class PKG:
         """
         query = utils.get_query_for_add_statement(pkg_data)
         self._connector.execute_sparql_update(query)
-<<<<<<< HEAD
-
-    def execute_sparql_query(self, query: str) -> Result:
-        """Executes a SPARQL query.
-
-        Args:
-            query: SPARQL query.
-
-        Returns:
-            Result of the SPARQL query.
-        """
-        return self._connector.execute_sparql_query(query)
-
-    def visualize_graph(self) -> str:
-        """Visualizes the PKG.
-
-        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
-
-        Returns:
-            The path to the image visualizing the PKG.
-        """
-        stream = io.StringIO()
-        rdf2dot(self._connector._graph, stream, opts={display})
-        dg = pydotplus.graph_from_dot_data(stream.getvalue())
-        png = dg.create_png()
-
-        owner_name = ""
-
-        for _, namespace in PKGPrefixes.__members__.items():
-            if namespace.value in str(self._owner_uri):
-                owner_name = self._owner_uri.replace(str(namespace.value), "")
-
-        path = self._visualization_path + "/" + owner_name + ".png"
-
-        with open(path, "wb") as test_png:
-            test_png.write(png)
-
-        return path
-=======
         if pkg_data.preference:
             query = utils.get_query_for_add_preference(pkg_data)
             self._connector.execute_sparql_update(query)
@@ -350,4 +303,40 @@ class PKG:
             return None
 
         return Concept(**concept_dict)
->>>>>>> feature/64-Identify-specific-issues-for-producing-SPARQL-according-to-PKG-data-model-utilspy
+
+    def execute_sparql_query(self, query: str) -> Result:
+        """Executes a SPARQL query.
+
+        Args:
+            query: SPARQL query.
+
+        Returns:
+            Result of the SPARQL query.
+        """
+        return self._connector.execute_sparql_query(query)
+
+    def visualize_graph(self) -> str:
+        """Visualizes the PKG.
+
+        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
+
+        Returns:
+            The path to the image visualizing the PKG.
+        """
+        stream = io.StringIO()
+        rdf2dot(self._connector._graph, stream, opts={display})
+        dg = pydotplus.graph_from_dot_data(stream.getvalue())
+        png = dg.create_png()
+
+        owner_name = ""
+
+        for _, namespace in PKGPrefixes.__members__.items():
+            if namespace.value in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(str(namespace.value), "")
+
+        path = self._visualization_path + "/" + owner_name + ".png"
+
+        with open(path, "wb") as test_png:
+            test_png.write(png)
+
+        return path
