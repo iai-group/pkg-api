@@ -21,11 +21,11 @@ const Layout = () => {
             Home
           </Nav.Link>
         </Nav.Item>
-        <Nav.Item>
+        {/* <Nav.Item>
           <Nav.Link eventKey="/service" as={Link} to="/service">
             Service Management
           </Nav.Link>
-        </Nav.Item>
+        </Nav.Item> */}
         <Nav.Item>
           <Nav.Link eventKey="/population" as={Link} to="/population">
             Populate PKG

@@ -43,6 +43,10 @@ class SpotlightEntityLinker(EntityLinker):
                     triple_element.reference
                 )
 
+        # Quick fix - Include the subject as literal in the triple.
+        if pkg_data.triple.subject is not None:
+            pkg_data.triple.subject.value = pkg_data.triple.subject.reference
+        
         return pkg_data
 
     def _get_linked_text(self, reference: str) -> Union[URI, Concept, str]:
