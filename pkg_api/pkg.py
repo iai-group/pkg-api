@@ -159,11 +159,9 @@ class PKG:
         """
         # Remove preference derived from the statement, if any
         query = utils.get_query_for_remove_preference(pkg_data)
-        print(f"DEBUG - query remove preference: {query}")
         self._connector.execute_sparql_update(query)
         # Remove statement
         query = utils.get_query_for_remove_statement(pkg_data)
-        print(f"DEBUG - query: {query}")
         self._connector.execute_sparql_update(query)
 
     def _parse_statements(self, results: List[Any]) -> List[PKGData]:
