@@ -57,7 +57,7 @@ The user interface is a React application that communicates with the server to m
 
 ## Demo
 
-![Demo](docs/source/_static/PKG_API_demo.gif)
+A demo is available [here](https://drive.google.com/file/d/1TySe0eLByuwBTkmA7MtgT27sRvY04jbx/view?usp=sharing).
 
 ## Conventions
 
