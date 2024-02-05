@@ -140,7 +140,7 @@ def _get_preference_representation(
                 pav:derivedFrom {blank_node_id} ;
                 wi:topic {preference_topic} ;
                 wo:weight [
-                    wo:weight_value {pkg_data.preference.weight} ;
+                    wo:weight_value "{pkg_data.preference.weight}"^^xsd:decimal;
                     wo:scale pkg:StandardScale
                 ]
             ] .
