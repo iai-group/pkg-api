@@ -2,6 +2,7 @@
 
 
 import re
+import uuid
 from typing import Optional, Union
 
 import pytest
@@ -45,6 +46,7 @@ def pkg_data_example() -> PKGData:
         ),
     )
     return PKGData(
+        id=uuid.UUID("{abcac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I dislike all movies with the actor Tom Cruise.",
         triple=Triple(
             subject=TripleElement("I", URI("http://example.com/my/I")),
@@ -56,16 +58,17 @@ def pkg_data_example() -> PKGData:
             weight=-1.0,
         ),
         logging_data={
-            "authoredOn": "2024-26-01T11:41:00Z",
+            "authoredOn": "2024-26-01T11:41:00",
             "createdBy": "http://example.com/my/I",
+            "authoredBy": "http://example.com/my/I",
         },
     )
 
 
 @pytest.fixture
-def statement_representation() -> str:
+def statement_representation(pkg_data_example: PKGData) -> str:
     """Statement representation associated to pkg_data_example."""
-    return """_:st a rdf:Statement ;
+    return f"""{utils.get_statement_node_id(pkg_data_example)} a rdf:Statement ;
         dc:description "I dislike all movies with the actor Tom Cruise." ;
         rdf:subject <http://example.com/my/I> ;
         rdf:predicate [ a skos:Concept ; dc:description "dislike" ] ;
@@ -77,30 +80,11 @@ def statement_representation() -> str:
             skos:broader <https://schema.org/Movie> ;
             skos:narrower <https://schema.org/Action>
         ] ;
-        pav:authoredOn "2024-26-01T11:41:00Z"^^xsd:dateTime ;
-        pav:createdBy <http://example.com/my/I>
+        pav:authoredOn "2024-26-01T11:41:00"^^xsd:dateTime ;
+        pav:createdBy <http://example.com/my/I> ;
+        pav:authoredBy <http://example.com/my/I>
         .
     """
-
-
-@pytest.fixture
-def preference_representation() -> str:
-    """Preference representation associated to pkg_data_example."""
-    return """<http://example.com/my/I> wi:preference [
-            pav:derivedFrom _:st ;
-            wi:topic [
-                a skos:Concept ; dc:description "all movies with the actor Tom
-                Cruise" ; skos:related <https://schema.org/actor>,
-                <http://dbpedia.org/resource/Tom_Cruise> ;
-                skos:broader <https://schema.org/Movie> ;
-                skos:narrower <https://schema.org/Action>
-            ] ;
-            wo:weight [
-                wo:weight_value -1.0 ;
-                wo:scale pkg:StandardScale
-            ]
-        ]
-        ."""
 
 
 @pytest.mark.parametrize(
@@ -183,20 +167,6 @@ def test_get_property_representation(
     ) == strip_string(expected)
 
 
-def test_get_preference_representation(
-    pkg_data_example: PKGData, preference_representation: str
-) -> None:
-    """Tests _get_preference_representation method.
-
-    Args:
-        pkg_data_example: PKG data example.
-        preference_representation: Expected preference representation.
-    """
-    assert strip_string(
-        utils._get_preference_representation(pkg_data_example, "_:st")
-    ) == strip_string(preference_representation)
-
-
 def test_get_statement_representation(
     pkg_data_example: PKGData, statement_representation: str
 ) -> None:
@@ -206,28 +176,110 @@ def test_get_statement_representation(
         pkg_data_example: PKG data example.
         statement_representation: Expected statement representation.
     """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
     assert strip_string(
-        utils._get_statement_representation(pkg_data_example, "_:st")
+        utils._get_statement_representation(pkg_data_example, statement_node_id)
     ) == strip_string(statement_representation)
 
 
 def test_get_query_for_add_statement(
     pkg_data_example: PKGData,
     statement_representation: str,
-    preference_representation: str,
 ) -> None:
     """Tests _get_query_for_add_statement method.
 
     Args:
         pkg_data_example: PKG data example.
-        statement_representation: Expected statement representation.
-        preference_representation: Expected preference representation.
+        statement_representation: Statement representation.
     """
     sparql_query = f"""INSERT DATA {{
         {statement_representation}
-
-        {preference_representation}
     }}"""
     assert utils.get_query_for_add_statement(pkg_data_example) == strip_string(
         sparql_query
     )
+
+
+def test_get_query_for_add_preference(
+    pkg_data_example: PKGData,
+) -> None:
+    """Tests _get_query_for_add_preference method.
+
+    Args:
+        pkg_data_example: PKG data example.
+    """
+    sparql_query = """
+        INSERT {
+            ?subject wi:preference [
+                pav:derivedFrom ?statement ;
+                wi:topic ?object ; wo:weight [
+                    wo:weight_value "-1.0"^^xsd:decimal;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }
+        WHERE {
+            ex:abcac10b-58cc-4372-a567-0e02b2c3d479 a rdf:Statement ;
+            rdf:subject ?subject; rdf:object ?object .
+            BIND(ex:abcac10b-58cc-4372-a567-0e02b2c3d479 AS ?statement)
+        }
+    """
+    assert utils.get_query_for_add_preference(pkg_data_example) == strip_string(
+        sparql_query
+    )
+
+
+def test_get_query_for_get_statements(
+    pkg_data_example: PKGData, statement_representation: str
+) -> None:
+    """Tests get_query_for_get_statements method.
+
+    Args:
+        pkg_data_example: PKG data example.
+        statement_representation: Statement representation.
+    """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
+    sparql_query = f"""SELECT ?statement
+        WHERE {{
+            {statement_representation.replace(statement_node_id, "?statement")}
+        }}"""
+
+    assert utils.get_query_for_get_statements(pkg_data_example) == strip_string(
+        sparql_query
+    )
+
+
+def test_get_query_for_remove_statement(
+    pkg_data_example: PKGData, statement_representation: str
+) -> None:
+    """Tests get_query_for_remove_statement method.
+
+    Args:
+        pkg_data_example: PKG data example.
+        statement_representation: Statement representation.
+    """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
+    statement_representation = statement_representation.replace(
+        statement_node_id, "?statement"
+    )
+    statement_representation = re.sub(
+        r'dc:description "[^"]+" ;', "", statement_representation
+    )
+    sparql_query = f"""
+        DELETE {{
+            ?statement ?p ?o .
+            ?preference ?pp ?op .
+        }}
+        WHERE {{
+            {statement_representation}
+            ?statement ?p ?o .
+            OPTIONAL {{
+                ?preference pav:derivedFrom ?statement .
+                ?preference ?pp ?op .
+            }}
+        }}
+    """
+
+    assert utils.get_query_for_remove_statement(
+        pkg_data_example
+    ) == strip_string(sparql_query)
