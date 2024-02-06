@@ -9,9 +9,7 @@ from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     ThreeStepStatementAnnotator,
 )
-from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
-    SpotlightEntityLinker,
-)
+from pkg_api.nl_to_pkg.entity_linking.rel_entity_linking import RELEntityLinker
 from pkg_api.nl_to_pkg.nl_to_pkg import NLtoPKG
 from pkg_api.server.utils import open_pkg
 
@@ -23,9 +21,7 @@ class NLResource(Resource):
             prompt_paths=current_app.config["TS_ANNOTATOR_RPOMPT_PATHS"],
             config_path=current_app.config["TS_ANNOTATOR_CONFIG_PATH"],
         )
-        self.entity_linker = SpotlightEntityLinker(
-            current_app.config["SPOTLIGHT_CONFIG_PATH"]
-        )
+        self.entity_linker = RELEntityLinker()
         self.nl_to_pkg = NLtoPKG(self.annotator, self.entity_linker)
 
     def post(self) -> Tuple[Dict[str, str], int]:
@@ -49,14 +45,25 @@ class NLResource(Resource):
             return {"message": "Missing query"}, 400
 
         intent, statement_data = self.nl_to_pkg.annotate(query)
-
         if intent == Intent.ADD:
             pkg.add_statement(statement_data)
-            return {"message": "Statement added to your PKG."}, 200
+            pkg.close()
+            return {
+                "message": "Statement added to your PKG.",
+                "data": None,
+            }, 200
         elif intent == Intent.GET:
-            return {"message": "GET not implemented."}, 400
+            statements = pkg.get_statements(
+                statement_data, triple_conditioned=True
+            )
+            return {
+                "message": "Statements retrieved from your PKG",
+                "data": statements,
+            }, 200
         elif intent == Intent.DELETE:
-            return {"message": "DELETE not implemented."}, 400
+            pkg.remove_statement(statement_data)
+            pkg.close()
+            return {"message": "Statement was deleted if present"}, 200
 
         return {
             "message": "The operation could not be performed. Please try to"
