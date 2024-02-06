@@ -1,6 +1,6 @@
 """REL entity linker."""
 
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 
 import requests
 
