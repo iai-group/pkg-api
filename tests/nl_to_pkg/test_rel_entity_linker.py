@@ -1,4 +1,5 @@
 """Tests for REL entity linker."""
+import uuid
 from unittest.mock import Mock, patch
 
 import pytest
@@ -12,6 +13,7 @@ from pkg_api.nl_to_pkg.entity_linking.rel_entity_linking import RELEntityLinker
 def sample_pkg_data() -> PKGData:
     """Returns a test PKG data."""
     return PKGData(
+        uuid.UUID("{123e4567-e89b-12d3-a456-426614174000}"),
         "Test statement",
         Triple(
             TripleElement("Test Subject"),

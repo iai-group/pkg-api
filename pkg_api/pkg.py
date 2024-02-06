@@ -97,7 +97,7 @@ class PKG:
         Returns:
             Preference value. If no preference is found, returns None.
         """
-        query = utils.get_query_for_get_preference(who, object)
+        query = utils.get_query_for_conditioned_get_preference(who, object)
         bindings = [
             binding
             for binding in self._connector.execute_sparql_query(query).bindings
