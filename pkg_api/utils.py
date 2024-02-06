@@ -11,7 +11,7 @@ import dataclasses
 import re
 from typing import List, Optional, Union
 
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
+from pkg_api.core.annotation import Concept, PKGData, TripleElement
 from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
