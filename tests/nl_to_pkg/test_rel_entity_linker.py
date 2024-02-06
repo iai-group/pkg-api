@@ -45,6 +45,7 @@ def test_link_entities_uri(
 
     assert annotated_pkg_data == sample_pkg_data
     assert isinstance(annotated_pkg_data.triple, Triple)
+    assert isinstance(annotated_pkg_data.triple.object, TripleElement)
     assert annotated_pkg_data.triple.object.value == URI(
         "https://en.wikipedia.org/wiki/Test_Object"
     )
@@ -63,6 +64,7 @@ def test_link_entities_concept(
 
     assert annotated_pkg_data == sample_pkg_data
     assert isinstance(annotated_pkg_data.triple, Triple)
+    assert isinstance(annotated_pkg_data.triple.object, TripleElement)
     assert annotated_pkg_data.triple.object.value == Concept(
         "Test Object",
         related_entities=[URI("https://en.wikipedia.org/wiki/Object")],
@@ -75,4 +77,6 @@ def test_no_linked_entity(
     """Test the link_entities method."""
     annotated_pkg_data = rel_linker.link_entities(sample_pkg_data)
     assert annotated_pkg_data == sample_pkg_data
+    assert isinstance(annotated_pkg_data.triple, Triple)
+    assert isinstance(annotated_pkg_data.triple.object, TripleElement)
     assert annotated_pkg_data.triple.object.value == Concept("Test Object")
