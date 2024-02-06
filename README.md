@@ -4,7 +4,7 @@
 ![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/NoB0/8446f35dc373966dc971fb9237483cce/raw/coverage.pkg-api.main.json)
 ![Python version](https://img.shields.io/badge/python-3.9-blue)
 
-The PKG API is a tool for managing personal knowledge graphs (PKGs). It provides a solution for end users and service providers to administrate and interact with their PKGs through natural language statements and forms.
+The PKG API is a tool for managing personal knowledge graphs (PKGs). It provides a solution for end users and service providers to administrate and interact with their PKGs through natural language statements and simple web forms.
 The representation of a statement inside the PKG is defined by the [PKG vocabulary](http://w3id.org/pkg/).
 Within the API, two key modules are present: one for processing natural language statements ([NL2PKG](#nl2pkg)), and another for generating and executing SPARQL queries against the PKG ([PKG connector](#pkg-connector)).
 
@@ -16,8 +16,7 @@ The PKG API is served as a RESTful API and we provide a user interface, PKG Clie
 
 ### NL2PKG
 
-This module is responsible for processing natural language statements. The processing is divided into two steps: (1) natural language understanding and (2) entity linking.
-The module comprises two submodules: (1) [`annotators`](pkg_api/nl_to_pkg/annotators) and (2) [`entity_linking`](pkg_api/nl_to_pkg/entity_linking), responsible for corresponding tasks in the processing pipeline.
+This module is responsible for processing natural language statements. The processing is divided into two steps: (1) natural language understanding handled by [`annotators`](pkg_api/nl_to_pkg/annotators) and (2) [`entity_linking`](pkg_api/nl_to_pkg/entity_linking).
 
 Available annotators and entity linkers:
 
@@ -33,11 +32,11 @@ The PKG connector is responsible for executing SPARQL queries against the PKG.
 
 ### Server
 
-The backend server is a Flask server that connects the users and service providers to PKGs.
+The backend server is a [Flask](https://flask.palletsprojects.com/en/3.0.x/) server. It is responsible for connecting the users and service providers to PKGs.
 
 #### Starting the server
 
-Before starting the server, make sure that the requirements are installed and that CORS is disabled in your web browser.
+Before starting the server, make sure that the [requirements](requirements.txt) are installed and that CORS is disabled in your web browser.
 
 To start the server, run the following command:
 
@@ -57,7 +56,7 @@ The user interface is a React application that communicates with the server to m
 
 ## Demo
 
-https://github.com/iai-group/pkg-api/assets/28621493/cf51ab83-b7c9-4441-93c9-abd2bae18a98
+<https://github.com/iai-group/pkg-api/assets/28621493/cf51ab83-b7c9-4441-93c9-abd2bae18a98>
 
 ## Conventions
 
