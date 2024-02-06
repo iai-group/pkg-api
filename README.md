@@ -4,7 +4,7 @@
 ![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/NoB0/8446f35dc373966dc971fb9237483cce/raw/coverage.pkg-api.main.json)
 ![Python version](https://img.shields.io/badge/python-3.9-blue)
 
-The PKG API is a tool for managing personal knowledge graphs (PKGs). It provides a simple solution for end users and service providers to administrate and interact with their PKGs through natural language statements and simple web forms.
+The PKG API is a tool for managing personal knowledge graphs (PKGs). It provides a simple solution for end users and service providers to administrate and interact with the users' PKGs through natural language statements and simple web forms.
 The representation of a statement inside the PKG is defined by the [PKG vocabulary](http://w3id.org/pkg/).
 Within the API, two key modules are present: one for processing natural language statements ([NL2PKG](#nl2pkg)), and another for generating and executing SPARQL queries against the PKG ([PKG connector](#pkg-connector)).
 
