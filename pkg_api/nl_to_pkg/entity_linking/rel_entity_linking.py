@@ -73,7 +73,7 @@ class RELEntityLinker(EntityLinker):
 
         return value
 
-    def _get_linker_response(self, reference: str) -> List[List[Any]]:
+    def _get_linker_response(self, reference: str) -> Optional[List[List[Any]]]:
         """Returns the response from the REL API.
 
         For each entity linked, the response contains the following information:
