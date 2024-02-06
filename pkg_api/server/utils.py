@@ -1,5 +1,5 @@
 """Utility functions for the server."""
-from typing import Dict
+from typing import Any, Dict
 
 from flask import current_app
 
@@ -10,8 +10,10 @@ from pkg_api.pkg import PKG
 
 def open_pkg(data: Dict[str, str]) -> PKG:
     """Opens a connection to the PKG.
+
     Args:
         data: Request data.
+
     Returns:
         A PKG instance.
     """
@@ -21,9 +23,23 @@ def open_pkg(data: Dict[str, str]) -> PKG:
         raise Exception("Missing owner URI")
 
     store_path = current_app.config["STORE_PATH"]
+    visualization_path = current_app.config["VISUALIZATION_PATH"]
 
     return PKG(
         URI(owner_uri),
         RDFStore.MEMORY,
         f"{store_path}/{owner_username}",
+        visualization_path=visualization_path,
     )
+
+
+def parse_query_request_data(data: Dict[str, Any]) -> str:
+    """Parses the request data to execute SPARQL query.
+
+    Args:
+        data: Request data.
+
+    Returns:
+        A string containing SPARQL query.
+    """
+    return data.get("sparql_query", None)

@@ -33,6 +33,9 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install Graphviz
+        uses: tlylt/install-graphviz@v1
+
       - name: Run black
         shell: bash
         run: pre-commit run black --all-files
@@ -68,6 +71,9 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install Graphviz
+        uses: tlylt/install-graphviz@v1
+
       - name: Run mypy
         shell: bash
         run: pre-commit run mypy --all-file
@@ -92,6 +98,10 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-github-actions-annotate-failures
+      
+      - name: Install graphviz
+        uses: tlylt/install-graphviz@v1
+
     
       - name: PyTest with code coverage
         continue-on-error: true
