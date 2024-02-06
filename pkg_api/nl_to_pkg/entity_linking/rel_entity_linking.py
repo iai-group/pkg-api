@@ -68,7 +68,7 @@ class RELEntityLinker(EntityLinker):
         value = Concept(description=reference)
         for _, _, _, entity_name, _, _, _ in linked_entities:
             value.related_entities.append(
-                self._template_uri.format(entity_name=entity_name)
+                URI(self._template_uri.format(entity_name=entity_name))
             )
 
         return value

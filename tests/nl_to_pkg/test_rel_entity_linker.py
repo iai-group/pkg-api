@@ -64,7 +64,8 @@ def test_link_entities_concept(
     assert annotated_pkg_data == sample_pkg_data
     assert isinstance(annotated_pkg_data.triple, Triple)
     assert annotated_pkg_data.triple.object.value == Concept(
-        "Test Object", related_entities=["https://en.wikipedia.org/wiki/Object"]
+        "Test Object",
+        related_entities=[URI("https://en.wikipedia.org/wiki/Object")],
     )
 
 
