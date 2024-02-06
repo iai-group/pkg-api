@@ -23,6 +23,7 @@ Available annotators and entity linkers:
   * [`StatementAnnotator`](pkg_api/nl_to_pkg/annotators/annotator.py)
     - [`ThreeStepStatementAnnotator`](pkg_api/nl_to_pkg/annotators/three_step_annotator.py): Annotates statements using a three-step approach: (1) intent recognition, (2) Subject-Predicate-Object triple extraction, and (3) preference extraction.
   * [`EntityLinker`](pkg_api/nl_to_pkg/entity_linking/entity_linker.py)
+    - [`RELEntityLinker`](pkg_api/nl_to_pkg/entity_linking/rel_entity_linking.py): Links entities using [Radboud Entity Linker](https://rel.readthedocs.io/en/latest/) API.
     - [`SpotlightEntityLinker`](pkg_api/nl_to_pkg/entity_linking/spotlight_entity_linker.py): Links entities using DBpedia Spotlight.
 
 ### PKG connector
