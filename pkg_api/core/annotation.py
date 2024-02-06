@@ -1,5 +1,4 @@
 """Dataclasses for the annotations used in the PKG API."""
-from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
@@ -29,22 +28,6 @@ class TripleElement:
 
     reference: str
     value: Union[URI, Concept, str, None] = field(default=None)
-
-    @staticmethod
-    def from_value(value: Union[URI, Concept, str]) -> TripleElement:
-        """Creates a TripleElement from a value.
-
-        Args:
-            value: URI, Concept or literal value.
-
-        Returns:
-            TripleElement.
-        """
-        if isinstance(value, URI):
-            return TripleElement("", value)
-        elif isinstance(value, Concept):
-            return TripleElement(value.description, value)
-        return TripleElement(value, value)
 
 
 @dataclass
