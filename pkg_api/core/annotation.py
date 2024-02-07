@@ -1,5 +1,6 @@
 """Dataclasses for the annotations used in the PKG API."""
 
+import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
 
@@ -17,19 +18,36 @@ class Concept:
 
 
 @dataclass
+class TripleElement:
+    """Class representing a subject, predicate or object element.
+
+    Attributes:
+        reference: Raw string reference of the element.
+        value: URI, Concept or literal value of the element.
+    """
+
+    reference: str
+    value: Union[URI, Concept, str, None] = field(default=None)
+
+
+@dataclass
 class Triple:
     """Class representing a subject, predicate, object triple."""
 
-    subject: Union[URI, str, None] = None
-    predicate: Union[URI, Concept, str, None] = None
-    object: Union[URI, Concept, str, None] = None
+    subject: Optional[TripleElement] = None
+    predicate: Optional[TripleElement] = None
+    object: Optional[TripleElement] = None
 
 
 @dataclass
 class Preference:
-    """Class representing a preference."""
+    """Class representing a preference.
 
-    topic: Union[URI, Concept, str]
+    Note: In the current version of the PKG API, topic refers to the object of
+    a triple.
+    """
+
+    topic: TripleElement
     weight: float
 
 
@@ -40,6 +58,7 @@ class PKGData:
     Annotations include a triple, a preference, and logging data.
     """
 
+    id: uuid.UUID
     statement: str
     triple: Optional[Triple] = None
     preference: Optional[Preference] = None

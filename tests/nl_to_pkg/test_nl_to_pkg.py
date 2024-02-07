@@ -1,10 +1,11 @@
 """Tests for NL to PKG class."""
 
+import uuid
 from unittest.mock import Mock
 
 import pytest
 
-from pkg_api.core.annotations import PKGData, Preference, Triple
+from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg.nl_to_pkg import NLtoPKG
 
@@ -20,11 +21,21 @@ def statement_annotator_mock(statement: str) -> Mock:
     """Returns a mock statement annotator."""
     mock = Mock()
     intent = Intent.ADD
-    triple = Triple("Subject", "Predicate", "Object")
-    preference = Preference("Object", 1.0)
+    triple_object = TripleElement("Object")
+    triple = Triple(
+        TripleElement("Subject"),
+        TripleElement("Predicate"),
+        triple_object,
+    )
+    preference = Preference(triple_object, 1.0)
     mock.get_annotations.return_value = (
         intent,
-        PKGData(statement, triple=triple, preference=preference),
+        PKGData(
+            uuid.UUID("{c1339dce-c4c6-11ee-baf8-a662d3a1cf88}"),
+            statement,
+            triple=triple,
+            preference=preference,
+        ),
     )
     return mock
 
@@ -39,18 +50,20 @@ def entity_linker_mock() -> Mock:
         # Check if 'triple' argument is None
         pkg_data = args[0] if len(args) == 1 else kwargs["pkg_data"]
         if pkg_data.triple is None:
-            return PKGData("Test", triple=None, preference=None)
+            return PKGData(
+                uuid.UUID("{ae5dccf6-c4c6-11ee-baf8-a662d3a1cf88}"),
+                "Test",
+                triple=None,
+                preference=None,
+            )
         else:
             # Default behavior for other cases
-            linked_triple = Triple(
-                "Linked Subject", "Linked Predicate", "Linked Object"
-            )
-            linked_preference = Preference("Linked Object", 1.0)
-            return PKGData(
-                "Test", triple=linked_triple, preference=linked_preference
-            )
+            pkg_data.triple.subject.value = "Linked Subject"
+            pkg_data.triple.predicate.value = "Linked Predicate"
+            pkg_data.triple.object.value = "Linked Object"
+            return pkg_data
 
-    mock.link_annotation_entities.side_effect = link_annotation_side_effect
+    mock.link_entities.side_effect = link_annotation_side_effect
     return mock
 
 
@@ -69,7 +82,7 @@ def test_annotate_success(statement: str, nlp_to_pkg: NLtoPKG) -> None:
 
     assert intent == Intent.ADD
     assert pkg_data.triple is not None
-    assert pkg_data.triple.subject == "Linked Subject"
+    assert pkg_data.triple.subject == TripleElement("Subject", "Linked Subject")
 
 
 def test_annotate_no_triple(
@@ -80,7 +93,11 @@ def test_annotate_no_triple(
     """Tests that annotate returns the correct intent and annotations."""
     statement_annotator_mock.get_annotations.return_value = (
         Intent.DELETE,
-        PKGData(statement, triple=None),
+        PKGData(
+            uuid.UUID("{cf53606a-c4c6-11ee-baf8-a662d3a1cf88}"),
+            statement,
+            triple=None,
+        ),
     )
     _, pkg_data = nlp_to_pkg.annotate(statement)
 
@@ -94,4 +111,5 @@ def test_annotate_with_preference_update(
     """Tests that annotate returns the correct intent and annotations."""
     _, pkg_data = nlp_to_pkg.annotate(statement)
 
-    assert pkg_data.preference.topic == "Linked Object"
+    assert pkg_data.preference is not None
+    assert pkg_data.preference.topic == TripleElement("Object", "Linked Object")

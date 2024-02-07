@@ -2,7 +2,7 @@
 
 from typing import Tuple
 
-from pkg_api.core.annotations import PKGData
+from pkg_api.core.annotation import PKGData
 from pkg_api.core.intents import Intent
 from pkg_api.nl_to_pkg import EntityLinker, StatementAnnotator
 
@@ -30,6 +30,6 @@ class NLtoPKG:
             A tuple of the intent and the annotated and linked statement.
         """
         intent, pkg_data = self._annotator.get_annotations(statement)
-        linked_pkg_data = self._entity_linker.link_annotation_entities(pkg_data)
+        linked_pkg_data = self._entity_linker.link_entities(pkg_data)
 
         return intent, linked_pkg_data

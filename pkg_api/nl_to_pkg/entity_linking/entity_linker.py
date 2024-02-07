@@ -3,14 +3,14 @@
 
 from abc import ABC, abstractmethod
 
-from pkg_api.core.annotations import PKGData
+from pkg_api.core.annotation import PKGData
 
 
 class EntityLinker(ABC):
     """Entity linker for linking entities to the PKG or available KGs."""
 
     @abstractmethod
-    def link_annotation_entities(self, pkg_data: PKGData) -> PKGData:
+    def link_entities(self, pkg_data: PKGData) -> PKGData:
         """Resolves the pkg data annotations if possible.
 
         Args:

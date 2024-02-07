@@ -2,12 +2,13 @@
 
 
 import re
+import uuid
 from typing import Optional, Union
 
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotations import Concept, PKGData, Preference, Triple
+from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
 from pkg_api.core.pkg_types import URI
 
 
@@ -26,20 +27,24 @@ def strip_string(string: str) -> str:
 @pytest.fixture
 def pkg_data_example() -> PKGData:
     """Returns PKG data for a given statement."""
-    _object = Concept(
-        description="all movies with the actor Tom Cruise",
-        related_entities=[
-            URI("https://schema.org/actor"),
-            URI("http://dbpedia.org/resource/Tom_Cruise"),
-        ],
-        broader_entities=[URI("https://schema.org/Movie")],
-        narrower_entities=[URI("https://schema.org/Action")],
+    _object = TripleElement(
+        "all movies with the actor Tom Cruise",
+        Concept(
+            description="all movies with the actor Tom Cruise",
+            related_entities=[
+                URI("https://schema.org/actor"),
+                URI("http://dbpedia.org/resource/Tom_Cruise"),
+            ],
+            broader_entities=[URI("https://schema.org/Movie")],
+            narrower_entities=[URI("https://schema.org/Action")],
+        ),
     )
     return PKGData(
+        id=uuid.UUID("{abcac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I dislike all movies with the actor Tom Cruise.",
         triple=Triple(
-            subject=URI("http://example.com/my/I"),
-            predicate=Concept(description="dislike"),
+            subject=TripleElement("I", URI("http://example.com/my/I")),
+            predicate=TripleElement("dislike", Concept(description="dislike")),
             object=_object,
         ),
         preference=Preference(
@@ -47,16 +52,17 @@ def pkg_data_example() -> PKGData:
             weight=-1.0,
         ),
         logging_data={
-            "authoredOn": "2024-26-01T11:41:00Z",
+            "authoredOn": "2024-26-01T11:41:00",
             "createdBy": "http://example.com/my/I",
+            "authoredBy": "http://example.com/my/I",
         },
     )
 
 
 @pytest.fixture
-def statement_representation() -> str:
+def statement_representation(pkg_data_example: PKGData) -> str:
     """Statement representation associated to pkg_data_example."""
-    return """[] a rdf:Statement ;
+    return f"""{utils.get_statement_node_id(pkg_data_example)} a rdf:Statement ;
         dc:description "I dislike all movies with the actor Tom Cruise." ;
         rdf:subject <http://example.com/my/I> ;
         rdf:predicate [ a skos:Concept ; dc:description "dislike" ] ;
@@ -68,30 +74,11 @@ def statement_representation() -> str:
             skos:broader <https://schema.org/Movie> ;
             skos:narrower <https://schema.org/Action>
         ] ;
-        pav:authoredOn "2024-26-01T11:41:00Z"^^xsd:dateTime ;
-        pav:createdBy <http://example.com/my/I>
+        pav:authoredOn "2024-26-01T11:41:00"^^xsd:dateTime ;
+        pav:createdBy <http://example.com/my/I> ;
+        pav:authoredBy <http://example.com/my/I>
         .
     """
-
-
-@pytest.fixture
-def preference_representation() -> str:
-    """Preference representation associated to pkg_data_example."""
-    return """<http://example.com/my/I> wi:preference [
-            pav:derivedFrom _:st ;
-            wi:topic [
-                a skos:Concept ; dc:description "all movies with the actor Tom
-                Cruise" ; skos:related <https://schema.org/actor>,
-                <http://dbpedia.org/resource/Tom_Cruise> ;
-                skos:broader <https://schema.org/Movie> ;
-                skos:narrower <https://schema.org/Action>
-            ] ;
-            wo:weight [
-                wo:weight_value -1.0 ;
-                wo:scale pkg:StandardScale
-            ]
-        ]
-        ."""
 
 
 @pytest.mark.parametrize(
@@ -124,8 +111,11 @@ def test_get_concept_representation_string() -> None:
 
 def test_get_concept_representation(pkg_data_example: PKGData) -> None:
     """Tests _get_concept_representation method for PKGData."""
+    assert isinstance(pkg_data_example.triple, Triple)
+    assert isinstance(pkg_data_example.triple.object, TripleElement)
+    assert isinstance(pkg_data_example.triple.object.value, Concept)
     assert strip_string(
-        utils._get_concept_representation(pkg_data_example.triple.object)
+        utils._get_concept_representation(pkg_data_example.triple.object.value)
     ) == strip_string(
         """[ a skos:Concept ; dc:description "all movies with
          the actor Tom Cruise" ; skos:related <https://schema.org/actor>,
@@ -171,20 +161,6 @@ def test_get_property_representation(
     ) == strip_string(expected)
 
 
-def test_get_preference_representation(
-    pkg_data_example: PKGData, preference_representation: str
-) -> None:
-    """Tests _get_preference_representation method.
-
-    Args:
-        pkg_data_example: PKG data example.
-        preference_representation: Expected preference representation.
-    """
-    assert strip_string(
-        utils._get_preference_representation(pkg_data_example, "_:st")
-    ) == strip_string(preference_representation)
-
-
 def test_get_statement_representation(
     pkg_data_example: PKGData, statement_representation: str
 ) -> None:
@@ -194,8 +170,9 @@ def test_get_statement_representation(
         pkg_data_example: PKG data example.
         statement_representation: Expected statement representation.
     """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
     assert strip_string(
-        utils._get_statement_representation(pkg_data_example, "[]")
+        utils._get_statement_representation(pkg_data_example, statement_node_id)
     ) == strip_string(statement_representation)
 
 
@@ -219,66 +196,57 @@ def test_get_query_for_add_statement(
 
 def test_get_query_for_add_preference(
     pkg_data_example: PKGData,
-    preference_representation: str,
-    statement_representation: str,
 ) -> None:
     """Tests _get_query_for_add_preference method.
 
     Args:
         pkg_data_example: PKG data example.
-        preference_representation: Preference representation.
-        statement_representation: Statement representation.
     """
-    sparql_query = f"""INSERT {{
-        {preference_representation.replace("_:st", "?statement")}
-    }}
-    WHERE {{
-        {statement_representation.replace("[]", "?statement")}
-    }}"""
+    sparql_query = """
+        INSERT {
+            ?subject wi:preference [
+                pav:derivedFrom ?statement ;
+                wi:topic ?object ; wo:weight [
+                    wo:weight_value "-1.0"^^xsd:decimal;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }
+        WHERE {
+            ex:abcac10b-58cc-4372-a567-0e02b2c3d479 a rdf:Statement ;
+            rdf:subject ?subject; rdf:object ?object .
+            BIND(ex:abcac10b-58cc-4372-a567-0e02b2c3d479 AS ?statement)
+        }
+    """
     assert utils.get_query_for_add_preference(pkg_data_example) == strip_string(
         sparql_query
     )
 
 
-def test_get_query_for_get_statement(
-    pkg_data_example: PKGData, statement_representation: str
+def test_get_query_for_conditioned_get_preference(
+    pkg_data_example: PKGData,
 ) -> None:
-    """Tests get_query_for_get_statement method.
-
-    Args:
-        pkg_data_example: PKG data example.
-        statement_representation: Statement representation.
+    """Tests get_query_for_conditioned_get_preference method."""
+    expected_query = """
+        SELECT ?weight
+        WHERE {
+            <http://example.com/my/I> wi:preference [
+                wi:topic [
+                    a skos:Concept ;
+                    dc:description "all movies with the actor Tom Cruise" ;
+                    skos:related <https://schema.org/actor>,
+                    <http://dbpedia.org/resource/Tom_Cruise> ;
+                    skos:broader <https://schema.org/Movie> ;
+                    skos:narrower <https://schema.org/Action>
+                ] ;
+                wo:weight [
+                    wo:weight_value ?weight ;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }
     """
-    sparql_query = f"""SELECT ?statement
-        WHERE {{
-            {statement_representation.replace("[]", "?statement")}
-        }}"""
-
-    assert utils.get_query_for_get_statements(pkg_data_example) == strip_string(
-        sparql_query
-    )
-
-
-def test_get_query_for_remove_statement(
-    pkg_data_example: PKGData, statement_representation: str
-) -> None:
-    """Tests get_query_for_remove_statement method.
-
-    Args:
-        pkg_data_example: PKG data example.
-        statement_representation: Statement representation.
-    """
-    sparql_query = f"""DELETE {{
-            {statement_representation.replace("[]", "?statement")}
-            ?preference ?p ?o .
-        }}
-        WHERE {{
-            {statement_representation.replace("[]", "?statement")}
-            OPTIONAL {{
-                ?preference pav:derivedFrom ?statement .
-            }}
-        }}"""
-
-    assert utils.get_query_for_remove_statement(
-        pkg_data_example
-    ) == strip_string(sparql_query)
+    assert utils.get_query_for_conditioned_get_preference(
+        pkg_data_example.triple.subject.value,
+        pkg_data_example.triple.object.value,
+    ) == strip_string(expected_query)
