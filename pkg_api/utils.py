@@ -132,7 +132,7 @@ def get_query_for_conditioned_get_preference(
                     wo:weight_value ?weight ;
                     wo:scale pkg:StandardScale
                 ]
-            ]
+            ] .
         }}
     """
     return _clean_sparql_representation(query)

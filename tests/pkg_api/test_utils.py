@@ -227,3 +227,32 @@ def test_get_query_for_add_preference(
     assert utils.get_query_for_add_preference(pkg_data_example) == strip_string(
         sparql_query
     )
+
+
+def test_get_query_for_conditioned_get_preference(
+    pkg_data_example: PKGData,
+) -> None:
+    """Tests get_query_for_conditioned_get_preference method."""
+    expected_query = """
+        SELECT ?weight
+        WHERE {
+            <http://example.com/my/I> wi:preference [
+                wi:topic [
+                    a skos:Concept ;
+                    dc:description "all movies with the actor Tom Cruise" ;
+                    skos:related <https://schema.org/actor>,
+                    <http://dbpedia.org/resource/Tom_Cruise> ;
+                    skos:broader <https://schema.org/Movie> ;
+                    skos:narrower <https://schema.org/Action>
+                ] ;
+                wo:weight [
+                    wo:weight_value ?weight ;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }
+    """
+    assert utils.get_query_for_conditioned_get_preference(
+        pkg_data_example.triple.subject.value,
+        pkg_data_example.triple.object.value,
+    ) == strip_string(expected_query)
