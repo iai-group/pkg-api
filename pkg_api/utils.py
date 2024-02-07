@@ -306,3 +306,102 @@ def get_query_for_conditional_get_statements(triple: Triple) -> SPARQLQuery:
 
     # Cleaning up the query
     return _clean_sparql_representation(query)
+
+
+def get_query_for_remove_preference(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to remove a preference.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    blank_node_id = "?statement"
+    statement = _get_statement_representation(pkg_data, blank_node_id)
+    # Remove statement description from conditions
+    statement = re.sub(r'dc:description "[^"]+" ;', "", statement)
+
+    query = f"""
+        DELETE {{
+            ?preference ?p ?o .
+            ?subject wi:preference ?preference .
+        }}
+        WHERE {{
+            {statement}
+            ?subject wi:preference ?preference .
+            ?preference pav:derivedFrom {blank_node_id} .
+            ?preference ?p ?o .
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_remove_statement(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to remove a statement.
+
+    Note that if a preference is derived from the statement, it is also removed.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    blank_node_id = "?statement"
+    statement_representation = _get_statement_representation(
+        pkg_data, blank_node_id
+    )
+    # Remove statement description from conditions
+    statement_representation = re.sub(
+        r'dc:description "[^"]+" ;', "", statement_representation
+    )
+
+    query = f"""
+        DELETE {{
+            ?statement ?p ?o .
+            ?preference ?pp ?op .
+        }}
+        WHERE {{
+            {statement_representation}
+            ?statement ?p ?o .
+            OPTIONAL {{
+                ?preference pav:derivedFrom ?statement .
+                ?preference ?pp ?op .
+            }}
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_queries_for_remove_cleanup() -> List[SPARQLQuery]:
+    """Gets SPARQL queries to delete dangling concepts and weight scales.
+
+    Returns:
+        List of SPARQL queries.
+    """
+    query_delete_concepts = """
+    DELETE {
+        ?concept ?p ?o .
+    } WHERE {
+        ?concept a skos:Concept .
+        ?concept ?p ?o .
+        FILTER NOT EXISTS { ?_1 ?_2 ?concept . }
+    }
+    """
+    query_delete_concepts = _clean_sparql_representation(query_delete_concepts)
+    query_delete_scales = """
+    DELETE {
+        ?x ?p ?o .
+    } WHERE {
+        ?x wo:scale ?_3 .
+        ?x ?p ?o .
+        FILTER NOT EXISTS { ?_1 ?_2 ?x . }
+    }
+    """
+    query_delete_scales = _clean_sparql_representation(query_delete_scales)
+    return [query_delete_concepts, query_delete_scales]

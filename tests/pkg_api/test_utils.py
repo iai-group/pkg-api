@@ -8,7 +8,13 @@ from typing import Optional, Union
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
+from pkg_api.core.annotation import (
+    Concept,
+    PKGData,
+    Preference,
+    Triple,
+    TripleElement,
+)
 from pkg_api.core.pkg_types import URI
 
 
@@ -296,3 +302,39 @@ def test_get_query_for_conditional_get_statements(
     assert utils.get_query_for_conditional_get_statements(
         pkg_data_example.triple
     ) == strip_string(expected_query)
+
+
+def test_get_query_for_remove_statement(
+    pkg_data_example: PKGData, statement_representation: str
+) -> None:
+    """Tests get_query_for_remove_statement method.
+
+    Args:
+        pkg_data_example: PKG data example.
+        statement_representation: Statement representation.
+    """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
+    statement_representation = statement_representation.replace(
+        statement_node_id, "?statement"
+    )
+    statement_representation = re.sub(
+        r'dc:description "[^"]+" ;', "", statement_representation
+    )
+    sparql_query = f"""
+        DELETE {{
+            ?statement ?p ?o .
+            ?preference ?pp ?op .
+        }}
+        WHERE {{
+            {statement_representation}
+            ?statement ?p ?o .
+            OPTIONAL {{
+                ?preference pav:derivedFrom ?statement .
+                ?preference ?pp ?op .
+            }}
+        }}
+    """
+
+    assert utils.get_query_for_remove_statement(
+        pkg_data_example
+    ) == strip_string(sparql_query)
