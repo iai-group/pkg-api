@@ -8,32 +8,44 @@ in the PKG vocabulary. The PKG vocabulary and an example of a statement
 can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
-import logging
-from collections import defaultdict
-from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
+import io
+from typing import Dict, Optional
 
-from rdflib import BNode, Literal, URIRef
-from rdflib.namespace import NamespaceManager
+import pydotplus
+from IPython.display import display
+from rdflib.query import Result
 from rdflib.term import Variable
+from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
+from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI
 from pkg_api.mapping_vocab import MappingVocab
 
+DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
+
 
 class PKG:
-    def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
+    def __init__(
+        self,
+        owner: URI,
+        rdf_store: RDFStore,
+        rdf_path: str,
+        visualization_path: str = DEFAULT_VISUALIZATION_PATH,
+    ) -> None:
         """Initializes PKG of a given user.
 
         Args:
             owner: Owner URI.
             rdf_store: Type of RDF store.
             rdf_path: Path to the RDF store.
+            visualization_path: Path to the visualization of PKG. Defaults to
+              DEFAULT_VISUALIZATION_PATH.
         """
         self._owner_uri = owner
         self._connector = Connector(owner, rdf_store, rdf_path)
+        self._visualization_path = visualization_path
 
     @property
     def owner_uri(self) -> URI:
@@ -86,7 +98,7 @@ class PKG:
         Returns:
             Preference value. If no preference is found, returns None.
         """
-        query = utils.get_query_for_get_preference(who, object)
+        query = utils.get_query_for_conditioned_get_preference(who, object)
         bindings = [
             binding
             for binding in self._connector.execute_sparql_query(query).bindings
@@ -125,164 +137,40 @@ class PKG:
         """
         query = utils.get_query_for_add_statement(pkg_data)
         self._connector.execute_sparql_update(query)
-        if pkg_data.preference:
-            query = utils.get_query_for_add_preference(pkg_data)
-            self._connector.execute_sparql_update(query)
 
-    def get_statements(
-        self, pkg_data: PKGData, triple_conditioned: bool = False
-    ) -> List[PKGData]:
-        """Gets statements from the PKG given conditions.
+    def execute_sparql_query(self, query: str) -> Result:
+        """Executes a SPARQL query.
 
         Args:
-            pkg_data: PKG data associated to wanted statements.
-            triple_conditioned: Whether to condition the query with the triple
-              data. Defaults to False.
+            query: SPARQL query.
 
         Returns:
-            Statements matching the conditions.
+            Result of the SPARQL query.
         """
-        if triple_conditioned:
-            query = utils.get_query_for_conditional_get_statements(
-                pkg_data.triple
-            )
-        else:
-            query = utils.get_query_for_get_statements(pkg_data)
-        results = list(self._connector.execute_sparql_query(query).bindings)
-        return self._parse_statements(results)
+        return self._connector.execute_sparql_query(query)
 
-    def _parse_statements(self, results: List[Any]) -> List[PKGData]:
-        """Parses a list of statements.
+    def visualize_graph(self) -> str:
+        """Visualizes the PKG.
 
-        Args:
-            results: List of results from the SPARQL query.
+        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
 
         Returns:
-            List of PKG data associated to the retrieved statements.
+            The path to the image visualizing the PKG.
         """
-        statements: List[PKGData] = []
-        for row in results:
-            statement_bnode = row.get(Variable("statement"))
-            triples = list(
-                self._connector._graph.triples((statement_bnode, None, None))
-            )
-            statement = self._parse_statement_node(
-                triples, self._connector._graph.namespace_manager
-            )
-            statements.append(statement)
-        return statements
+        stream = io.StringIO()
+        rdf2dot(self._connector._graph, stream, opts={display})
+        dg = pydotplus.graph_from_dot_data(stream.getvalue())
+        png = dg.create_png()
 
-    def _parse_statement_node(
-        self,
-        triples: List[Tuple[Any, Any, Any]],
-        namespace_manager: NamespaceManager,
-    ) -> Optional[PKGData]:
-        """Parses a statement node.
+        owner_name = ""
 
-        Args:
-            triples: List of triples that form the statement.
-            namespace_manager: Namespace manager of the graph.
+        for _, namespace in PKGPrefixes.__members__.items():
+            if namespace.value in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(str(namespace.value), "")
 
-        Returns:
-            PKG data associated to the statement.
-        """
-        statement_dict: DefaultDict[str, Any] = defaultdict(
-            lambda: defaultdict()
-        )
+        path = self._visualization_path + "/" + owner_name + ".png"
 
-        for _, p, o in triples:
-            # Parse the predicate URI to N3 format, i.e., prefix:property.
-            property = p.n3(namespace_manager)
-            pkg_data_field, field_property = MappingVocab.get_pkgdata_field(
-                property
-            )
-            if pkg_data_field is None:
-                logging.warning(
-                    f"Statement parsing - Property {property} not supported."
-                )
-                continue
-            value = self._parse_rdf_triple_object(o)
-            if field_property is None:
-                statement_dict[pkg_data_field] = value
-            else:
-                statement_dict[pkg_data_field][field_property] = value
+        with open(path, "wb") as test_png:
+            test_png.write(png)
 
-        if not statement_dict.get("statement", None):
-            logging.warning("Statement parsing failed, not statement returned.")
-            return None
-
-        # Create a Triple object from the parsed triple (need to create
-        # TripleElement objects)
-        _triple = None
-        for k, v in statement_dict.get("triple", {}).items():
-            if _triple is None:
-                _triple = Triple()
-            if v is not None:
-                setattr(_triple, k, TripleElement.from_value(v))
-
-        return PKGData(
-            statement=statement_dict.get("statement"),
-            triple=_triple,
-            preference=None,
-            logging_data=dict(statement_dict.get("logging_data", {})),
-        )
-
-    def _parse_rdf_triple_object(
-        self, object: Any
-    ) -> Optional[Union[URI, Concept, str]]:
-        """Parses a triple object retrieved with SPARQL.
-
-        Args:
-            object: Triple object retrieved with SPARQL.
-
-        Returns:
-            Value of the triple object as URI, Concept, or str.
-        """
-        if isinstance(object, URIRef):
-            return URI(str(object))
-        elif isinstance(object, Literal):
-            return str(object)
-        elif isinstance(object, BNode):
-            return self._retrieve_and_parse_concept(object)
-
-        logging.warning(
-            f"Object {object} of type {type(object)} not supported."
-        )
-        return None
-
-    def _retrieve_and_parse_concept(
-        self, concept_node: BNode
-    ) -> Optional[Concept]:
-        """Retrieves and parses a concept from the graph.
-
-        Args:
-            concept_node: Node ID of the concept.
-
-        Returns:
-            Concept.
-        """
-        concept_dict: DefaultDict[str, Any] = defaultdict()
-        namespace_manager = self._connector._graph.namespace_manager
-        for _, p, o in self._connector._graph.triples(
-            (concept_node, None, None)
-        ):
-            # According to rdflib documentation, all terms have a n3 method.
-            property = p.n3(namespace_manager)  # type: ignore[attr-defined]
-            concept_field = MappingVocab.CONCEPT_MAPPING.get(property, None)
-            if concept_field is None:
-                logging.warning(
-                    f"Concept parsing - Property {property} not supported."
-                )
-                continue
-
-            if concept_field == "description":
-                concept_dict[concept_field] = str(o)
-            else:
-                # Other fields of Concept are lists of URIs
-                concept_dict.setdefault(concept_field, []).append(URI(str(o)))
-
-        if not concept_dict.get("description", None):
-            logging.warning("Concept parsing failed, not description found.")
-            return None
-
-        return Concept(**concept_dict)
+        return path

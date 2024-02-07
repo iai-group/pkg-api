@@ -1,0 +1,12 @@
+What is user's intent with the following statement? The options are:
+
+ADD - Statement of fact or preference, examples: "I live in Stavanger", "David doesn't like Matrix" 
+GET - Asking for information, examples: "Do I live in Stavanger?", "Does David like the Matrix?"
+DELETE - Request to delete or remove an item, examples: "I dont live in Stavanger anymore", "Remove Matrix from my library"
+UNKNOWN - None of the above, examples: "How many movies have I watched?", "How is the weather today?"
+
+Statement:
+------------------------------
+{statement}
+------------------------------
+Answer: 

@@ -1,18 +1,14 @@
 """Tests for the PKG module."""
 import re
+import uuid
 
 import pytest
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotation import (
-    Concept,
-    PKGData,
-    Preference,
-    Triple,
-    TripleElement,
-)
+from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
+from pkg_api.utils import get_statement_node_id
 
 
 @pytest.fixture
@@ -31,6 +27,7 @@ def user_pkg() -> PKG:
 def statement() -> PKGData:
     """Returns a statement."""
     return PKGData(
+        id=uuid.UUID("{abcac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I live in Stavanger.",
         triple=Triple(
             TripleElement("I", URI("http://example.com/testuser")),
@@ -39,7 +36,10 @@ def statement() -> PKGData:
                 "Stavanger", URI("https://dbpedia.org/page/Stavanger")
             ),
         ),
-        logging_data={"authoredBy": URI("http://example.com/testuser")},
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
     )
 
 
@@ -55,6 +55,7 @@ def statement_with_concept() -> PKGData:
     )
 
     return PKGData(
+        id=uuid.UUID("{f47ac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I like movies directed by Steven Spielberg.",
         triple=Triple(
             TripleElement("I", URI("http://example.com/testuser")),
@@ -62,7 +63,10 @@ def statement_with_concept() -> PKGData:
             _object,
         ),
         preference=Preference(_object, 1.0),
-        logging_data={"authoredBy": URI("http://example.com/testuser")},
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
     )
 
 
@@ -70,6 +74,7 @@ def statement_with_concept() -> PKGData:
 def retrieved_statement_with_concept() -> PKGData:
     """Returns a statement retrieved from the PKG."""
     return PKGData(
+        id=uuid.UUID("{f47ac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I like movies directed by Steven Spielberg.",
         triple=Triple(
             TripleElement("", URI("http://example.com/testuser")),
@@ -85,7 +90,10 @@ def retrieved_statement_with_concept() -> PKGData:
             ),
         ),
         preference=None,
-        logging_data={"authoredBy": URI("http://example.com/testuser")},
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
     )
 
 
@@ -96,10 +104,12 @@ def test_add_statement(
     expected_query = re.sub(
         r"\s+",
         " ",
-        """INSERT DATA { [] a rdf:Statement ; dc:description "I live in
-     Stavanger." ; rdf:subject <http://example.com/testuser> ; rdf:predicate
-     "live" ; rdf:object <https://dbpedia.org/page/Stavanger> ; pav:authoredBy
-     <http://example.com/testuser> . }""",
+        f"""INSERT DATA {{ {get_statement_node_id(statement)} a rdf:Statement ;
+        dc:description "I live in Stavanger." ;
+        rdf:subject <http://example.com/testuser> ; rdf:predicate "live" ;
+        rdf:object <https://dbpedia.org/page/Stavanger> ;
+        pav:authoredOn "2024-02-05T13:54:32"^^xsd:dateTime ;
+        pav:authoredBy <http://example.com/testuser> . }}""",
     ).strip()
 
     # Check that connector is called with the correct query
