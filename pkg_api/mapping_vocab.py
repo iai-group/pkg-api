@@ -34,7 +34,7 @@ class MappingVocab:
 
     @staticmethod
     def get_pkgdata_field(property: str) -> Tuple[str, Optional[str]]:
-        """Gets the field and subfield of PKGData associated to a property.
+        """Gets the field and subfield of PKGData associated with a property.
 
         Args:
             property: Property to be mapped.
