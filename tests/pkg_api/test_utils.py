@@ -8,7 +8,13 @@ from typing import Optional, Union
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
+from pkg_api.core.annotation import (
+    Concept,
+    PKGData,
+    Preference,
+    Triple,
+    TripleElement,
+)
 from pkg_api.core.pkg_types import URI
 
 
@@ -250,3 +256,23 @@ def test_get_query_for_conditioned_get_preference(
         pkg_data_example.triple.subject.value,
         pkg_data_example.triple.object.value,
     ) == strip_string(expected_query)
+
+
+def test_get_query_for_get_statements(
+    pkg_data_example: PKGData, statement_representation: str
+) -> None:
+    """Tests get_query_for_get_statements method.
+
+    Args:
+        pkg_data_example: PKG data example.
+        statement_representation: Statement representation.
+    """
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
+    sparql_query = f"""SELECT ?statement
+        WHERE {{
+            {statement_representation.replace(statement_node_id, "?statement")}
+        }}"""
+
+    assert utils.get_query_for_get_statements(pkg_data_example) == strip_string(
+        sparql_query
+    )
