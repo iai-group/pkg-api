@@ -1,6 +1,6 @@
 """API Resource receiving NL input."""
 
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 from flask import current_app, request
 from flask_restful import Resource
@@ -24,7 +24,7 @@ class NLResource(Resource):
         self.entity_linker = RELEntityLinker()
         self.nl_to_pkg = NLtoPKG(self.annotator, self.entity_linker)
 
-    def post(self) -> Tuple[Dict[str, str], int]:
+    def post(self) -> Tuple[Dict[str, Any], int]:
         """Processes the NL input to update the PKG.
 
         Note that the returned dictionary may contain additional fields based
