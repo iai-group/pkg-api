@@ -10,6 +10,7 @@ from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
 from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
     _DEFAULT_CONFIG_PATH as DEFAULT_SPOTLIGHT_CONFIG_PATH,
 )
+from pkg_api.pkg import DEFAULT_VISUALIZATION_PATH
 
 
 class BaseConfig:
@@ -31,6 +32,7 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///db.sqlite"
     STORE_PATH = "data"
+    VISUALIZATION_PATH = DEFAULT_VISUALIZATION_PATH
 
 
 class TestingConfig(BaseConfig):
@@ -39,3 +41,4 @@ class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///test.sqlite"
     STORE_PATH = "tests/data/RDFStore"
+    VISUALIZATION_PATH = "tests/data/visualizations"

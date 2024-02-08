@@ -100,7 +100,7 @@ def _get_concept_representation(concept: Concept) -> str:
         else ""
     )
     representation = concept_template.format(
-        description=concept.description,
+        description=re.sub(r'"', r"\"", concept.description),
         related_entities=related_entities,
         broader_entities=broader_entities,
         narrower_entities=narrower_entities,
@@ -150,8 +150,9 @@ def _get_statement_representation(
     Returns:
         Representation of the statement.
     """
+    raw_statement = re.sub(r'"', r"\"", pkg_data.statement)
     statement = f"""{statement_node_id} a rdf:Statement ;
-        dc:description "{pkg_data.statement}" ; """
+        dc:description "{raw_statement}" ; """
 
     # Add triple annotation
     if pkg_data.triple is not None:

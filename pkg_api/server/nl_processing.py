@@ -50,7 +50,7 @@ class NLResource(Resource):
             pkg.close()
             return {
                 "message": "Statement added to your PKG.",
-                "data": None,
+                "annotation": statement_data.as_dict(),
             }, 200
         elif intent == Intent.GET:
             statements = pkg.get_statements(
@@ -58,12 +58,17 @@ class NLResource(Resource):
             )
             return {
                 "message": "Statements retrieved from your PKG",
-                "data": statements,
+                "data": [s.as_dict() for s in statements],
+                "annotation": statement_data.as_dict(),
             }, 200
         elif intent == Intent.DELETE:
-            pkg.remove_statement(statement_data)
+            # TODO: Uncomment once PR #93 is merged.
+            # pkg.remove_statement(statement_data)
             pkg.close()
-            return {"message": "Statement was deleted if present"}, 200
+            return {
+                "message": "Statement was deleted if present",
+                "annotation": statement_data.as_dict(),
+            }, 200
 
         return {
             "message": "The operation could not be performed. Please try to"
