@@ -72,6 +72,8 @@ def test_pkg_visualization(client: Flask, user_pkg: PKG) -> None:
     """Tests the GET /explore endpoint."""
     if not os.path.exists("tests/data/pkg_visualizations/"):
         os.makedirs("tests/data/pkg_visualizations/", exist_ok=True)
+    if not os.path.exists("tests/data/RDFStore/"):
+        os.makedirs("tests/data/RDFStore/", exist_ok=True)
 
     pkg_data = PKGData(
         id="f47ac10b-34fd-4372-a567-0e02b2c3d479",
