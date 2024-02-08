@@ -51,7 +51,7 @@ def mock_config_path() -> str:
 def mock_annotations() -> Tuple[Intent, PKGData]:
     """Fixture for mock the NL annotations returned by the LLM."""
     mock_pkg_data = PKGData(
-        id=uuid.uuid1(),
+        id=uuid.UUID("{00000000-0000-0000-0000-000000000000}"),
         statement="Sentence1.",
         triple=Triple(
             subject=TripleElement(reference="S1"),

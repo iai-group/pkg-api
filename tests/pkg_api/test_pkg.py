@@ -5,13 +5,7 @@ import uuid
 import pytest
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotation import (
-    Concept,
-    PKGData,
-    Preference,
-    Triple,
-    TripleElement,
-)
+from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 from pkg_api.utils import get_statement_node_id
@@ -157,7 +151,7 @@ def test_get_statements_with_triple_conditions(
     user_pkg.add_statement(statement_with_concept)
     user_pkg.add_statement(
         PKGData(
-            id=uuid.uuid1(),
+            uuid.UUID("{f47ac10b-34fd-4372-a567-0e02b2c3d479}"),
             statement="I like movies.",
             triple=Triple(
                 TripleElement("I", URI("http://example.com/testuser")),
@@ -169,7 +163,7 @@ def test_get_statements_with_triple_conditions(
 
     statements = user_pkg.get_statements(
         PKGData(
-            id=uuid.uuid1(),
+            id=uuid.UUID("{0f4c6b66-c5a4-11ee-99e8-a662d3a1cf88}"),
             statement="Get me everything I like.",
             triple=Triple(
                 predicate=TripleElement("like", Concept(description="like")),

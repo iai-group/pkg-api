@@ -8,13 +8,7 @@ from typing import Optional, Union
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotation import (
-    Concept,
-    PKGData,
-    Preference,
-    Triple,
-    TripleElement,
-)
+from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
 from pkg_api.core.pkg_types import URI
 
 
@@ -229,6 +223,35 @@ def test_get_query_for_add_preference(
     )
 
 
+def test_get_query_for_conditioned_get_preference(
+    pkg_data_example: PKGData,
+) -> None:
+    """Tests get_query_for_conditioned_get_preference method."""
+    expected_query = """
+        SELECT ?weight
+        WHERE {
+            <http://example.com/my/I> wi:preference [
+                wi:topic [
+                    a skos:Concept ;
+                    dc:description "all movies with the actor Tom Cruise" ;
+                    skos:related <https://schema.org/actor>,
+                    <http://dbpedia.org/resource/Tom_Cruise> ;
+                    skos:broader <https://schema.org/Movie> ;
+                    skos:narrower <https://schema.org/Action>
+                ] ;
+                wo:weight [
+                    wo:weight_value ?weight ;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }
+    """
+    assert utils.get_query_for_conditioned_get_preference(
+        pkg_data_example.triple.subject.value,
+        pkg_data_example.triple.object.value,
+    ) == strip_string(expected_query)
+
+
 def test_get_query_for_get_statements(
     pkg_data_example: PKGData, statement_representation: str
 ) -> None:
@@ -283,3 +306,29 @@ def test_get_query_for_remove_statement(
     assert utils.get_query_for_remove_statement(
         pkg_data_example
     ) == strip_string(sparql_query)
+
+    
+def test_get_query_for_conditional_get_statements(
+    pkg_data_example: PKGData,
+) -> None:
+    """Tests get_query_for_conditional_get_statements method."""
+    expected_query = """
+        SELECT ?statement
+        WHERE {
+            ?statement rdf:subject <http://example.com/my/I> .
+            ?statement rdf:predicate [
+                a skos:Concept ; dc:description "dislike"
+            ] .
+            ?statement rdf:object [
+                a skos:Concept ;
+                dc:description "all movies with the actor Tom Cruise" ;
+                skos:related <https://schema.org/actor>,
+                <http://dbpedia.org/resource/Tom_Cruise> ;
+                skos:broader <https://schema.org/Movie> ;
+                skos:narrower <https://schema.org/Action>
+            ] .
+        }
+    """
+    assert utils.get_query_for_conditional_get_statements(
+        pkg_data_example.triple
+    ) == strip_string(expected_query)

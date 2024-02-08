@@ -132,7 +132,7 @@ def get_query_for_conditioned_get_preference(
                     wo:weight_value ?weight ;
                     wo:scale pkg:StandardScale
                 ]
-            ]
+            ] .
         }}
     """
     return _clean_sparql_representation(query)
@@ -241,7 +241,7 @@ def get_query_for_add_preference(pkg_data: PKGData) -> SPARQLQuery:
 
 
 def get_statement_node_id(pkg_data: PKGData) -> str:
-    """Gets the statement node ID."""
+    """Gets the statement node ID based UUID."""
     return f"{PKGPrefixes.EX.name.lower()}:{pkg_data.id}"
 
 

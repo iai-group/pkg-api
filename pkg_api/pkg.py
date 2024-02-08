@@ -156,19 +156,53 @@ class PKG:
 
         query = utils.get_query_for_add_statement(pkg_data)
         self._connector.execute_sparql_update(query)
-        if pkg_data.preference:
-            query = utils.get_query_for_add_preference(pkg_data)
-            self._connector.execute_sparql_update(query)
+
+    def execute_sparql_query(self, query: str) -> Result:
+        """Executes a SPARQL query.
+
+        Args:
+            query: SPARQL query.
+
+        Returns:
+            Result of the SPARQL query.
+        """
+        return self._connector.execute_sparql_query(query)
+
+    def visualize_graph(self) -> str:
+        """Visualizes the PKG.
+
+        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
+
+        Returns:
+            The path to the image visualizing the PKG.
+        """
+        stream = io.StringIO()
+        rdf2dot(self._connector._graph, stream, opts={display})
+        dg = pydotplus.graph_from_dot_data(stream.getvalue())
+        png = dg.create_png()
+
+        owner_name = ""
+
+        for _, namespace in PKGPrefixes.__members__.items():
+            if namespace.value in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(str(namespace.value), "")
+
+        path = self._visualization_path + "/" + owner_name + ".png"
+
+        with open(path, "wb") as test_png:
+            test_png.write(png)
+
+        return path
 
     def get_statements(
-        self, pkg_data: PKGData, triple_conditioned: bool = False
+        self, pkg_data: PKGData, triple_conditioned: bool = True
     ) -> List[PKGData]:
         """Gets statements from the PKG given conditions.
 
         Args:
             pkg_data: PKG data associated to wanted statements.
             triple_conditioned: Whether to condition the query with the triple
-              data. Defaults to False.
+              data. Defaults to True.
 
         Returns:
             Statements matching the conditions.
@@ -342,42 +376,3 @@ class PKG:
             return None
 
         return Concept(**concept_dict)
-
-    def execute_sparql_query(self, query: str) -> Result:
-        """Executes a SPARQL query.
-
-        Args:
-            query: SPARQL query.
-
-        Returns:
-            Result of the SPARQL query.
-        """
-        return self._connector.execute_sparql_query(query)
-
-    def visualize_graph(self) -> str:
-        """Visualizes the PKG.
-
-        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
-
-        Returns:
-            The path to the image visualizing the PKG.
-        """
-        stream = io.StringIO()
-        rdf2dot(self._connector._graph, stream, opts={display})
-        dg = pydotplus.graph_from_dot_data(stream.getvalue())
-        png = dg.create_png()
-
-        owner_name = ""
-
-        for _, namespace in PKGPrefixes.__members__.items():
-            if namespace.value.replace("#", "") in str(self._owner_uri):
-                owner_name = self._owner_uri.replace(
-                    str(namespace.value.replace("#", "")), ""
-                ).replace("/", "")
-
-        path = self._visualization_path + "/" + owner_name + ".png"
-
-        with open(path, "wb") as test_png:
-            test_png.write(png)
-
-        return path
