@@ -189,7 +189,7 @@ class PKG:
         Args:
             pkg_data: PKG data associated to wanted statements.
             triple_conditioned: Whether to condition the query with the triple
-            data. Defaults to True.
+              data. Defaults to True.
 
         Returns:
             Statements matching the conditions.
