@@ -12,6 +12,7 @@ import re
 from typing import List, Optional, Union
 
 from pkg_api.core.annotation import Concept, PKGData, TripleElement
+from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
 
@@ -107,48 +108,7 @@ def _get_concept_representation(concept: Concept) -> str:
     return _clean_sparql_representation(representation)
 
 
-def _get_preference_representation(
-    pkg_data: PKGData, blank_node_id: str
-) -> str:
-    """Gets the representation of a preference given a statement.
-
-    Args:
-        pkg_data: PKG data associated to a statement.
-        blank_node_id: Blank node ID of the statement.
-
-    Returns:
-        Representation of the preference.
-    """
-    if pkg_data.preference is None or pkg_data.preference.topic.value is None:
-        return ""
-
-    preference_topic = _get_property_representation(
-        pkg_data.preference.topic.value
-    )
-
-    if (
-        pkg_data.triple is None
-        or pkg_data.triple.subject is None
-        or pkg_data.triple.subject.value is None
-    ):
-        return ""
-
-    subject = _get_property_representation(pkg_data.triple.subject.value)
-
-    representation = f"""{subject} wi:preference
-            [
-                pav:derivedFrom {blank_node_id} ;
-                wi:topic {preference_topic} ;
-                wo:weight [
-                    wo:weight_value {pkg_data.preference.weight} ;
-                    wo:scale pkg:StandardScale
-                ]
-            ] .
-        """
-    return _clean_sparql_representation(representation)
-
-
-def get_query_for_get_preference(
+def get_query_for_conditioned_get_preference(
     who: Union[str, URI], topic: Union[URI, Concept, str]
 ) -> SPARQLQuery:
     """Gets query to retrieve preference value given a subject and topic.
@@ -163,7 +123,7 @@ def get_query_for_get_preference(
     subject = _get_property_representation(who)
     preference_topic = _get_property_representation(topic)
 
-    return f"""
+    query = f"""
         SELECT ?weight
         WHERE {{
             {subject} wi:preference [
@@ -172,22 +132,25 @@ def get_query_for_get_preference(
                     wo:weight_value ?weight ;
                     wo:scale pkg:StandardScale
                 ]
-            ]
+            ] .
         }}
     """
+    return _clean_sparql_representation(query)
 
 
-def _get_statement_representation(pkg_data: PKGData, blank_node_id: str) -> str:
+def _get_statement_representation(
+    pkg_data: PKGData, statement_node_id: str
+) -> str:
     """Gets the representation of a statement given a PKG data.
 
     Args:
         pkg_data: PKG data associated to a statement.
-        blank_node_id: Blank node ID of the statement.
+        statement_node_id: Node ID of the statement.
 
     Returns:
         Representation of the statement.
     """
-    statement = f"""{blank_node_id} a rdf:Statement ;
+    statement = f"""{statement_node_id} a rdf:Statement ;
         dc:description "{pkg_data.statement}" ; """
 
     # Add triple annotation
@@ -228,22 +191,55 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
     Returns:
         SPARQL query.
     """
-    blank_node_id = "_:st"
+    statement_node_id = get_statement_node_id(pkg_data)
     # Create a statement
-    statement = _get_statement_representation(pkg_data, blank_node_id)
-
-    # Create a preference
-    preference = ""
-    if pkg_data.preference:
-        preference = _get_preference_representation(pkg_data, blank_node_id)
+    statement = _get_statement_representation(pkg_data, statement_node_id)
 
     query = f"""
         INSERT DATA {{
             {statement}
-
-            {preference}
         }}
     """
 
     # Cleaning up the query
     return _clean_sparql_representation(query)
+
+
+def get_query_for_add_preference(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to add a preference.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    statement_node_id = get_statement_node_id(pkg_data)
+
+    if pkg_data.preference is None:
+        return ""
+
+    query = f"""
+        INSERT {{
+            ?subject wi:preference [
+                pav:derivedFrom ?statement ;
+                wi:topic ?object ; wo:weight [
+                    wo:weight_value "{pkg_data.preference.weight}"^^xsd:decimal;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }}
+        WHERE {{
+            {statement_node_id} a rdf:Statement ;
+            rdf:subject ?subject; rdf:object ?object .
+            BIND({statement_node_id} AS ?statement)
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_statement_node_id(pkg_data: PKGData) -> str:
+    """Gets the statement node ID based UUID."""
+    return f"{PKGPrefixes.EX.name.lower()}:{pkg_data.id}"
