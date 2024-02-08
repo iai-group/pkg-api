@@ -131,3 +131,51 @@ def test_add_statement(
     )
     user_pkg.add_statement(statement)
     assert mock_execute_sparql_update.called
+
+
+def test_get_statements(
+    user_pkg: PKG,
+    statement: PKGData,
+    statement_with_concept: PKGData,
+    retrieved_statement_with_concept: PKGData,
+) -> None:
+    """Tests getting statements strictly matching PKG data."""
+    user_pkg.add_statement(statement)
+    user_pkg.add_statement(statement_with_concept)
+
+    statements = user_pkg.get_statements(statement_with_concept)
+    assert len(statements) == 1
+    assert retrieved_statement_with_concept == statements[0]
+
+
+def test_get_statements_with_triple_conditions(
+    user_pkg: PKG,
+    statement_with_concept: PKGData,
+    retrieved_statement_with_concept: PKGData,
+) -> None:
+    """Tests getting statements with triple conditions."""
+    user_pkg.add_statement(statement_with_concept)
+    user_pkg.add_statement(
+        PKGData(
+            uuid.UUID("{f47ac10b-34fd-4372-a567-0e02b2c3d479}"),
+            statement="I like movies.",
+            triple=Triple(
+                TripleElement("I", URI("http://example.com/testuser")),
+                TripleElement("like", Concept(description="like")),
+                TripleElement("movies", Concept(description="movies")),
+            ),
+        )
+    )
+
+    statements = user_pkg.get_statements(
+        PKGData(
+            id=uuid.UUID("{0f4c6b66-c5a4-11ee-99e8-a662d3a1cf88}"),
+            statement="Get me everything I like.",
+            triple=Triple(
+                predicate=TripleElement("like", Concept(description="like")),
+            ),
+        ),
+        triple_conditioned=True,
+    )
+    assert len(statements) == 2
+    assert retrieved_statement_with_concept in statements
