@@ -5,7 +5,13 @@ from unittest.mock import patch
 
 from flask import Flask
 
-from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
+from pkg_api.core.annotation import (
+    Concept,
+    PKGData,
+    Preference,
+    Triple,
+    TripleElement,
+)
 from pkg_api.core.intents import Intent
 from pkg_api.core.pkg_types import URI
 
@@ -105,5 +111,5 @@ def test_nl_resource_post_delete_statement(client: Flask) -> None:
             },
         )
         assert response.status_code == 200
-        assert response.json["message"] ==  "Statement was deleted if present"
+        assert response.json["message"] == "Statement was deleted if present"
         assert isinstance(response.json["annotation"], dict)
