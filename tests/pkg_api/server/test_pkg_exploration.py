@@ -3,7 +3,25 @@
 import os
 from io import StringIO
 
+import pytest
 from flask import Flask
+
+from pkg_api.connector import RDFStore
+from pkg_api.core.annotation import PKGData, Triple, TripleElement
+from pkg_api.core.pkg_types import URI
+from pkg_api.pkg import PKG
+from pkg_api.server import create_app
+
+
+@pytest.fixture
+def user_pkg() -> PKG:
+    """Returns a PKG instance."""
+    return PKG(
+        "http://example.com#test",
+        RDFStore.MEMORY,
+        "tests/data/RDFStore/test",
+        "tests/data/pkg_visualizations",
+    )
 
 
 def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
@@ -51,16 +69,29 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
     )
 
 
-def test_pkg_visualization(client: Flask) -> None:
+def test_pkg_visualization(client: Flask, user_pkg: PKG) -> None:
     """Tests the GET /explore endpoint."""
     if not os.path.exists("tests/data/pkg_visualizations/"):
         os.makedirs("tests/data/pkg_visualizations/", exist_ok=True)
-    if not os.path.exists("tests/data/RDFStore/"):
-        os.makedirs("tests/data/RDFStore/", exist_ok=True)
+
+    pkg_data = PKGData(
+        statement="I live in Stavanger.",
+        triple=Triple(
+            TripleElement("I", URI("http://example.com#test")),
+            TripleElement("live", "live"),
+            TripleElement(
+                "Stavanger", URI("https://dbpedia.org/page/Stavanger")
+            ),
+        ),
+        logging_data={"authoredBy": URI("http://example.com#test")},
+    )
+
+    user_pkg.add_statement(pkg_data)
+    user_pkg._connector.save_graph()
 
     response = client.get(
         "/explore",
-        json={
+        query_string={
             "owner_uri": "http://example.com#test",
             "owner_username": "test",
         },
