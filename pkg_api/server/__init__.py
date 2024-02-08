@@ -3,11 +3,11 @@
 Resources give access to HTTP methods related to a PKG API feature.
 """
 
+import os
+
 from flask import Flask
 from flask_restful import Api
 
-from pkg_api.connector import DEFAULT_STORE_PATH
-from pkg_api.pkg import DEFAULT_VISUALIZATION_PATH
 from pkg_api.server.auth import AuthResource
 from pkg_api.server.config import DevelopmentConfig, TestingConfig
 from pkg_api.server.facts_management import PersonalFactsResource
@@ -32,6 +32,10 @@ def create_app(testing: bool = False) -> Flask:
         app.config.from_object(TestingConfig)
     else:
         app.config.from_object(DevelopmentConfig)
+
+    # Create storage directories
+    os.makedirs(app.config["STORE_PATH"], exist_ok=True)
+    os.makedirs(app.config["VISUALIZATION_PATH"], exist_ok=True)
 
     db.init_app(app)
 

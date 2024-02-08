@@ -1,6 +1,7 @@
 """Dataclasses for the annotations used in the PKG API."""
 from __future__ import annotations
 
+import dataclasses
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
@@ -80,3 +81,15 @@ class PKGData:
     triple: Optional[Triple] = None
     preference: Optional[Preference] = None
     logging_data: Dict[str, Any] = field(default_factory=dict)
+
+    def as_dict(self) -> Dict[str, Any]:
+        """Returns a dictionary representation of the PKGData."""
+        return {
+            "id": str(self.id),
+            "statement": self.statement,
+            "triple": dataclasses.asdict(self.triple) if self.triple else None,
+            "preference": dataclasses.asdict(self.preference)
+            if self.preference
+            else None,
+            "logging_data": self.logging_data,
+        }

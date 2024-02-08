@@ -8,7 +8,13 @@ from typing import Optional, Union
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotation import Concept, PKGData, Preference, Triple, TripleElement
+from pkg_api.core.annotation import (
+    Concept,
+    PKGData,
+    Preference,
+    Triple,
+    TripleElement,
+)
 from pkg_api.core.pkg_types import URI
 
 
@@ -307,7 +313,7 @@ def test_get_query_for_remove_statement(
         pkg_data_example
     ) == strip_string(sparql_query)
 
-    
+
 def test_get_query_for_conditional_get_statements(
     pkg_data_example: PKGData,
 ) -> None:
