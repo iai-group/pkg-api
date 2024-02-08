@@ -4,7 +4,9 @@
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     _DEFAULT_CONFIG_PATH as DEFAULT_3_STEP_CONFIG_PATH,
 )
-from pkg_api.nl_to_pkg.annotators.three_step_annotator import _DEFAULT_PROMPT_PATHS
+from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
+    _DEFAULT_PROMPT_PATHS,
+)
 from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
     _DEFAULT_CONFIG_PATH as DEFAULT_SPOTLIGHT_CONFIG_PATH,
 )
