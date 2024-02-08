@@ -74,6 +74,7 @@ def test_pkg_visualization(client: Flask, user_pkg: PKG) -> None:
         os.makedirs("tests/data/pkg_visualizations/", exist_ok=True)
 
     pkg_data = PKGData(
+        id="f47ac10b-34fd-4372-a567-0e02b2c3d479",
         statement="I live in Stavanger.",
         triple=Triple(
             TripleElement("I", URI("http://example.com#test")),
