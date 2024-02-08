@@ -10,7 +10,6 @@ from pkg_api.connector import RDFStore
 from pkg_api.core.annotation import PKGData, Triple, TripleElement
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
-from pkg_api.server import create_app
 
 
 @pytest.fixture
