@@ -1,25 +1,39 @@
 """Tests for the PKG module."""
 import re
+import uuid
 
 import pytest
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotation import PKGData, Triple, TripleElement
+from pkg_api.core.annotation import (
+    Concept,
+    PKGData,
+    Preference,
+    Triple,
+    TripleElement,
+)
 from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
+from pkg_api.utils import get_statement_node_id
 
 
 @pytest.fixture
 def user_pkg() -> PKG:
     """Returns a PKG instance."""
-    return PKG(
-        "http://example.com/testuser", RDFStore.MEMORY, "tests/data/RDFStore"
+    pkg = PKG(
+        URI("http://example.com/testuser"),
+        RDFStore.MEMORY,
+        "tests/data/RDFStore",
     )
+    assert pkg.owner_uri == URI("http://example.com/testuser")
+    return pkg
 
 
-def test_add_statement(monkeypatch: pytest.MonkeyPatch, user_pkg: PKG) -> None:
-    """Tests adding a statement."""
-    pkg_data = PKGData(
+@pytest.fixture
+def statement() -> PKGData:
+    """Returns a statement."""
+    return PKGData(
+        id=uuid.UUID("{abcac10b-58cc-4372-a567-0e02b2c3d479}"),
         statement="I live in Stavanger.",
         triple=Triple(
             TripleElement("I", URI("http://example.com/testuser")),
@@ -28,16 +42,80 @@ def test_add_statement(monkeypatch: pytest.MonkeyPatch, user_pkg: PKG) -> None:
                 "Stavanger", URI("https://dbpedia.org/page/Stavanger")
             ),
         ),
-        logging_data={"authoredBy": URI("http://example.com/testuser")},
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
     )
 
+
+@pytest.fixture
+def statement_with_concept() -> PKGData:
+    """Returns a statement."""
+    _object = TripleElement(
+        "movies directed by Steven Spielberg",
+        Concept(
+            description="movies directed by Steven Spielberg",
+            related_entities=[URI("https://dbpedia.org/page/Steven_Spielberg")],
+        ),
+    )
+
+    return PKGData(
+        id=uuid.UUID("{f47ac10b-58cc-4372-a567-0e02b2c3d479}"),
+        statement="I like movies directed by Steven Spielberg.",
+        triple=Triple(
+            TripleElement("I", URI("http://example.com/testuser")),
+            TripleElement("like", Concept(description="like")),
+            _object,
+        ),
+        preference=Preference(_object, 1.0),
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
+    )
+
+
+@pytest.fixture
+def retrieved_statement_with_concept() -> PKGData:
+    """Returns a statement retrieved from the PKG."""
+    return PKGData(
+        id=uuid.UUID("{f47ac10b-58cc-4372-a567-0e02b2c3d479}"),
+        statement="I like movies directed by Steven Spielberg.",
+        triple=Triple(
+            TripleElement("", URI("http://example.com/testuser")),
+            TripleElement("like", Concept(description="like")),
+            TripleElement(
+                "movies directed by Steven Spielberg",
+                Concept(
+                    description="movies directed by Steven Spielberg",
+                    related_entities=[
+                        URI("https://dbpedia.org/page/Steven_Spielberg")
+                    ],
+                ),
+            ),
+        ),
+        preference=None,
+        logging_data={
+            "authoredBy": URI("http://example.com/testuser"),
+            "authoredOn": "2024-02-05T13:54:32",
+        },
+    )
+
+
+def test_add_statement(
+    monkeypatch: pytest.MonkeyPatch, user_pkg: PKG, statement: PKGData
+) -> None:
+    """Tests adding a statement."""
     expected_query = re.sub(
         r"\s+",
         " ",
-        """INSERT DATA { _:st a rdf:Statement ; dc:description "I live in
-     Stavanger." ; rdf:subject <http://example.com/testuser> ; rdf:predicate
-     "live" ; rdf:object <https://dbpedia.org/page/Stavanger> ; pav:authoredBy
-     <http://example.com/testuser> . }""",
+        f"""INSERT DATA {{ {get_statement_node_id(statement)} a rdf:Statement ;
+        dc:description "I live in Stavanger." ;
+        rdf:subject <http://example.com/testuser> ; rdf:predicate "live" ;
+        rdf:object <https://dbpedia.org/page/Stavanger> ;
+        pav:authoredOn "2024-02-05T13:54:32"^^xsd:dateTime ;
+        pav:authoredBy <http://example.com/testuser> . }}""",
     ).strip()
 
     # Check that connector is called with the correct query
@@ -51,5 +129,53 @@ def test_add_statement(monkeypatch: pytest.MonkeyPatch, user_pkg: PKG) -> None:
         "execute_sparql_update",
         mock_execute_sparql_update,
     )
-    user_pkg.add_statement(pkg_data)
+    user_pkg.add_statement(statement)
     assert mock_execute_sparql_update.called
+
+
+def test_get_statements(
+    user_pkg: PKG,
+    statement: PKGData,
+    statement_with_concept: PKGData,
+    retrieved_statement_with_concept: PKGData,
+) -> None:
+    """Tests getting statements strictly matching PKG data."""
+    user_pkg.add_statement(statement)
+    user_pkg.add_statement(statement_with_concept)
+
+    statements = user_pkg.get_statements(statement_with_concept)
+    assert len(statements) == 1
+    assert retrieved_statement_with_concept == statements[0]
+
+
+def test_get_statements_with_triple_conditions(
+    user_pkg: PKG,
+    statement_with_concept: PKGData,
+    retrieved_statement_with_concept: PKGData,
+) -> None:
+    """Tests getting statements with triple conditions."""
+    user_pkg.add_statement(statement_with_concept)
+    user_pkg.add_statement(
+        PKGData(
+            uuid.UUID("{f47ac10b-34fd-4372-a567-0e02b2c3d479}"),
+            statement="I like movies.",
+            triple=Triple(
+                TripleElement("I", URI("http://example.com/testuser")),
+                TripleElement("like", Concept(description="like")),
+                TripleElement("movies", Concept(description="movies")),
+            ),
+        )
+    )
+
+    statements = user_pkg.get_statements(
+        PKGData(
+            id=uuid.UUID("{0f4c6b66-c5a4-11ee-99e8-a662d3a1cf88}"),
+            statement="Get me everything I like.",
+            triple=Triple(
+                predicate=TripleElement("like", Concept(description="like")),
+            ),
+        ),
+        triple_conditioned=True,
+    )
+    assert len(statements) == 2
+    assert retrieved_statement_with_concept in statements
