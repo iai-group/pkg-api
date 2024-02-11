@@ -1,0 +1,7 @@
+  url: "https://api.dbpedia-spotlight.org/en/annotate"
+  headers:
+    accept: "application/json"
+  params:
+    confidence: 0.5
+    support: 50
+    types: null
