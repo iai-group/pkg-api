@@ -5,7 +5,8 @@ from enum import Enum
 from rdflib import Graph, Namespace
 from rdflib.query import Result
 
-from pkg_api.pkg_types import URI
+from pkg_api.core.namespaces import PKGPrefixes
+from pkg_api.core.pkg_types import URI
 
 # Method to create/load the RDF graph
 # Method to execute the SPARQL query
@@ -38,10 +39,15 @@ class Connector:
         """
         self._rdf_store_path = f"{rdf_store_path}.ttl"
         self._graph = Graph(rdf_store.value, identifier=owner)
-        self._graph.bind("pkg", DEFAULT_PKG_NAMESPACE)
+        self._bind_namespaces()
         if os.path.exists(self._rdf_store_path):
             self._graph.parse(self._rdf_store_path, format="turtle")
         self._graph.open(rdf_store_path, create=True)
+
+    def _bind_namespaces(self) -> None:
+        """Binds namespaces to the graph."""
+        for prefix, namespace in PKGPrefixes.__members__.items():
+            self._graph.bind(prefix.lower(), namespace.value)
 
     def execute_sparql_query(self, query: str) -> Result:
         """Executes SPARQL query.
@@ -65,8 +71,13 @@ class Connector:
         self._graph.close()
 
     def save_graph(self) -> None:
-        """Saves the graph to a file."""
-        if not os.path.exists(self._rdf_store_path):
-            parent_dir = os.path.dirname(self._rdf_store_path)
-            os.makedirs(parent_dir, exist_ok=True)
+        """Saves the graph to a file.
+
+        Raises:
+            FileNotFoundError: If the directory to store the graph does not
+              exist.
+        """
+        directory = os.path.dirname(self._rdf_store_path)
+        if not os.path.exists(directory):
+            raise FileNotFoundError(f"Directory {directory} does not exist.")
         self._graph.serialize(self._rdf_store_path, format="turtle")

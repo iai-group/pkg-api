@@ -1,0 +1,19 @@
+host: "ADD_OLLAMA_HOST"
+model: "llama2"
+stream: false
+options:
+  num_keep: 5
+  seed: 42
+  num_predict: 100
+  top_k: 20
+  top_p: 0.9
+  tfs_z: 0.5
+  typical_p: 0.7
+  repeat_last_n: 33
+  temperature: 0.0
+  repeat_penalty: 1.2
+  presence_penalty: 1.5
+  frequency_penalty: 1.0
+  penalize_newline: true
+  stop: 
+    - "\n"

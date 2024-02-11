@@ -1,0 +1,19 @@
+What is the preference towards "{object}" in the following statement? Answer 1 for positive, -1 for negative, or N/A when sentiment is not applicable.
+
+Example:
+------------------------------
+I like cats.
+------------------------------
+Answer: 1
+
+Example:
+------------------------------
+I hate romcom
+------------------------------
+Answer: -1
+
+Statement:
+------------------------------
+{statement}
+------------------------------
+Answer: 

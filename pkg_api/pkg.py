@@ -1,41 +1,57 @@
 """PKG API.
 
-A fact is an atomic piece of information that can be represented as a triple:
-subject, predicate, object. A fact can be about the owner, in which case the
-subject is the owner's URI, or about another entity, then the subject is the
-entity's URI.
-
-For example:
-    - 'The owner (user1) likes ice cream' is represented as follow:
-    (/../user1, /../likes, /../icecream)
-    - 'Stavanger is in Norway' is represented as follow:
-    (/../stavanger, /../isIn, /../norway)  # noqa
-
-A preference indicates how much a person (can be the owner or someone else)
-likes an entity. Representing a preference requires multiple triples; creating
-this representation is left to the utils class.
+A statement is the main piece of information, it may be enriched with
+properties such as subject, object, and predicate (for more details
+refer to the PKG vocabulary and class PKGData). A statement may also be
+linked to a preference, the representation of a preference is described
+in the PKG vocabulary. The PKG vocabulary and an example of a statement
+can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
-from typing import Dict, List, Optional
+import io
+import logging
+import uuid
+from collections import defaultdict
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, Union
 
+import pydotplus
+from IPython.display import display
+from rdflib import BNode, Literal, URIRef
+from rdflib.namespace import NamespaceManager
+from rdflib.query import Result
 from rdflib.term import Variable
+from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-from pkg_api.pkg_types import URI
+from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
+from pkg_api.core.namespaces import PKGPrefixes
+from pkg_api.core.pkg_types import URI
+from pkg_api.mapping_vocab import MappingVocab
+
+DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
 
 
 class PKG:
-    def __init__(self, owner: URI, rdf_store: RDFStore, rdf_path: str) -> None:
+    def __init__(
+        self,
+        owner: URI,
+        rdf_store: RDFStore,
+        rdf_path: str,
+        visualization_path: str = DEFAULT_VISUALIZATION_PATH,
+    ) -> None:
         """Initializes PKG of a given user.
 
         Args:
             owner: Owner URI.
             rdf_store: Type of RDF store.
             rdf_path: Path to the RDF store.
+            visualization_path: Path to the visualization of PKG. Defaults to
+              DEFAULT_VISUALIZATION_PATH.
         """
         self._owner_uri = owner
         self._connector = Connector(owner, rdf_store, rdf_path)
+        self._visualization_path = visualization_path
 
     @property
     def owner_uri(self) -> URI:
@@ -88,7 +104,7 @@ class PKG:
         Returns:
             Preference value. If no preference is found, returns None.
         """
-        query = utils.get_query_for_get_preference(who, object)
+        query = utils.get_query_for_conditioned_get_preference(who, object)
         bindings = [
             binding
             for binding in self._connector.execute_sparql_query(query).bindings
@@ -104,17 +120,6 @@ class PKG:
             else None
         )
 
-    def get_owner_objects_from_facts(self, predicate: URI) -> List[URI]:
-        """Gets objects given subject and predicate.
-
-        Args:
-            predicate: Predicate of the fact.
-
-        Returns:
-            List of objects for the given predicate.
-        """
-        return self.get_objects_from_facts(self._owner_uri, predicate)
-
     def get_preferences(self, who: URI, rdf_class: URI) -> Dict[URI, float]:
         """Gets preferences for a given class.
 
@@ -127,115 +132,218 @@ class PKG:
         """
         pass
 
-    def get_objects_from_facts(self, subject: URI, predicate: URI) -> List[URI]:
-        """Gets objects given subject and predicate.
+    def add_statement(self, pkg_data: PKGData) -> None:
+        """Adds a statement to the PKG.
+
+        Note that if a preference is provided, it will be added with a separate
+        query.
 
         Args:
-            subject: Subject of the fact.
-            predicate: Predicate of the fact.
+            pkg_data: PKG data associated to a statement.
+        """
+        query = utils.get_query_for_add_statement(pkg_data)
+        self._connector.execute_sparql_update(query)
+
+    def execute_sparql_query(self, query: str) -> Result:
+        """Executes a SPARQL query.
+
+        Args:
+            query: SPARQL query.
 
         Returns:
-            List of objects for the given predicate.
+            Result of the SPARQL query.
         """
-        query = utils.get_query_for_get_objects_from_facts(subject, predicate)
-        return [
-            str(binding.get(Variable("object")))
-            for binding in self._connector.execute_sparql_query(query).bindings
-        ]
+        return self._connector.execute_sparql_query(query)
 
-    def set_owner_preference(self, entity: URI, preference: float) -> None:
-        """Sets owner preference for a given entity.
+    def visualize_graph(self) -> str:
+        """Visualizes the PKG.
+
+        https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python # noqa: E501
+
+        Returns:
+            The path to the image visualizing the PKG.
+        """
+        stream = io.StringIO()
+        rdf2dot(self._connector._graph, stream, opts={display})
+        dg = pydotplus.graph_from_dot_data(stream.getvalue())
+        png = dg.create_png()
+
+        owner_name = ""
+
+        for _, namespace in PKGPrefixes.__members__.items():
+            if namespace.value in str(self._owner_uri):
+                owner_name = self._owner_uri.replace(str(namespace.value), "")
+
+        path = self._visualization_path + "/" + owner_name + ".png"
+
+        with open(path, "wb") as test_png:
+            test_png.write(png)
+
+        return path
+
+    def get_statements(
+        self, pkg_data: PKGData, triple_conditioned: bool = True
+    ) -> List[PKGData]:
+        """Gets statements from the PKG given conditions.
 
         Args:
-            entity: Entity.
-            preference: Preference value.
+            pkg_data: PKG data associated to wanted statements.
+            triple_conditioned: Whether to condition the query with the triple
+              data. Defaults to True.
+
+        Returns:
+            Statements matching the conditions.
         """
-        self.set_preference(self._owner_uri, entity, preference)
-
-    def set_preference(self, who: URI, entity: URI, preference: float) -> None:
-        """Sets preference for a given entity.
-
-        Args:
-            who: Who is setting the preference.
-            entity: URI of the entity.
-            preference: Preference value.
-        """
-        old_preference = self.get_preference(who, entity)
-
-        if old_preference is None:
-            query = utils.get_query_for_set_preference(who, entity, preference)
-        else:
-            query = utils.get_query_for_update_preference(
-                who, entity, old_preference, preference
+        if triple_conditioned and pkg_data.triple is not None:
+            query = utils.get_query_for_conditional_get_statements(
+                pkg_data.triple
             )
+        else:
+            query = utils.get_query_for_get_statements(pkg_data)
+        results = list(self._connector.execute_sparql_query(query).bindings)
+        return self._parse_statements(results)
 
-        self._connector.execute_sparql_update(query)
-
-    def add_owner_fact(self, predicate: URI, entity: URI) -> None:
-        """Adds a fact related to the PKG owner.
-
-        Args:
-            predicate: Predicate.
-            entity: Entity.
-        """
-        self.add_fact(self._owner_uri, predicate, entity)
-
-    def add_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
-        """Adds a fact.
+    def _parse_statements(self, results: List[Any]) -> List[PKGData]:
+        """Parses a list of statements.
 
         Args:
-            subject: Subject.
-            predicate: Predicate.
-            entity: Entity.
-        """
-        query = utils.get_query_for_add_fact(subject, predicate, entity)
-        self._connector.execute_sparql_update(query)
+            results: List of results from the SPARQL query.
 
-    def remove_fact(self, subject: URI, predicate: URI, entity: URI) -> None:
-        """Removes a fact.
+        Returns:
+            List of PKG data associated to the retrieved statements.
+        """
+        statements: List[PKGData] = []
+        for row in results:
+            statement_bnode = row.get(Variable("statement"))
+            statement_node_id = statement_bnode.n3(
+                self._connector._graph.namespace_manager
+            ).split(":")[1]
+            triples = list(
+                self._connector._graph.triples((statement_bnode, None, None))
+            )
+            statement = self._parse_statement_node(
+                triples,
+                self._connector._graph.namespace_manager,
+                statement_node_id,
+            )
+            statements.append(statement)
+        return statements
+
+    def _parse_statement_node(
+        self,
+        triples: List[Tuple[Any, Any, Any]],
+        namespace_manager: NamespaceManager,
+        statement_node_id: Optional[str] = None,
+    ) -> Optional[PKGData]:
+        """Parses a statement node.
 
         Args:
-            subject: Subject of the fact being removed.
-            predicate: Predicate of the fact being removed.
-            entity: Entity to be removed.
-        """
-        query = utils.get_query_for_remove_fact(subject, predicate, entity)
-        self._connector.execute_sparql_update(query)
+            triples: List of triples that form the statement.
+            namespace_manager: Namespace manager of the graph.
 
-    def remove_owner_fact(self, predicate: URI, entity: URI) -> None:
-        """Removes a fact related to the PKG owner.
+        Returns:
+            PKG data associated to the statement.
+        """
+        statement_dict: DefaultDict[str, Any] = defaultdict(
+            lambda: defaultdict()
+        )
+
+        for _, p, o in triples:
+            # Parse the predicate URI to N3 format, i.e., prefix:property.
+            property = p.n3(namespace_manager)
+            pkg_data_field, field_property = MappingVocab.get_pkgdata_field(
+                property
+            )
+            if pkg_data_field is None:
+                logging.warning(
+                    f"Statement parsing - Property {property} not supported."
+                )
+                continue
+            value = self._parse_rdf_triple_object(o)
+            if field_property is None:
+                statement_dict[pkg_data_field] = value
+            else:
+                statement_dict[pkg_data_field][field_property] = value
+
+        if not statement_dict.get("statement", None):
+            logging.warning("Statement parsing failed, not statement returned.")
+            return None
+
+        # Create a Triple object from the parsed triple (need to create
+        # TripleElement objects)
+        _triple = None
+        for k, v in statement_dict.get("triple", {}).items():
+            if _triple is None:
+                _triple = Triple()
+            if v is not None:
+                setattr(_triple, k, TripleElement.from_value(v))
+
+        return PKGData(
+            id=uuid.UUID(f"{{{statement_node_id}}}")
+            if statement_node_id
+            else uuid.uuid1(),
+            statement=statement_dict.get("statement"),
+            triple=_triple,
+            preference=None,
+            logging_data=dict(statement_dict.get("logging_data", {})),
+        )
+
+    def _parse_rdf_triple_object(
+        self, object: Any
+    ) -> Optional[Union[URI, Concept, str]]:
+        """Parses a triple object retrieved with SPARQL.
 
         Args:
-            predicate: Predicate to be removed.
-            entity: Entity to be removed.
+            object: Triple object retrieved with SPARQL.
+
+        Returns:
+            Value of the triple object as URI, Concept, or str.
         """
-        self.remove_fact(self._owner_uri, predicate, entity)
+        if isinstance(object, URIRef):
+            return URI(str(object))
+        elif isinstance(object, Literal):
+            return str(object)
+        elif isinstance(object, BNode):
+            return self._retrieve_and_parse_concept(object)
 
+        logging.warning(
+            f"Object {object} of type {type(object)} not supported."
+        )
+        return None
 
-if __name__ == "__main__":
-    pkg = PKG("http://example.org/user1", RDFStore.MEMORY, "data/RDFStore")
-    pkg.add_owner_fact(
-        "http://example.org/likes", "http://example.org/icecream"
-    )
-    pkg.add_owner_fact("http://example.org/likes", "http://example.org/pizza")
+    def _retrieve_and_parse_concept(
+        self, concept_node: BNode
+    ) -> Optional[Concept]:
+        """Retrieves and parses a concept from the graph.
 
-    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item)
+        Args:
+            concept_node: Node ID of the concept.
 
-    pkg.remove_owner_fact(
-        "http://example.org/likes", "http://example.org/pizza"
-    )
-    for item in pkg.get_owner_objects_from_facts("http://example.org/likes"):
-        print(item)
+        Returns:
+            Concept.
+        """
+        concept_dict: DefaultDict[str, Any] = defaultdict()
+        namespace_manager = self._connector._graph.namespace_manager
+        for _, p, o in self._connector._graph.triples(
+            (concept_node, None, None)
+        ):
+            # According to rdflib documentation, all terms have a n3 method.
+            property = p.n3(namespace_manager)  # type: ignore[attr-defined]
+            concept_field = MappingVocab.CONCEPT_MAPPING.get(property, None)
+            if concept_field is None:
+                logging.warning(
+                    f"Concept parsing - Property {property} not supported."
+                )
+                continue
 
-    pkg.set_owner_preference("http://example.org/tea", 1.0)
-    pkg.set_owner_preference("http://example.org/coffee", -1.0)
+            if concept_field == "description":
+                concept_dict[concept_field] = str(o)
+            else:
+                # Other fields of Concept are lists of URIs
+                concept_dict.setdefault(concept_field, []).append(URI(str(o)))
 
-    print(pkg.get_owner_preference("http://example.org/coffee"))
+        if not concept_dict.get("description", None):
+            logging.warning("Concept parsing failed, not description found.")
+            return None
 
-    # Update user preference
-    pkg.set_owner_preference("http://example.org/coffee", 0.5)
-    print(pkg.get_owner_preference("http://example.org/coffee"))
-
-    print(pkg.get_owner_preference("http://example.org/tea"))
-    pkg.close()
+        return Concept(**concept_dict)
