@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../contexts/UserContext";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -19,20 +19,6 @@ const PreferencePopulationForm = () => {
   const [statementID, setStatementID] = useState("");
   const baseURL =
     (window as any)["PKG_API_BASE_URL"] || "http://127.0.0.1:5000";
-
-  useEffect(() => {
-    setObject((newValue) => ({
-      value:
-        typeof newValue.value === "string"
-          ? newValue.value
-          : {
-              description: newValue.value.description,
-              related: newValue.value.related || [],
-              broader: newValue.value.broader || [],
-              narrower: newValue.value.narrower || [],
-            },
-    }));
-  }, [object]);
 
   const addPreference = () => {
     if (!subject) {

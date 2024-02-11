@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { UserContext } from "../contexts/UserContext";
@@ -23,32 +23,6 @@ const StatementPopulationForm = () => {
   const [prefValue, setPrefValue] = useState(Number.NaN);
   const baseURL =
     (window as any)["PKG_API_BASE_URL"] || "http://127.0.0.1:5000";
-
-  useEffect(() => {
-    setPredicate((newValue) => ({
-      value:
-        typeof newValue.value === "string"
-          ? newValue.value
-          : {
-              description: newValue.value.description,
-              related: newValue.value.related || [],
-              broader: newValue.value.broader || [],
-              narrower: newValue.value.narrower || [],
-            },
-    }));
-
-    setObject((newValue) => ({
-      value:
-        typeof newValue.value === "string"
-          ? newValue.value
-          : {
-              description: newValue.value.description,
-              related: newValue.value.related || [],
-              broader: newValue.value.broader || [],
-              narrower: newValue.value.narrower || [],
-            },
-    }));
-  }, [predicate, object]);
 
   const addStatement = () => {
     if (!description) {
