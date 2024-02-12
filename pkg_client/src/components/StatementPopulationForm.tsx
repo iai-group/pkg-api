@@ -2,9 +2,19 @@ import { useState, useContext } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { UserContext } from "../contexts/UserContext";
-import { TripleElement } from "./PopulateForm";
 import axios from "axios";
 import { Alert } from "react-bootstrap";
+
+export interface Concept {
+  description: string;
+  related_entities: string[];
+  broader_entities: string[];
+  narrower_entities: string[];
+}
+
+export interface TripleElement {
+  value: string | Concept;
+}
 
 const StatementPopulationForm = () => {
   const { user } = useContext(UserContext);
