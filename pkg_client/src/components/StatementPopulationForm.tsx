@@ -32,6 +32,8 @@ const StatementPopulationForm = () => {
     // Axios sent POST request with body
     axios
       .post(`${baseURL}/statements`, {
+        owner_uri: user?.uri,
+        owner_username: user?.username,
         description: description,
         subject: subject,
         predicate: predicate,
@@ -57,6 +59,8 @@ const StatementPopulationForm = () => {
     axios
       .delete(`${baseURL}/statements`, {
         data: {
+          owner_uri: user?.uri,
+          owner_username: user?.username,
           description: description,
           subject: subject,
           predicate: predicate,
@@ -158,17 +162,20 @@ const StatementPopulationForm = () => {
                     ? setPredicate({
                         value: {
                           description: e.target.value,
-                          related: [],
-                          broader: [],
-                          narrower: [],
+                          related_entities: [],
+                          broader_entities: [],
+                          narrower_entities: [],
                         },
                       })
                     : setPredicate({
                         value: {
                           description: e.target.value,
-                          related: predicate?.value?.related || [],
-                          broader: predicate?.value?.broader || [],
-                          narrower: predicate?.value?.narrower || [],
+                          related_entities:
+                            predicate?.value?.related_entities || [],
+                          broader_entities:
+                            predicate?.value?.broader_entities || [],
+                          narrower_entities:
+                            predicate?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -176,23 +183,26 @@ const StatementPopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept related entities"
-                id="predicate-related"
                 onChange={(e) => {
                   typeof predicate.value === "string"
                     ? setPredicate({
                         value: {
                           description: e.target.value,
-                          related: [],
-                          broader: [],
-                          narrower: [],
+                          related_entities: [],
+                          broader_entities: [],
+                          narrower_entities: [],
                         },
                       })
                     : setPredicate({
                         value: {
                           description: predicate?.value?.description || "",
-                          related: e.target.value.split(","),
-                          broader: predicate?.value?.broader || [],
-                          narrower: predicate?.value?.narrower || [],
+                          related_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          broader_entities:
+                            predicate?.value?.broader_entities || [],
+                          narrower_entities:
+                            predicate?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -200,23 +210,28 @@ const StatementPopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept broader entities"
-                id="predicate-broader"
                 onChange={(e) => {
                   typeof predicate.value === "string"
                     ? setPredicate({
                         value: {
                           description: "",
-                          related: [],
-                          broader: e.target.value.split(","),
-                          narrower: [],
+                          related_entities: [],
+                          broader_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          narrower_entities: [],
                         },
                       })
                     : setPredicate({
                         value: {
                           description: predicate?.value?.description || "",
-                          related: predicate?.value?.related || [],
-                          broader: e.target.value.split(","),
-                          narrower: predicate?.value?.narrower || [],
+                          related_entities:
+                            predicate?.value?.related_entities || [],
+                          broader_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          narrower_entities:
+                            predicate?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -224,23 +239,28 @@ const StatementPopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept narrower entities"
-                id="predicate-narrower"
                 onChange={(e) => {
                   typeof predicate.value === "string"
                     ? setPredicate({
                         value: {
                           description: "",
-                          related: [],
-                          broader: [],
-                          narrower: e.target.value.split(","),
+                          related_entities: [],
+                          broader_entities: [],
+                          narrower_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
                         },
                       })
                     : setPredicate({
                         value: {
                           description: predicate?.value?.description || "",
-                          related: predicate?.value?.related || [],
-                          broader: predicate?.value?.broader || [],
-                          narrower: e.target.value.split(","),
+                          related_entities:
+                            predicate?.value?.related_entities || [],
+                          broader_entities:
+                            predicate?.value?.broader_entities || [],
+                          narrower_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
                         },
                       });
                 }}
@@ -278,17 +298,20 @@ const StatementPopulationForm = () => {
                     ? setObject({
                         value: {
                           description: e.target.value,
-                          related: [],
-                          broader: [],
-                          narrower: [],
+                          related_entities: [],
+                          broader_entities: [],
+                          narrower_entities: [],
                         },
                       })
                     : setObject({
                         value: {
                           description: e.target.value,
-                          related: object?.value?.related || [],
-                          broader: object?.value?.broader || [],
-                          narrower: object?.value?.narrower || [],
+                          related_entities:
+                            object?.value?.related_entities || [],
+                          broader_entities:
+                            object?.value?.broader_entities || [],
+                          narrower_entities:
+                            object?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -296,23 +319,28 @@ const StatementPopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept related entities"
-                id="object-related"
                 onChange={(e) => {
                   typeof object.value === "string"
                     ? setObject({
                         value: {
                           description: "",
-                          related: e.target.value.split(","),
-                          broader: [],
-                          narrower: [],
+                          related_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          broader_entities: [],
+                          narrower_entities: [],
                         },
                       })
                     : setObject({
                         value: {
                           description: object?.value?.description || "",
-                          related: e.target.value.split(","),
-                          broader: object?.value?.broader || [],
-                          narrower: object?.value?.narrower || [],
+                          related_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          broader_entities:
+                            object?.value?.broader_entities || [],
+                          narrower_entities:
+                            object?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -320,23 +348,28 @@ const StatementPopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept broader entities"
-                id="object-broader"
                 onChange={(e) => {
                   typeof object.value === "string"
                     ? setObject({
                         value: {
                           description: "",
-                          related: [],
-                          broader: e.target.value.split(","),
-                          narrower: [],
+                          related_entities: [],
+                          broader_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          narrower_entities: [],
                         },
                       })
                     : setObject({
                         value: {
                           description: object?.value?.description || "",
-                          related: object?.value?.related || [],
-                          broader: e.target.value.split(","),
-                          narrower: object?.value?.narrower || [],
+                          related_entities:
+                            object?.value?.related_entities || [],
+                          broader_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          narrower_entities:
+                            object?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -344,23 +377,28 @@ const StatementPopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept narrower entities"
-                id="object-narrower"
                 onChange={(e) => {
                   typeof object.value === "string"
                     ? setObject({
                         value: {
                           description: "",
-                          related: [],
-                          broader: [],
-                          narrower: e.target.value.split(","),
+                          related_entities: [],
+                          broader_entities: [],
+                          narrower_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
                         },
                       })
                     : setObject({
                         value: {
                           description: object?.value?.description || "",
-                          related: object?.value?.related || [],
-                          broader: object?.value?.broader || [],
-                          narrower: e.target.value.split(","),
+                          related_entities:
+                            object?.value?.related_entities || [],
+                          broader_entities:
+                            object?.value?.broader_entities || [],
+                          narrower_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
                         },
                       });
                 }}
