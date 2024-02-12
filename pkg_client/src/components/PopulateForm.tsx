@@ -8,9 +8,9 @@ import PreferencePopulationForm from "./PreferencePopulationForm";
 
 export interface Concept {
   description: string;
-  related: string[];
-  broader: string[];
-  narrower: string[];
+  related_entities: string[];
+  broader_entities: string[];
+  narrower_entities: string[];
 }
 
 export interface TripleElement {

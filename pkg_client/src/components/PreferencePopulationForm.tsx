@@ -42,6 +42,8 @@ const PreferencePopulationForm = () => {
     // Axios sent POST request with body
     axios
       .post(`${baseURL}/preference`, {
+        owner_uri: user?.uri,
+        owner_username: user?.username,
         subject: subject,
         object: object.value,
         preference: prefValue,
@@ -128,17 +130,20 @@ const PreferencePopulationForm = () => {
                     ? setObject({
                         value: {
                           description: e.target.value,
-                          related: [],
-                          broader: [],
-                          narrower: [],
+                          related_entities: [],
+                          broader_entities: [],
+                          narrower_entities: [],
                         },
                       })
                     : setObject({
                         value: {
                           description: e.target.value,
-                          related: object?.value?.related || [],
-                          broader: object?.value?.broader || [],
-                          narrower: object?.value?.narrower || [],
+                          related_entities:
+                            object?.value?.related_entities || [],
+                          broader_entities:
+                            object?.value?.broader_entities || [],
+                          narrower_entities:
+                            object?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -152,17 +157,23 @@ const PreferencePopulationForm = () => {
                     ? setObject({
                         value: {
                           description: "",
-                          related: e.target.value.split(","),
-                          broader: [],
-                          narrower: [],
+                          related_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          broader_entities: [],
+                          narrower_entities: [],
                         },
                       })
                     : setObject({
                         value: {
                           description: object?.value?.description || "",
-                          related: e.target.value.split(","),
-                          broader: object?.value?.broader || [],
-                          narrower: object?.value?.narrower || [],
+                          related_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          broader_entities:
+                            object?.value?.broader_entities || [],
+                          narrower_entities:
+                            object?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -170,23 +181,28 @@ const PreferencePopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept broader entities"
-                id="object-broader"
                 onChange={(e) => {
                   typeof object.value === "string"
                     ? setObject({
                         value: {
                           description: "",
-                          related: [],
-                          broader: e.target.value.split(","),
-                          narrower: [],
+                          related_entities: [],
+                          broader_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          narrower_entities: [],
                         },
                       })
                     : setObject({
                         value: {
                           description: object?.value?.description || "",
-                          related: object?.value?.related || [],
-                          broader: e.target.value.split(","),
-                          narrower: object?.value?.narrower || [],
+                          related_entities:
+                            object?.value?.related_entities || [],
+                          broader_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
+                          narrower_entities:
+                            object?.value?.narrower_entities || [],
                         },
                       });
                 }}
@@ -194,23 +210,28 @@ const PreferencePopulationForm = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter concept narrower entities"
-                id="object-narrower"
                 onChange={(e) => {
                   typeof object.value === "string"
                     ? setObject({
                         value: {
                           description: "",
-                          related: [],
-                          broader: [],
-                          narrower: e.target.value.split(","),
+                          related_entities: [],
+                          broader_entities: [],
+                          narrower_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
                         },
                       })
                     : setObject({
                         value: {
                           description: object?.value?.description || "",
-                          related: object?.value?.related || [],
-                          broader: object?.value?.broader || [],
-                          narrower: e.target.value.split(","),
+                          related_entities:
+                            object?.value?.related_entities || [],
+                          broader_entities:
+                            object?.value?.broader_entities || [],
+                          narrower_entities: e.target.value
+                            .split(",")
+                            .map((e) => e.trim()),
                         },
                       });
                 }}
