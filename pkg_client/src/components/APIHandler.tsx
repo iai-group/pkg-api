@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import NLtoPKG from "./NLtoPKG";
 import PKGVisualization from "./PKGVisualization";
+import PopulateForm from "./PopulateForm";
 
 const APIHandler: React.FC = () => {
   const { user } = useContext(UserContext);
@@ -26,11 +27,7 @@ const APIHandler: React.FC = () => {
               }
             />
             <Route path="service" element={<div>Service Management</div>} />
-            <Route path="population" element={<div>Population form</div>} />
-            <Route
-              path="preferences"
-              element={<div>Personal Preferences</div>}
-            />
+            <Route path="population" element={<PopulateForm />} />
             <Route path="explore" element={<PKGVisualization />} />
           </Route>
         </Routes>
