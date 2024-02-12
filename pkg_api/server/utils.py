@@ -92,11 +92,8 @@ def parse_query_statement_population_data(data: Dict[str, Any]) -> PKGData:
     Args:
         data: Request data.
 
-    Raises:
-        Exception: If the description is missing.
-
     Returns:
-        A string containing SPARQL query.
+        Associated PKGData.
     """
     description = data.get("description", None)
     if description is None:

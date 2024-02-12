@@ -3,14 +3,12 @@
 Resources give access to HTTP methods related to a PKG API feature.
 """
 
-
 from flask import Flask
 from flask_restful import Api
 
 from pkg_api.connector import DEFAULT_STORE_PATH
 from pkg_api.pkg import DEFAULT_VISUALIZATION_PATH
 from pkg_api.server.auth import AuthResource
-from pkg_api.server.config import BaseConfig, TestingConfig
 from pkg_api.server.models import db
 from pkg_api.server.nl_processing import NLResource
 from pkg_api.server.pkg_exploration import PKGExplorationResource
