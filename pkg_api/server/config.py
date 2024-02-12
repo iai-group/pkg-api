@@ -1,6 +1,5 @@
 """Define server configuration."""
 
-
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     _DEFAULT_CONFIG_PATH as DEFAULT_3_STEP_CONFIG_PATH,
 )
@@ -33,6 +32,12 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = "sqlite:///db.sqlite"
     STORE_PATH = "data/RDFStore"
     VISUALIZATION_PATH = DEFAULT_VISUALIZATION_PATH
+
+    TS_ANNOTATOR_RPOMPT_PATHS = {
+        "intent": "data/llm_prompts/cot/intent.txt",
+        "triple": "data/llm_prompts/cot/triple.txt",
+        "preference": "data/llm_prompts/cot/preference.txt",
+    }
 
 
 class TestingConfig(BaseConfig):

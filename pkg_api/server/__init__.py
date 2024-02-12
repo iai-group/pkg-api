@@ -10,21 +10,21 @@ from flask_restful import Api
 
 from pkg_api.server.auth import AuthResource
 from pkg_api.server.config import DevelopmentConfig, TestingConfig
-from pkg_api.server.facts_management import PersonalFactsResource
 from pkg_api.server.models import db
 from pkg_api.server.nl_processing import NLResource
 from pkg_api.server.pkg_exploration import PKGExplorationResource
 from pkg_api.server.service_management import ServiceManagementResource
+from pkg_api.server.statements_management import StatementsManagementResource
 
 
 def create_app(testing: bool = False) -> Flask:
-    """Create the Flask app and add the API resources.
+    """Creates the Flask app and add the API resources.
 
     Args:
         testing: Enable testing mode. Defaults to False.
 
     Returns:
-        The Flask app.
+        Flask app.
     """
     app = Flask(__name__)
 
@@ -47,7 +47,7 @@ def create_app(testing: bool = False) -> Flask:
 
     api.add_resource(AuthResource, "/auth")
     api.add_resource(ServiceManagementResource, "/service")
-    api.add_resource(PersonalFactsResource, "/facts")
+    api.add_resource(StatementsManagementResource, "/statements")
     api.add_resource(PKGExplorationResource, "/explore")
     api.add_resource(NLResource, "/nl")
 
