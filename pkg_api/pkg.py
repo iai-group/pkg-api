@@ -308,9 +308,11 @@ class PKG:
                 setattr(_triple, k, TripleElement.from_value(v))
 
         return PKGData(
-            id=uuid.UUID(f"{{{statement_node_id}}}")
-            if statement_node_id
-            else uuid.uuid1(),
+            id=(
+                uuid.UUID(f"{{{statement_node_id}}}")
+                if statement_node_id
+                else uuid.uuid1()
+            ),
             statement=statement_dict.get("statement"),
             triple=_triple,
             preference=None,

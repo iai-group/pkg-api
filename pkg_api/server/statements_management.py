@@ -47,8 +47,7 @@ class StatementsManagementResource(Resource):
 
         try:
             pkg_data = parse_query_statement_population_data(data)
-            # Uncomment when PR #93 is merged
-            # pkg.remove_statement(pkg_data)
+            pkg.remove_statement(pkg_data)
             pkg.close()
         except Exception as e:
             return {"message": str(e)}, 400
