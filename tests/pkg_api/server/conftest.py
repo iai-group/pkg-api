@@ -1,4 +1,5 @@
 """Fixtures for the pkg_api.server package."""
+
 import os
 
 import pytest
@@ -19,3 +20,7 @@ def client() -> Flask:
     yield client
     # Delete the test database
     os.remove(f"{app.instance_path}/test.sqlite")
+    # Delete turtle files
+    for file in os.listdir(f"{app.config['STORE_PATH']}"):
+        if file.endswith(".ttl"):
+            os.remove(f"{app.config['STORE_PATH']}/{file}")
