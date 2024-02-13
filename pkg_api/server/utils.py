@@ -1,7 +1,6 @@
 """Utility functions for the server."""
 
 import uuid
-from datetime import datetime
 from typing import Any, Dict, Union
 
 from flask import current_app
@@ -106,7 +105,7 @@ def parse_query_statement_population_data(data: Dict[str, Any]) -> PKGData:
 
     # Parse preference
     preference = data.get("preference", None)
-    if -1.0 <= preference <= 1.0:
+    if preference and -1.0 <= preference <= 1.0:
         preference = Preference(statement_object, preference)
     else:
         preference = None
