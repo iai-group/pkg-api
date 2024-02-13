@@ -85,8 +85,8 @@ def test_nl_resource_post_get_statement(client: Flask) -> None:
         )
         assert response.status_code == 200
         assert response.json["message"] == "Statements retrieved from your PKG"
-        assert isinstance(response.json["data"], list)
-        assert len(response.json["data"]) > 0
+        assert isinstance(response.json["statements"], list)
+        assert len(response.json["statements"]) > 0
         assert isinstance(response.json["annotation"], dict)
 
 

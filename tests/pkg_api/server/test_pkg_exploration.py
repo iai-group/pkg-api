@@ -58,7 +58,7 @@ def test_pkg_visualization(client: Flask) -> None:
         os.makedirs("tests/data/RDFStore/", exist_ok=True)
     response = client.get(
         "/explore",
-        json={
+        query_string={
             "owner_uri": "http://example.org/pkg#test",
             "owner_username": "test",
         },

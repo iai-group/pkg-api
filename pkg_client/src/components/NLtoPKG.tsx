@@ -5,12 +5,15 @@ import { UserContext } from "../contexts/UserContext";
 import { useContext, useState } from "react";
 import axios from "axios";
 import QueryForm from "./QueryForm";
+import PKGDatRepresentation from "./PKGDataRepresentation";
 
 const NLtoPKG = () => {
   const { user } = useContext(UserContext);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [pkgHide, setPkgHide] = useState(true);
+  const [annotatedStatement, setAnnotatedStatement] = useState(null);
+  const [retrievedStatements, setRetrievedStatements] = useState<any[]>([]);
 
   const baseURL =
     (window as any)["PKG_API_BASE_URL"] || "http://127.0.0.1:5000";
@@ -35,7 +38,6 @@ const NLtoPKG = () => {
       })
       .catch((error) => {
         setError(error.message);
-        console.log(error);
         throw error;
       });
     return imageURL;
@@ -75,7 +77,8 @@ const NLtoPKG = () => {
       .then((response) => {
         setInfo(response.data.message);
         setError("");
-        console.log(response);
+        setAnnotatedStatement(response.data.annotation);
+        setRetrievedStatements(response.data.statements);
         if (pkgHide === false) {
           updateImage();
         }
@@ -96,8 +99,23 @@ const NLtoPKG = () => {
       <br />
       <div id="information-container">
         {info && <div>Query execution status: {info}</div>}
+        <br />
+        {retrievedStatements && retrievedStatements.length > 0 && (
+          <>
+            <p>Number of retrieved statements: {retrievedStatements.length}</p>
+            <ul>
+              {retrievedStatements.map((statement, index) => (
+                <li key={index}>{statement.statement}</li>
+              ))}
+            </ul>
+          </>
+        )}
+        {annotatedStatement && (
+          <PKGDatRepresentation data={annotatedStatement} />
+        )}
+        <br />
         <Button onClick={updateImage} variant="secondary" size="sm">
-          {pkgHide ? "Show" : "Hide"} PKG
+          {pkgHide ? "Show" : "Hide"} PKG as a semantic graph
         </Button>
       </div>
     </Container>

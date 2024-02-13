@@ -56,18 +56,15 @@ class NLResource(Resource):
             statements = pkg.get_statements(
                 statement_data, triple_conditioned=True
             )
-            print(f"Statements: {statements}")
             return {
                 "message": "Statements retrieved from your PKG",
-                "data": [s.as_dict() for s in statements],
-                "annotation": statement_data.as_dict(),
+                "statements": [s.as_dict() for s in statements],
             }, 200
         elif intent == Intent.DELETE:
             pkg.remove_statement(statement_data)
             pkg.close()
             return {
-                "message": "Statement was deleted if present",
-                "annotation": statement_data.as_dict(),
+                "message": "Matching statements were deleted if present",
             }, 200
 
         return {
