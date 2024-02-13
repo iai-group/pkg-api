@@ -116,8 +116,4 @@ def parse_query_statement_population_data(data: Dict[str, Any]) -> PKGData:
         statement=description,
         triple=Triple(subject, predicate, statement_object),
         preference=preference,
-        logging_data={
-            "authoredOn": datetime.now().isoformat(),
-            "authoredBy": data.get("owner_uri", None),
-        },
     )
