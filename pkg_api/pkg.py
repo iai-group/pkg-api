@@ -156,6 +156,9 @@ class PKG:
 
         query = utils.get_query_for_add_statement(pkg_data)
         self._connector.execute_sparql_update(query)
+        if pkg_data.preference:
+            query = utils.get_query_for_add_preference(pkg_data)
+            self._connector.execute_sparql_update(query)
 
     def execute_sparql_query(self, query: str) -> Result:
         """Executes a SPARQL query.
