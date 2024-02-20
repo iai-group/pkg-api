@@ -1,6 +1,5 @@
 """Tests for utility methods."""
 
-
 import re
 import uuid
 from typing import Optional, Union
@@ -8,14 +7,14 @@ from typing import Optional, Union
 import pytest
 
 from pkg_api import utils
-from pkg_api.core.annotation import (
+from pkg_api.core.pkg_types import (
+    URI,
     Concept,
     PKGData,
     Preference,
     Triple,
     TripleElement,
 )
-from pkg_api.core.pkg_types import URI
 
 
 def strip_string(string: str) -> str:

@@ -24,9 +24,8 @@ from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
 from pkg_api.core.namespaces import PKGPrefixes
-from pkg_api.core.pkg_types import URI
+from pkg_api.core.pkg_types import URI, Concept, PKGData, Triple, TripleElement
 from pkg_api.mapping_vocab import MappingVocab
 
 DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
@@ -279,9 +278,11 @@ class PKG:
                 setattr(_triple, k, TripleElement.from_value(v))
 
         return PKGData(
-            id=uuid.UUID(f"{{{statement_node_id}}}")
-            if statement_node_id
-            else uuid.uuid1(),
+            id=(
+                uuid.UUID(f"{{{statement_node_id}}}")
+                if statement_node_id
+                else uuid.uuid1()
+            ),
             statement=statement_dict.get("statement"),
             triple=_triple,
             preference=None,

@@ -1,11 +1,11 @@
 """Tests for REL entity linker."""
+
 import uuid
 from unittest.mock import Mock, patch
 
 import pytest
 
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
-from pkg_api.core.pkg_types import URI
+from pkg_api.core.pkg_types import URI, Concept, PKGData, Triple, TripleElement
 from pkg_api.nl_to_pkg.entity_linking.rel_entity_linking import RELEntityLinker
 
 
