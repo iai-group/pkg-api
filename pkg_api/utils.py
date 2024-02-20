@@ -15,6 +15,8 @@ from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
 from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI, SPARQLQuery
 
+_SPARQL_STATEMENT_VARIABLE = "?statement"
+
 
 def _clean_sparql_representation(sparql: str) -> str:
     """Cleans a SPARQL representation.
@@ -222,7 +224,7 @@ def get_query_for_add_preference(pkg_data: PKGData) -> SPARQLQuery:
     query = f"""
         INSERT {{
             ?subject wi:preference [
-                pav:derivedFrom ?statement ;
+                pav:derivedFrom {_SPARQL_STATEMENT_VARIABLE} ;
                 wi:topic ?object ; wo:weight [
                     wo:weight_value "{pkg_data.preference.weight}"^^xsd:decimal;
                     wo:scale pkg:StandardScale
@@ -232,7 +234,7 @@ def get_query_for_add_preference(pkg_data: PKGData) -> SPARQLQuery:
         WHERE {{
             {statement_node_id} a rdf:Statement ;
             rdf:subject ?subject; rdf:object ?object .
-            BIND({statement_node_id} AS ?statement)
+            BIND({statement_node_id} AS {_SPARQL_STATEMENT_VARIABLE})
         }}
     """
 
@@ -258,10 +260,10 @@ def get_query_for_get_statements(pkg_data: PKGData) -> SPARQLQuery:
         SPARQL query.
     """
     statement_representation = _get_statement_representation(
-        pkg_data, "?statement"
+        pkg_data, _SPARQL_STATEMENT_VARIABLE
     )
     query = f"""
-        SELECT ?statement
+        SELECT {_SPARQL_STATEMENT_VARIABLE}
         WHERE {{
             {statement_representation}
         }}
@@ -295,10 +297,10 @@ def get_query_for_conditional_get_statements(triple: Triple) -> SPARQLQuery:
         if not annotation:
             continue
         value = _get_property_representation(annotation)
-        conditions.append(f"?statement {property} {value} .")
+        conditions.append(f"{_SPARQL_STATEMENT_VARIABLE} {property} {value} .")
 
     query = f"""
-        SELECT ?statement
+        SELECT {_SPARQL_STATEMENT_VARIABLE}
         WHERE {{
             {" ".join(conditions)}
         }}
@@ -317,8 +319,9 @@ def get_query_for_remove_preference(pkg_data: PKGData) -> SPARQLQuery:
     Returns:
         SPARQL query.
     """
-    blank_node_id = "?statement"
-    statement = _get_statement_representation(pkg_data, blank_node_id)
+    statement = _get_statement_representation(
+        pkg_data, _SPARQL_STATEMENT_VARIABLE
+    )
     # Remove statement description from conditions
     statement = re.sub(r'dc:description "[^"]+" ;', "", statement)
 
@@ -330,7 +333,7 @@ def get_query_for_remove_preference(pkg_data: PKGData) -> SPARQLQuery:
         WHERE {{
             {statement}
             ?subject wi:preference ?preference .
-            ?preference pav:derivedFrom {blank_node_id} .
+            ?preference pav:derivedFrom {_SPARQL_STATEMENT_VARIABLE} .
             ?preference ?p ?o .
         }}
     """
@@ -350,9 +353,8 @@ def get_query_for_remove_statement(pkg_data: PKGData) -> SPARQLQuery:
     Returns:
         SPARQL query.
     """
-    blank_node_id = "?statement"
     statement_representation = _get_statement_representation(
-        pkg_data, blank_node_id
+        pkg_data, _SPARQL_STATEMENT_VARIABLE
     )
     # Remove statement description from conditions
     statement_representation = re.sub(
@@ -361,14 +363,14 @@ def get_query_for_remove_statement(pkg_data: PKGData) -> SPARQLQuery:
 
     query = f"""
         DELETE {{
-            ?statement ?p ?o .
+            {_SPARQL_STATEMENT_VARIABLE} ?p ?o .
             ?preference ?pp ?op .
         }}
         WHERE {{
             {statement_representation}
-            ?statement ?p ?o .
+            {_SPARQL_STATEMENT_VARIABLE} ?p ?o .
             OPTIONAL {{
-                ?preference pav:derivedFrom ?statement .
+                ?preference pav:derivedFrom {_SPARQL_STATEMENT_VARIABLE} .
                 ?preference ?pp ?op .
             }}
         }}
@@ -385,23 +387,23 @@ def get_queries_for_remove_cleanup() -> List[SPARQLQuery]:
         List of SPARQL queries.
     """
     query_delete_concepts = """
-    DELETE {
-        ?concept ?p ?o .
-    } WHERE {
-        ?concept a skos:Concept .
-        ?concept ?p ?o .
-        FILTER NOT EXISTS { ?_1 ?_2 ?concept . }
-    }
+        DELETE {
+            ?concept ?p ?o .
+        } WHERE {
+            ?concept a skos:Concept .
+            ?concept ?p ?o .
+            FILTER NOT EXISTS { ?_1 ?_2 ?concept . }
+        }
     """
     query_delete_concepts = _clean_sparql_representation(query_delete_concepts)
     query_delete_scales = """
-    DELETE {
-        ?x ?p ?o .
-    } WHERE {
-        ?x wo:scale ?_3 .
-        ?x ?p ?o .
-        FILTER NOT EXISTS { ?_1 ?_2 ?x . }
-    }
+        DELETE {
+            ?x ?p ?o .
+        } WHERE {
+            ?x wo:scale ?_3 .
+            ?x ?p ?o .
+            FILTER NOT EXISTS { ?_1 ?_2 ?x . }
+        }
     """
     query_delete_scales = _clean_sparql_representation(query_delete_scales)
     return [query_delete_concepts, query_delete_scales]

@@ -1,6 +1,5 @@
 """Tests for utility methods."""
 
-
 import re
 import uuid
 from typing import Optional, Union
@@ -336,5 +335,34 @@ def test_get_query_for_remove_statement(
     """
 
     assert utils.get_query_for_remove_statement(
+        pkg_data_example
+    ) == strip_string(sparql_query)
+
+
+def test_get_query_for_remove_preference(
+    pkg_data_example: PKGData, statement_representation: str
+) -> None:
+    """Tests get_query_for_remove_preference method."""
+    statement_node_id = utils.get_statement_node_id(pkg_data_example)
+    statement_representation = statement_representation.replace(
+        statement_node_id, "?statement"
+    )
+    statement_representation = re.sub(
+        r'dc:description "[^"]+" ;', "", statement_representation
+    )
+
+    sparql_query = f"""
+        DELETE {{
+            ?preference ?p ?o .
+            ?subject wi:preference ?preference .
+        }}
+        WHERE {{
+            {statement_representation}
+            ?subject wi:preference ?preference .
+            ?preference pav:derivedFrom ?statement .
+            ?preference ?p ?o .
+        }}
+    """
+    assert utils.get_query_for_remove_preference(
         pkg_data_example
     ) == strip_string(sparql_query)
