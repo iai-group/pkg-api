@@ -5,8 +5,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pkg_api.core.annotation import Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
+from pkg_api.core.pkg_types import Preference, Triple, TripleElement
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     ThreeStepStatementAnnotator,
 )

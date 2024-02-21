@@ -11,9 +11,15 @@ import dataclasses
 import re
 from typing import List, Optional, Union
 
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
 from pkg_api.core.namespaces import PKGPrefixes
-from pkg_api.core.pkg_types import URI, SPARQLQuery
+from pkg_api.core.pkg_types import (
+    URI,
+    Concept,
+    PKGData,
+    SPARQLQuery,
+    Triple,
+    TripleElement,
+)
 
 
 def _clean_sparql_representation(sparql: str) -> str:

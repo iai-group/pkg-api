@@ -1,18 +1,19 @@
 """Tests for the PKG module."""
+
 import re
 import uuid
 
 import pytest
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotation import (
+from pkg_api.core.pkg_types import (
+    URI,
     Concept,
     PKGData,
     Preference,
     Triple,
     TripleElement,
 )
-from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 from pkg_api.utils import get_statement_node_id
 

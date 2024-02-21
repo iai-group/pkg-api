@@ -4,8 +4,7 @@ from typing import Any, Dict, Union
 
 import requests
 
-from pkg_api.core.annotation import Concept, PKGData, TripleElement
-from pkg_api.core.pkg_types import URI
+from pkg_api.core.pkg_types import URI, Concept, PKGData, TripleElement
 from pkg_api.nl_to_pkg.entity_linking.entity_linker import EntityLinker
 from pkg_api.util.load_config import load_yaml_config
 

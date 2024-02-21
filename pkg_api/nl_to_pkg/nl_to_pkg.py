@@ -2,8 +2,8 @@
 
 from typing import Tuple
 
-from pkg_api.core.annotation import PKGData
 from pkg_api.core.intents import Intent
+from pkg_api.core.pkg_types import PKGData
 from pkg_api.nl_to_pkg import EntityLinker, StatementAnnotator
 
 
