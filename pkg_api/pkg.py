@@ -348,3 +348,19 @@ class PKG:
             return None
 
         return Concept(**concept_dict)
+
+    def remove_statement(self, pkg_data: PKGData) -> None:
+        """Removes a statement from the PKG.
+
+        Args:
+            pkg_data: PKG data associated to the statement.
+        """
+        # Remove preference derived from the statement, if any
+        query = utils.get_query_for_remove_preference(pkg_data)
+        self._connector.execute_sparql_update(query)
+        # Remove statement
+        query = utils.get_query_for_remove_statement(pkg_data)
+        self._connector.execute_sparql_update(query)
+        # Remove dangling concepts and scales
+        for query in utils.get_queries_for_remove_cleanup():
+            self._connector.execute_sparql_update(query)
