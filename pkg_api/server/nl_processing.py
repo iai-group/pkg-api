@@ -62,8 +62,7 @@ class NLResource(Resource):
                 "annotation": statement_data.as_dict(),
             }, 200
         elif intent == Intent.DELETE:
-            # TODO: Uncomment once PR #93 is merged.
-            # pkg.remove_statement(statement_data)
+            pkg.remove_statement(statement_data)
             pkg.close()
             return {
                 "message": "Statement was deleted if present",

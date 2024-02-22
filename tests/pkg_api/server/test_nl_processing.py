@@ -1,22 +1,22 @@
-"""Tests for the NL resource endpoint."""
+"""Tests for the NL processing endpoint."""
 
 import uuid
 from unittest.mock import patch
 
 from flask import Flask
 
-from pkg_api.core.annotation import (
+from pkg_api.core.intents import Intent
+from pkg_api.core.pkg_types import (
+    URI,
     Concept,
     PKGData,
     Preference,
     Triple,
     TripleElement,
 )
-from pkg_api.core.intents import Intent
-from pkg_api.core.pkg_types import URI
 
 
-def test_nl_resource_post_errors(client: Flask) -> None:
+def test_nl_processing_post_errors(client: Flask) -> None:
     """Tests POST with invalid data."""
     response = client.post("/nl", json={"owner_username": "test"})
     assert response.status_code == 400
@@ -33,7 +33,7 @@ def test_nl_resource_post_errors(client: Flask) -> None:
     assert response.json == {"message": "Missing query"}
 
 
-def test_nl_resource_post_add_statement(client: Flask) -> None:
+def test_nl_processing_post_add_statement(client: Flask) -> None:
     """Tests POST with a valid add statement."""
     statement = PKGData(
         id=uuid.UUID("{583b029c-c667-11ee-9601-a662d3a1cf88}"),
@@ -47,7 +47,9 @@ def test_nl_resource_post_add_statement(client: Flask) -> None:
             TripleElement("apples", Concept(description="apples")), 1.0
         ),
     )
-    with patch("pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate") as mock_annotate:
+    with patch(
+        "pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate"
+    ) as mock_annotate:
         mock_annotate.return_value = Intent.ADD, statement
         response = client.post(
             "/nl",
@@ -64,9 +66,11 @@ def test_nl_resource_post_add_statement(client: Flask) -> None:
         }
 
 
-def test_nl_resource_post_get_statement(client: Flask) -> None:
+def test_nl_processing_post_get_statement(client: Flask) -> None:
     """Tests POST with a valid get statement."""
-    with patch("pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate") as mock_annotate:
+    with patch(
+        "pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate"
+    ) as mock_annotate:
         mock_annotate.return_value = Intent.GET, PKGData(
             id=uuid.UUID("{a0ba1070-c668-11ee-80c6-a662d3a1cf88}"),
             statement="What do I like?",
@@ -90,9 +94,11 @@ def test_nl_resource_post_get_statement(client: Flask) -> None:
         assert isinstance(response.json["annotation"], dict)
 
 
-def test_nl_resource_post_delete_statement(client: Flask) -> None:
+def test_nl_processing_post_delete_statement(client: Flask) -> None:
     """Tests POST with a valid delete statement."""
-    with patch("pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate") as mock_annotate:
+    with patch(
+        "pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate"
+    ) as mock_annotate:
         mock_annotate.return_value = Intent.DELETE, PKGData(
             id=uuid.UUID("{1b53c98e-c669-11ee-9c00-a662d3a1cf88}"),
             statement="Forget that I like apples.",
