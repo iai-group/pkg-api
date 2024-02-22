@@ -24,9 +24,8 @@ from rdflib.tools.rdf2dot import rdf2dot
 
 import pkg_api.utils as utils
 from pkg_api.connector import Connector, RDFStore
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
 from pkg_api.core.namespaces import PKGPrefixes
-from pkg_api.core.pkg_types import URI
+from pkg_api.core.pkg_types import URI, Concept, PKGData, Triple, TripleElement
 from pkg_api.mapping_vocab import MappingVocab
 
 DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
@@ -279,9 +278,11 @@ class PKG:
                 setattr(_triple, k, TripleElement.from_value(v))
 
         return PKGData(
-            id=uuid.UUID(f"{{{statement_node_id}}}")
-            if statement_node_id
-            else uuid.uuid1(),
+            id=(
+                uuid.UUID(f"{{{statement_node_id}}}")
+                if statement_node_id
+                else uuid.uuid1()
+            ),
             statement=statement_dict.get("statement"),
             triple=_triple,
             preference=None,
@@ -347,3 +348,19 @@ class PKG:
             return None
 
         return Concept(**concept_dict)
+
+    def remove_statement(self, pkg_data: PKGData) -> None:
+        """Removes a statement from the PKG.
+
+        Args:
+            pkg_data: PKG data associated to the statement.
+        """
+        # Remove preference derived from the statement, if any
+        query = utils.get_query_for_remove_preference(pkg_data)
+        self._connector.execute_sparql_update(query)
+        # Remove statement
+        query = utils.get_query_for_remove_statement(pkg_data)
+        self._connector.execute_sparql_update(query)
+        # Remove dangling concepts and scales
+        for query in utils.get_queries_for_remove_cleanup():
+            self._connector.execute_sparql_update(query)

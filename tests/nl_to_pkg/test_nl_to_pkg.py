@@ -5,8 +5,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
+from pkg_api.core.pkg_types import PKGData, Preference, Triple, TripleElement
 from pkg_api.nl_to_pkg.nl_to_pkg import NLtoPKG
 
 
