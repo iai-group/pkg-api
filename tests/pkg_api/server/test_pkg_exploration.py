@@ -1,8 +1,26 @@
 """Tests for the pkg exploration endpoints."""
 
 import os
+from io import StringIO
 
+import pytest
 from flask import Flask
+
+from pkg_api.connector import RDFStore
+from pkg_api.core.annotation import PKGData, Triple, TripleElement
+from pkg_api.core.pkg_types import URI
+from pkg_api.pkg import PKG
+
+
+@pytest.fixture
+def user_pkg() -> PKG:
+    """Returns a PKG instance."""
+    return PKG(
+        "http://example.com#test",
+        RDFStore.MEMORY,
+        "tests/data/RDFStore/test",
+        "tests/data/pkg_visualizations",
+    )
 
 
 def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
@@ -50,22 +68,42 @@ def test_pkg_exploration_endpoint_errors(client: Flask) -> None:
     )
 
 
-def test_pkg_visualization(client: Flask) -> None:
+def test_pkg_visualization(client: Flask, user_pkg: PKG) -> None:
     """Tests the GET /explore endpoint."""
     if not os.path.exists("tests/data/pkg_visualizations/"):
         os.makedirs("tests/data/pkg_visualizations/", exist_ok=True)
     if not os.path.exists("tests/data/RDFStore/"):
         os.makedirs("tests/data/RDFStore/", exist_ok=True)
+
+    pkg_data = PKGData(
+        id="f47ac10b-34fd-4372-a567-0e02b2c3d479",
+        statement="I live in Stavanger.",
+        triple=Triple(
+            TripleElement("I", URI("http://example.com#test")),
+            TripleElement("live", "live"),
+            TripleElement(
+                "Stavanger", URI("https://dbpedia.org/page/Stavanger")
+            ),
+        ),
+        logging_data={"authoredBy": URI("http://example.com#test")},
+    )
+
+    user_pkg.add_statement(pkg_data)
+    user_pkg._connector.save_graph()
+
     response = client.get(
         "/explore",
-        json={
+        query_string={
             "owner_uri": "http://example.com#test",
             "owner_username": "test",
         },
     )
-    assert response.status_code == 200
-    assert response.json["message"] == "PKG visualized successfully."
-    assert response.json["img_path"] == "tests/data/pkg_visualizations/test.png"
+
+    with open("tests/data/pkg_visualizations/test.png", "rb") as img:
+        test_image = StringIO(img.read())
+    test_image.seek(0)
+
+    assert response.data == test_image.read()
 
 
 def test_pkg_sparql_query(client: Flask) -> None:

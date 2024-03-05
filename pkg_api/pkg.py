@@ -9,6 +9,7 @@ can be found here: https://github.com/iai-group/pkg-vocabulary
 """
 
 import io
+import os
 import logging
 import uuid
 from collections import defaultdict
@@ -28,7 +29,10 @@ from pkg_api.core.namespaces import PKGPrefixes
 from pkg_api.core.pkg_types import URI, Concept, PKGData, Triple, TripleElement
 from pkg_api.mapping_vocab import MappingVocab
 
-DEFAULT_VISUALIZATION_PATH = "data/pkg_visualizations"
+ROOT_DIR = os.path.dirname(
+    os.path.abspath(os.path.dirname(os.path.abspath(__file__)))
+)
+DEFAULT_VISUALIZATION_PATH = ROOT_DIR + "/data/pkg_visualizations"
 
 
 class PKG:
