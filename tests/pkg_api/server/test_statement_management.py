@@ -61,36 +61,3 @@ def test_statement_management_post(
             statement.statement for statement in statements
         ]
         pkg.close()
-
-
-# Uncomment when PR #93 is merged
-# def test_statement_management_delete(
-#     client: Flask, request_data: Dict[str, Any]
-# ) -> None:
-#     """Tests DELETE /statements endpoint."""
-#     response = client.delete("/statements", json=request_data)
-#     assert response.status_code == 200
-#     assert response.get_json() == {
-#         "message": "Statement removed successfully"
-#     }
-
-#     with client.application.app_context():
-#         pkg = open_pkg(request_data)
-#         statements = pkg.get_statements(
-#             PKGData(
-#                 id=None,
-#                 statement="I like Tom Cruise",
-#                 triple=Triple(
-#                     None,
-#                     None,
-#                     TripleElement(
-#                         "Tom Cruise",
-#                         URI("https://en.wikipedia.org/wiki/Tom_Cruise"),
-#                     ),
-#                 ),
-#             )
-#         )
-#         assert "I like Tom Cruise" not in [
-#             statement.statement for statement in statements
-#         ]
-#         pkg.close()
