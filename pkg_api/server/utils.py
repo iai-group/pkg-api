@@ -6,14 +6,14 @@ from typing import Any, Dict, Union
 from flask import current_app
 
 from pkg_api.connector import RDFStore
-from pkg_api.core.annotation import (
+from pkg_api.core.pkg_types import (
+    URI,
     Concept,
     PKGData,
     Preference,
     Triple,
     TripleElement,
 )
-from pkg_api.core.pkg_types import URI
 from pkg_api.pkg import PKG
 
 

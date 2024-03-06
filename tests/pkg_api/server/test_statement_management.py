@@ -5,8 +5,7 @@ from typing import Any, Dict
 import pytest
 from flask import Flask
 
-from pkg_api.core.annotation import PKGData, Triple, TripleElement
-from pkg_api.core.pkg_types import URI
+from pkg_api.core.pkg_types import URI, PKGData, Triple, TripleElement
 from pkg_api.server.utils import open_pkg
 
 
