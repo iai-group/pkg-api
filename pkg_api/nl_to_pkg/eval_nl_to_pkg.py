@@ -1,10 +1,13 @@
 """Evaluates the NL to PKG models."""
+
 import csv
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
+
 from sklearn.metrics import f1_score
 from tqdm import tqdm
-from pkg_api.core.annotation import PKGData
+
 from pkg_api.core.intents import Intent
+from pkg_api.core.pkg_types import PKGData
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     ThreeStepStatementAnnotator,
 )

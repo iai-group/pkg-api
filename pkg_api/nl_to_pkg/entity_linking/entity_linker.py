@@ -1,9 +1,8 @@
 """Abstract class for entity linking."""
 
-
 from abc import ABC, abstractmethod
 
-from pkg_api.core.annotation import PKGData
+from pkg_api.core.pkg_types import PKGData
 
 
 class EntityLinker(ABC):
