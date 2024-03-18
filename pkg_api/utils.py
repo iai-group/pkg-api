@@ -1,10 +1,11 @@
 """Utils methods for the API.
 
 The methods creates SPARQL queries to edit the PKG like adding/removing
-statements or preferences. See the PKG vocabulary for more information about
-the properties of statements and preferences.
+statements or preferences. See the PKG vocabulary for more information
+about the properties of statements and preferences.
 
-PKG vocabulary: https://iai-group.github.io/pkg-vocabulary/
+PKG vocabulary:
+https://iai-group.github.io/pkg-vocabulary/
 """
 
 import dataclasses

@@ -1,6 +1,5 @@
 """API Resource receiving NL input."""
 
-import logging
 from typing import Any, Dict, Tuple
 
 from flask import request
