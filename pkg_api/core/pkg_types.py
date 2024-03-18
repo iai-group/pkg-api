@@ -99,7 +99,9 @@ class PKGData:
             "statement": self.statement,
             "triple": dataclasses.asdict(self.triple) if self.triple else None,
             "preference": (
-                dataclasses.asdict(self.preference) if self.preference else None
+                dataclasses.asdict(self.preference)
+                if self.preference
+                else None
             ),
             "logging_data": self.logging_data,
         }

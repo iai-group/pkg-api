@@ -1,14 +1,13 @@
 """Define server configuration."""
 
-
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     _DEFAULT_CONFIG_PATH as DEFAULT_3_STEP_CONFIG_PATH,
 )
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     _DEFAULT_PROMPT_PATHS,
 )
-from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
-    _DEFAULT_CONFIG_PATH as DEFAULT_SPOTLIGHT_CONFIG_PATH,
+from pkg_api.nl_to_pkg.entity_linking.rel_entity_linking import (
+    _DEFAULT_API_URL,
 )
 from pkg_api.pkg import DEFAULT_VISUALIZATION_PATH
 
@@ -20,10 +19,14 @@ class BaseConfig:
 
     # Three step annotator configuration
     TS_ANNOTATOR_CONFIG_PATH = DEFAULT_3_STEP_CONFIG_PATH
-    TS_ANNOTATOR_RPOMPT_PATHS = _DEFAULT_PROMPT_PATHS
+    TS_ANNOTATOR_PROMPT_PATHS = _DEFAULT_PROMPT_PATHS
 
-    # Entity linker configuration
-    SPOTLIGHT_CONFIG_PATH = DEFAULT_SPOTLIGHT_CONFIG_PATH
+    # Entity linker configuration. Use REL by default.
+    ENTITY_LINKER_CONFIG = {
+        "class_path": "pkg_api.nl_to_pkg.entity_linking.rel_entity_linking."
+        "RELEntityLinker",
+        "kwargs": {"api_url": _DEFAULT_API_URL},
+    }
 
 
 class DevelopmentConfig(BaseConfig):

@@ -1,34 +1,33 @@
 """API Resource receiving NL input."""
 
+import logging
 from typing import Any, Dict, Tuple
 
-from flask import current_app, request
+from flask import request
 from flask_restful import Resource
 
 from pkg_api.core.intents import Intent
-from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
-    ThreeStepStatementAnnotator,
-)
-from pkg_api.nl_to_pkg.entity_linking.rel_entity_linking import RELEntityLinker
 from pkg_api.nl_to_pkg.nl_to_pkg import NLtoPKG
 from pkg_api.server.utils import open_pkg
 
 
 class NLResource(Resource):
-    def __init__(self) -> None:
-        """Initializes the NL resource."""
-        self.annotator = ThreeStepStatementAnnotator(
-            prompt_paths=current_app.config["TS_ANNOTATOR_RPOMPT_PATHS"],
-            config_path=current_app.config["TS_ANNOTATOR_CONFIG_PATH"],
-        )
-        self.entity_linker = RELEntityLinker()
-        self.nl_to_pkg = NLtoPKG(self.annotator, self.entity_linker)
+    def __init__(self, nl_to_pkg: NLtoPKG) -> None:
+        """Initializes the NL resource.
+
+        Args:
+            nl_to_pkg: NLtoPKG object.
+        """
+        self.nl_to_pkg = nl_to_pkg
 
     def post(self) -> Tuple[Dict[str, Any], int]:
         """Processes the NL input to update the PKG.
 
         Note that the returned dictionary may contain additional fields based
         on the frontend's needs.
+
+        Raises:
+            KeyError: if there is missing information to open the user's PKG.
 
         Returns:
             A tuple with a dictionary containing a message, and the status code.
@@ -37,8 +36,8 @@ class NLResource(Resource):
 
         try:
             pkg = open_pkg(data)
-        except Exception as e:
-            return {"message": str(e)}, 400
+        except KeyError as e:
+            return {"message": e.args[0]}, 400
 
         query = data.get("query", None)
         if not query:

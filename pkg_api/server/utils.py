@@ -1,4 +1,6 @@
 """Utility functions for the server."""
+
+import logging
 from typing import Any, Dict
 
 from flask import current_app
@@ -20,7 +22,9 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     owner_uri = data.get("owner_uri", None)
     owner_username = data.get("owner_username", None)
     if owner_uri is None:
-        raise Exception("Missing owner URI")
+        e = KeyError("Missing owner URI")
+        logging.exception("Exception while opening the PKG", exc_info=e)
+        raise e
 
     store_path = current_app.config["STORE_PATH"]
     visualization_path = current_app.config["VISUALIZATION_PATH"]
