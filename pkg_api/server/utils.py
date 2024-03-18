@@ -24,7 +24,7 @@ def open_pkg(data: Dict[str, str]) -> PKG:
         data: Request data.
 
     Raises:
-        Exception: If the owner URI is missing.
+        KeyError: If the owner URI is missing.
 
     Returns:
         A PKG instance.
@@ -32,7 +32,7 @@ def open_pkg(data: Dict[str, str]) -> PKG:
     owner_uri = data.get("owner_uri", None)
     owner_username = data.get("owner_username", None)
     if owner_uri is None:
-        raise Exception("Missing owner URI")
+        raise KeyError("Missing owner URI")
 
     store_path = current_app.config["STORE_PATH"]
     visualization_path = current_app.config["VISUALIZATION_PATH"]
@@ -88,6 +88,9 @@ def _parse_triple_element(
 def parse_query_statement_population_data(data: Dict[str, Any]) -> PKGData:
     """Parses the request data to execute SPARQL query.
 
+    Raises:
+        KeyError: If there is no natural language statement description.
+
     Args:
         data: Request data.
 
@@ -96,7 +99,7 @@ def parse_query_statement_population_data(data: Dict[str, Any]) -> PKGData:
     """
     description = data.get("description", None)
     if description is None:
-        raise Exception("Missing description")
+        raise KeyError("Missing description")
 
     # Parse triple elements
     subject = _parse_triple_element(data.get("subject", None))
