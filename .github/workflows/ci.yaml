@@ -12,7 +12,6 @@ on:
 env:
   REPO_NAME: ${{ github.event.repository.name }}
 
-
 jobs:
   pre-commit:
     if: always()
@@ -98,16 +97,15 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-github-actions-annotate-failures
-      
+
       - name: Install graphviz
         uses: tlylt/install-graphviz@v1
 
-    
       - name: PyTest with code coverage
         continue-on-error: true
         run: |
           pytest --junitxml pytest.xml --cov=. --cov-report=term-missing --cov-report=xml --cov-branch | tee pytest-coverage.txt
-      
+
       - name: Upload Coverage Results txt
         if: always()
         uses: actions/upload-artifact@v3
