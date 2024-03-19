@@ -70,7 +70,10 @@ def test_get_triple_missing_value(
     annotator: ThreeStepStatementAnnotator,
 ) -> None:
     """Tests that _get_triple returns the correct triple when missing value."""
-    mock_get_response.return_value = "Subject | N/A | N/A"
+    mock_get_response.return_value = (
+        "Subject | N/A | N/A (While subject is clear, "
+        "predicate and object are not)"
+    )
 
     triple = annotator._get_triple("Test statement")
     assert triple is not None

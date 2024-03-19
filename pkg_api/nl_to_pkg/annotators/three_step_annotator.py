@@ -110,7 +110,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         )
         response = self._llm_connector.get_response(prompt)
         response_terms = [
-            None if term.strip() == "N/A" else term.strip()
+            None if "N/A" in term else term.strip()
             for term in response.split("|")
         ]
         if len(response_terms) == 3:
