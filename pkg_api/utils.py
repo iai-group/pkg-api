@@ -11,8 +11,17 @@ import dataclasses
 import re
 from typing import List, Optional, Union
 
-from pkg_api.core.annotation import Concept, PKGData, TripleElement
-from pkg_api.core.pkg_types import URI, SPARQLQuery
+from pkg_api.core.namespaces import PKGPrefixes
+from pkg_api.core.pkg_types import (
+    URI,
+    Concept,
+    PKGData,
+    SPARQLQuery,
+    Triple,
+    TripleElement,
+)
+
+_SPARQL_STATEMENT_VARIABLE = "?statement"
 
 
 def _clean_sparql_representation(sparql: str) -> str:
@@ -107,48 +116,7 @@ def _get_concept_representation(concept: Concept) -> str:
     return _clean_sparql_representation(representation)
 
 
-def _get_preference_representation(
-    pkg_data: PKGData, blank_node_id: str
-) -> str:
-    """Gets the representation of a preference given a statement.
-
-    Args:
-        pkg_data: PKG data associated to a statement.
-        blank_node_id: Blank node ID of the statement.
-
-    Returns:
-        Representation of the preference.
-    """
-    if pkg_data.preference is None or pkg_data.preference.topic.value is None:
-        return ""
-
-    preference_topic = _get_property_representation(
-        pkg_data.preference.topic.value
-    )
-
-    if (
-        pkg_data.triple is None
-        or pkg_data.triple.subject is None
-        or pkg_data.triple.subject.value is None
-    ):
-        return ""
-
-    subject = _get_property_representation(pkg_data.triple.subject.value)
-
-    representation = f"""{subject} wi:preference
-            [
-                pav:derivedFrom {blank_node_id} ;
-                wi:topic {preference_topic} ;
-                wo:weight [
-                    wo:weight_value {pkg_data.preference.weight} ;
-                    wo:scale pkg:StandardScale
-                ]
-            ] .
-        """
-    return _clean_sparql_representation(representation)
-
-
-def get_query_for_get_preference(
+def get_query_for_conditioned_get_preference(
     who: Union[str, URI], topic: Union[URI, Concept, str]
 ) -> SPARQLQuery:
     """Gets query to retrieve preference value given a subject and topic.
@@ -163,7 +131,7 @@ def get_query_for_get_preference(
     subject = _get_property_representation(who)
     preference_topic = _get_property_representation(topic)
 
-    return f"""
+    query = f"""
         SELECT ?weight
         WHERE {{
             {subject} wi:preference [
@@ -172,22 +140,25 @@ def get_query_for_get_preference(
                     wo:weight_value ?weight ;
                     wo:scale pkg:StandardScale
                 ]
-            ]
+            ] .
         }}
     """
+    return _clean_sparql_representation(query)
 
 
-def _get_statement_representation(pkg_data: PKGData, blank_node_id: str) -> str:
+def _get_statement_representation(
+    pkg_data: PKGData, statement_node_id: str
+) -> str:
     """Gets the representation of a statement given a PKG data.
 
     Args:
         pkg_data: PKG data associated to a statement.
-        blank_node_id: Blank node ID of the statement.
+        statement_node_id: Node ID of the statement.
 
     Returns:
         Representation of the statement.
     """
-    statement = f"""{blank_node_id} a rdf:Statement ;
+    statement = f"""{statement_node_id} a rdf:Statement ;
         dc:description "{pkg_data.statement}" ; """
 
     # Add triple annotation
@@ -228,22 +199,217 @@ def get_query_for_add_statement(pkg_data: PKGData) -> SPARQLQuery:
     Returns:
         SPARQL query.
     """
-    blank_node_id = "_:st"
+    statement_node_id = get_statement_node_id(pkg_data)
     # Create a statement
-    statement = _get_statement_representation(pkg_data, blank_node_id)
-
-    # Create a preference
-    preference = ""
-    if pkg_data.preference:
-        preference = _get_preference_representation(pkg_data, blank_node_id)
+    statement = _get_statement_representation(pkg_data, statement_node_id)
 
     query = f"""
         INSERT DATA {{
             {statement}
-
-            {preference}
         }}
     """
 
     # Cleaning up the query
     return _clean_sparql_representation(query)
+
+
+def get_query_for_add_preference(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to add a preference.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    statement_node_id = get_statement_node_id(pkg_data)
+
+    if pkg_data.preference is None:
+        return ""
+
+    query = f"""
+        INSERT {{
+            ?subject wi:preference [
+                pav:derivedFrom {_SPARQL_STATEMENT_VARIABLE} ;
+                wi:topic ?object ; wo:weight [
+                    wo:weight_value "{pkg_data.preference.weight}"^^xsd:decimal;
+                    wo:scale pkg:StandardScale
+                ]
+            ] .
+        }}
+        WHERE {{
+            {statement_node_id} a rdf:Statement ;
+            rdf:subject ?subject; rdf:object ?object .
+            BIND({statement_node_id} AS {_SPARQL_STATEMENT_VARIABLE})
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_statement_node_id(pkg_data: PKGData) -> str:
+    """Gets the statement node ID based UUID."""
+    return f"{PKGPrefixes.EX.name.lower()}:{pkg_data.id}"
+
+
+def get_query_for_get_statements(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to get statements.
+
+    This query is strict and only look for statements that exactly match the
+    PKG data.
+
+    Args:
+        pkg_data: PKG data.
+
+    Returns:
+        SPARQL query.
+    """
+    statement_representation = _get_statement_representation(
+        pkg_data, _SPARQL_STATEMENT_VARIABLE
+    )
+    query = f"""
+        SELECT {_SPARQL_STATEMENT_VARIABLE}
+        WHERE {{
+            {statement_representation}
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_conditional_get_statements(triple: Triple) -> SPARQLQuery:
+    """Gets SPARQL query to get statements given conditions in the triple.
+
+    This query looks for statements that match the conditions in the triple.
+    For example, if the subject is URI("http://example.com/testuser"), the
+    query will return all statements with that subject.
+
+    Args:
+        triple: Triple with conditions.
+
+    Returns:
+        SPARQL query.
+    """
+    conditions = []
+    for field in dataclasses.fields(triple):
+        # Loop through the fields of the triple (subject, predicate, object), if
+        # defined add a condition on it to the query. For example, if predicate
+        # is like, the query will return all statements with that predicate.
+        property = f"rdf:{field.name}"
+        annotation = getattr(triple, field.name)
+        annotation = annotation.value if annotation else None
+        if not annotation:
+            continue
+        value = _get_property_representation(annotation)
+        conditions.append(f"{_SPARQL_STATEMENT_VARIABLE} {property} {value} .")
+
+    query = f"""
+        SELECT {_SPARQL_STATEMENT_VARIABLE}
+        WHERE {{
+            {" ".join(conditions)}
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_remove_preference(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to remove a preference.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    statement = _get_statement_representation(
+        pkg_data, _SPARQL_STATEMENT_VARIABLE
+    )
+    # Remove statement description from conditions
+    statement = re.sub(r'dc:description "[^"]+" ;', "", statement)
+
+    query = f"""
+        DELETE {{
+            ?preference ?p ?o .
+            ?subject wi:preference ?preference .
+        }}
+        WHERE {{
+            {statement}
+            ?subject wi:preference ?preference .
+            ?preference pav:derivedFrom {_SPARQL_STATEMENT_VARIABLE} .
+            ?preference ?p ?o .
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_query_for_remove_statement(pkg_data: PKGData) -> SPARQLQuery:
+    """Gets SPARQL query to remove a statement.
+
+    Note that if a preference is derived from the statement, it is also removed.
+
+    Args:
+        pkg_data: PKG data associated to a statement.
+
+    Returns:
+        SPARQL query.
+    """
+    statement_representation = _get_statement_representation(
+        pkg_data, _SPARQL_STATEMENT_VARIABLE
+    )
+    # Remove statement description from conditions
+    statement_representation = re.sub(
+        r'dc:description "[^"]+" ;', "", statement_representation
+    )
+
+    query = f"""
+        DELETE {{
+            {_SPARQL_STATEMENT_VARIABLE} ?p ?o .
+            ?preference ?pp ?op .
+        }}
+        WHERE {{
+            {statement_representation}
+            {_SPARQL_STATEMENT_VARIABLE} ?p ?o .
+            OPTIONAL {{
+                ?preference pav:derivedFrom {_SPARQL_STATEMENT_VARIABLE} .
+                ?preference ?pp ?op .
+            }}
+        }}
+    """
+
+    # Cleaning up the query
+    return _clean_sparql_representation(query)
+
+
+def get_queries_for_remove_cleanup() -> List[SPARQLQuery]:
+    """Gets SPARQL queries to delete dangling concepts and weight scales.
+
+    Returns:
+        List of SPARQL queries.
+    """
+    query_delete_concepts = """
+        DELETE {
+            ?concept ?p ?o .
+        } WHERE {
+            ?concept a skos:Concept .
+            ?concept ?p ?o .
+            FILTER NOT EXISTS { ?_1 ?_2 ?concept . }
+        }
+    """
+    query_delete_concepts = _clean_sparql_representation(query_delete_concepts)
+    query_delete_scales = """
+        DELETE {
+            ?x ?p ?o .
+        } WHERE {
+            ?x wo:scale ?_3 .
+            ?x ?p ?o .
+            FILTER NOT EXISTS { ?_1 ?_2 ?x . }
+        }
+    """
+    query_delete_scales = _clean_sparql_representation(query_delete_scales)
+    return [query_delete_concepts, query_delete_scales]

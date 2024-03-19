@@ -1,10 +1,11 @@
 """Tests the Spotlight entity linker class."""
+
+import uuid
 from unittest.mock import Mock, patch
 
 import pytest
 
-from pkg_api.core.annotation import Concept, PKGData, Triple, TripleElement
-from pkg_api.core.pkg_types import URI
+from pkg_api.core.pkg_types import URI, Concept, PKGData, Triple, TripleElement
 from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
     SpotlightEntityLinker,
 )
@@ -14,6 +15,7 @@ from pkg_api.nl_to_pkg.entity_linking.spotlight_entity_linker import (
 def sample_pkg_data() -> PKGData:
     """Returns a test PKG data."""
     return PKGData(
+        uuid.UUID("{19226b96-c4c7-11ee-baf8-a662d3a1cf88}"),
         "Test statement",
         Triple(
             TripleElement("Test Subject"),

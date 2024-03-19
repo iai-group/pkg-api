@@ -5,10 +5,11 @@ with a triple and a preference using LLM.
 """
 
 import re
+import uuid
 from typing import Dict, Optional, Tuple
 
-from pkg_api.core.annotation import PKGData, Preference, Triple, TripleElement
 from pkg_api.core.intents import Intent
+from pkg_api.core.pkg_types import PKGData, Preference, Triple, TripleElement
 from pkg_api.nl_to_pkg.annotators.annotator import StatementAnnotator
 from pkg_api.nl_to_pkg.llm.llm_connector import LLMConnector
 from pkg_api.nl_to_pkg.llm.prompt import Prompt
@@ -73,7 +74,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
             if triple is not None and triple.object is not None
             else None
         )
-        return intent, PKGData(statement, triple, preference)
+        return intent, PKGData(uuid.uuid1(), statement, triple, preference)
 
     def _get_intent(self, statement: str) -> Intent:
         """Returns the intent for a statement.

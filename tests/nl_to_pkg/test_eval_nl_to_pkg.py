@@ -1,11 +1,13 @@
 """Tests eval_nl_to_pkg.py file."""
+
+import uuid
 from typing import Dict, List, Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pkg_api.core.annotation import PKGData, Triple, TripleElement
 from pkg_api.core.intents import Intent
+from pkg_api.core.pkg_types import PKGData, Triple, TripleElement
 from pkg_api.nl_to_pkg.annotators.three_step_annotator import (
     ThreeStepStatementAnnotator,
 )
@@ -50,6 +52,7 @@ def mock_config_path() -> str:
 def mock_annotations() -> Tuple[Intent, PKGData]:
     """Fixture for mock the NL annotations returned by the LLM."""
     mock_pkg_data = PKGData(
+        id=uuid.UUID("{00000000-0000-0000-0000-000000000000}"),
         statement="Sentence1.",
         triple=Triple(
             subject=TripleElement(reference="S1"),
