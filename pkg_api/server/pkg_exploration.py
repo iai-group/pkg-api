@@ -1,4 +1,5 @@
 """PKG Exploration Resource."""
+
 from typing import Any, Dict, Tuple
 
 from flask import request
@@ -18,7 +19,7 @@ class PKGExplorationResource(Resource):
         try:
             pkg = open_pkg(data)
         except Exception as e:
-            return {"message": str(e)}, 400
+            return {"message": e.args[0]}, 400
 
         graph_img_path = pkg.visualize_graph()
         pkg.close()
@@ -39,7 +40,7 @@ class PKGExplorationResource(Resource):
         try:
             pkg = open_pkg(data)
         except Exception as e:
-            return {"message": str(e)}, 400
+            return {"message": e.args[0]}, 400
 
         sparql_query = parse_query_request_data(data)
 

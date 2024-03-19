@@ -68,7 +68,7 @@ def entity_linker_mock() -> Mock:
 
 
 @pytest.fixture
-def nlp_to_pkg(
+def nl_to_pkg(
     statement_annotator_mock: Mock,
     entity_linker_mock: Mock,
 ) -> NLtoPKG:
@@ -76,9 +76,9 @@ def nlp_to_pkg(
     return NLtoPKG(statement_annotator_mock, entity_linker_mock)
 
 
-def test_annotate_success(statement: str, nlp_to_pkg: NLtoPKG) -> None:
+def test_annotate_success(statement: str, nl_to_pkg: NLtoPKG) -> None:
     """Tests that annotate returns the correct intent and annotations."""
-    intent, pkg_data = nlp_to_pkg.annotate(statement)
+    intent, pkg_data = nl_to_pkg.annotate(statement)
 
     assert intent == Intent.ADD
     assert pkg_data.triple is not None
@@ -87,7 +87,7 @@ def test_annotate_success(statement: str, nlp_to_pkg: NLtoPKG) -> None:
 
 def test_annotate_no_triple(
     statement: str,
-    nlp_to_pkg: NLtoPKG,
+    nl_to_pkg: NLtoPKG,
     statement_annotator_mock: Mock,
 ) -> None:
     """Tests that annotate returns the correct intent and annotations."""
@@ -99,17 +99,17 @@ def test_annotate_no_triple(
             triple=None,
         ),
     )
-    _, pkg_data = nlp_to_pkg.annotate(statement)
+    _, pkg_data = nl_to_pkg.annotate(statement)
 
     assert pkg_data.triple is None
     assert pkg_data.preference is None
 
 
 def test_annotate_with_preference_update(
-    statement: str, nlp_to_pkg: NLtoPKG
+    statement: str, nl_to_pkg: NLtoPKG
 ) -> None:
     """Tests that annotate returns the correct intent and annotations."""
-    _, pkg_data = nlp_to_pkg.annotate(statement)
+    _, pkg_data = nl_to_pkg.annotate(statement)
 
     assert pkg_data.preference is not None
     assert pkg_data.preference.topic == TripleElement("Object", "Linked Object")
