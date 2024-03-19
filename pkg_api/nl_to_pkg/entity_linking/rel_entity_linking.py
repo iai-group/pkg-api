@@ -4,8 +4,7 @@ from typing import Any, List, Optional, Union
 
 import requests
 
-from pkg_api.core.annotation import Concept, PKGData, TripleElement
-from pkg_api.core.pkg_types import URI
+from pkg_api.core.pkg_types import URI, Concept, PKGData, TripleElement
 from pkg_api.nl_to_pkg.entity_linking.entity_linker import EntityLinker
 
 _DEFAULT_API_URL = "https://rel.cs.ru.nl/api"
