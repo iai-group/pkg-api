@@ -4,8 +4,9 @@ import Button from "react-bootstrap/Button";
 import { UserContext } from "../contexts/UserContext";
 import axios from "axios";
 import { Alert } from "react-bootstrap";
-import TripleElementFormField from "./TripleElementFormField";
-import { TripleElement } from "./StatementPopulationForm copy";
+import TripleElementFormField, {
+  TripleElement,
+} from "./TripleElementFormField";
 
 const StatementPopulationForm = () => {
   const { user } = useContext(UserContext);
