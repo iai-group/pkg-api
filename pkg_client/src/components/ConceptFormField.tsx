@@ -38,6 +38,7 @@ const ConceptFormField: React.FC<ConceptFormFieldProps> = ({
         placeholder="Enter concept description"
         value={fieldValue.description}
         onChange={(e) => onElementChange({ description: e.target.value })}
+        style={{ marginBottom: "5px" }}
       />
       <Form.Control
         type="text"
@@ -48,6 +49,7 @@ const ConceptFormField: React.FC<ConceptFormFieldProps> = ({
             related_entities: e.target.value.split(",").map((e) => e.trim()),
           })
         }
+        style={{ marginBottom: "5px" }}
       />
       <Form.Control
         type="text"
@@ -58,6 +60,7 @@ const ConceptFormField: React.FC<ConceptFormFieldProps> = ({
             broader_entities: e.target.value.split(",").map((e) => e.trim()),
           })
         }
+        style={{ marginBottom: "5px" }}
       />
       <Form.Control
         type="text"

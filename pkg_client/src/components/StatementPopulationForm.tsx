@@ -19,6 +19,18 @@ const StatementPopulationForm = () => {
   const [prefValue, setPrefValue] = useState(Number.NaN);
   const baseURL =
     (window as any)["PKG_API_BASE_URL"] || "http://127.0.0.1:5000";
+  const [forceRenderKey, setForceRenderKey] = useState(Date.now());
+
+  const resetForm = () => {
+    setDescription("");
+    setError("");
+    setInfo("");
+    setSubject("");
+    setPredicate({ value: "" });
+    setObject({ value: "" });
+    setPrefValue(Number.NaN);
+    setForceRenderKey(Date.now());
+  };
 
   const addStatement = () => {
     if (!description) {
@@ -39,6 +51,7 @@ const StatementPopulationForm = () => {
       .then((response) => {
         setError("");
         setInfo(response.data.message);
+        resetForm();
       })
       .catch((error) => {
         setError(error.response.data.message);
@@ -67,6 +80,7 @@ const StatementPopulationForm = () => {
       .then((response) => {
         setError("");
         setInfo(response.data.message);
+        resetForm();
       })
       .catch((error) => {
         setError(error.response.data.message);
@@ -79,7 +93,7 @@ const StatementPopulationForm = () => {
       {error && <Alert variant="danger">{error}</Alert>}
       {info && <Alert variant="info">{info}</Alert>}
 
-      <Form>
+      <Form key={forceRenderKey}>
         <Form.Group className="mb-3">
           <Form.Label>
             <b>Statement</b>
