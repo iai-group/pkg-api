@@ -1,8 +1,9 @@
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React, { useContext } from "react";
-import { UserContext } from "../contexts/UserContext";
+
 import Container from "react-bootstrap/Container";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
+import { UserContext } from "../contexts/UserContext";
 
 const APIHandler: React.FC = () => {
   const { user } = useContext(UserContext);
@@ -16,7 +17,7 @@ const APIHandler: React.FC = () => {
           <Route path="/" element={<Layout />}>
             <Route index element={<div>Welcome {user?.username}</div>} />
             {/* <Route path="service" element={<div>Service Management</div>} /> */}
-            <Route path="population" element={<div>Population form</div>} />
+            <Route path="population" element={<div>PKG Population</div>} />
             <Route path="explore" element={<div>PKG Exploration</div>} />
           </Route>
         </Routes>
