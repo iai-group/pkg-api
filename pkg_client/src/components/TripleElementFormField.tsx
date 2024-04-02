@@ -1,6 +1,7 @@
-import { useState } from "react";
 import ConceptFormField, { Concept } from "./ConceptFormField";
+
 import Form from "react-bootstrap/Form";
+import { useState } from "react";
 
 export interface TripleElement {
   value: string | Concept;

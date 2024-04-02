@@ -1,12 +1,13 @@
-import { useState, useContext } from "react";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
-import { UserContext } from "../contexts/UserContext";
-import axios from "axios";
-import { Alert } from "react-bootstrap";
 import TripleElementFormField, {
   TripleElement,
 } from "./TripleElementFormField";
+import { useContext, useState } from "react";
+
+import { Alert } from "react-bootstrap";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import { UserContext } from "../contexts/UserContext";
+import axios from "axios";
 
 const StatementPopulationForm = () => {
   const { user } = useContext(UserContext);
