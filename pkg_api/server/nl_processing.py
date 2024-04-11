@@ -40,7 +40,7 @@ class NLResource(Resource):
 
         query = data.get("query", None)
         if not query:
-            return {"message": "Missing query"}, 400
+            return {"message": "Missing query."}, 400
 
         intent, statement_data = self.nl_to_pkg.annotate(query)
         if intent == Intent.ADD:
@@ -55,7 +55,7 @@ class NLResource(Resource):
                 statement_data, triple_conditioned=True
             )
             return {
-                "message": "Statements retrieved from your PKG",
+                "message": "Statements retrieved from your PKG.",
                 "data": [s.as_dict() for s in statements],
                 "annotation": statement_data.as_dict(),
             }, 200
@@ -63,7 +63,7 @@ class NLResource(Resource):
             pkg.remove_statement(statement_data)
             pkg.close()
             return {
-                "message": "Statement was deleted if present",
+                "message": "Statement was deleted if present.",
                 "annotation": statement_data.as_dict(),
             }, 200
 

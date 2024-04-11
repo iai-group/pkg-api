@@ -67,7 +67,7 @@ def _init_nl_to_pkg(config: Config) -> NLtoPKG:
     """Initializes the NL to PKG module.
 
     Args:
-        config: BaseConfig object.
+        config: Server configuration.
 
     Returns:
         NLtoPKG object.
