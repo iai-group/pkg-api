@@ -47,9 +47,7 @@ def test_nl_processing_post_add_statement(client: Flask) -> None:
             TripleElement("apples", Concept(description="apples")), 1.0
         ),
     )
-    with patch(
-        "pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate"
-    ) as mock_annotate:
+    with patch("pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate") as mock_annotate:
         mock_annotate.return_value = Intent.ADD, statement
         response = client.post(
             "/nl",
@@ -68,9 +66,7 @@ def test_nl_processing_post_add_statement(client: Flask) -> None:
 
 def test_nl_processing_post_get_statement(client: Flask) -> None:
     """Tests POST with a valid get statement."""
-    with patch(
-        "pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate"
-    ) as mock_annotate:
+    with patch("pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate") as mock_annotate:
         mock_annotate.return_value = Intent.GET, PKGData(
             id=uuid.UUID("{a0ba1070-c668-11ee-80c6-a662d3a1cf88}"),
             statement="What do I like?",
@@ -88,9 +84,7 @@ def test_nl_processing_post_get_statement(client: Flask) -> None:
             },
         )
         assert response.status_code == 200
-        assert (
-            response.json["message"] == "Statements retrieved from your PKG."
-        )
+        assert response.json["message"] == "Statements retrieved from your PKG."
         assert isinstance(response.json["data"], list)
         assert len(response.json["data"]) > 0
         assert isinstance(response.json["annotation"], dict)
@@ -98,9 +92,7 @@ def test_nl_processing_post_get_statement(client: Flask) -> None:
 
 def test_nl_processing_post_delete_statement(client: Flask) -> None:
     """Tests POST with a valid delete statement."""
-    with patch(
-        "pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate"
-    ) as mock_annotate:
+    with patch("pkg_api.nl_to_pkg.nl_to_pkg.NLtoPKG.annotate") as mock_annotate:
         mock_annotate.return_value = Intent.DELETE, PKGData(
             id=uuid.UUID("{1b53c98e-c669-11ee-9c00-a662d3a1cf88}"),
             statement="Forget that I like apples.",
