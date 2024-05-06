@@ -2,7 +2,7 @@ PKG Connector
 =============
 
 This component is responsible for establishing a connection to the PKG and executing SPARQL queries against it.
-The SPARQL queries are generated based on the user's annotated statements using utility functions.
+The SPARQL queries are generated based on the user's annotated statements using utility functions (see :py:mod:`pkg_api.utils`).
 
 Features
 --------
@@ -10,11 +10,11 @@ Features
 The PKG Connector has the following features:
 
 - Loading the PKG
-- Binding the namespaces related to the PKG vocabulary (see complete list [here](https://iai-group.github.io/pkg-vocabulary/))
+- Binding the namespaces related to the PKG vocabulary (see complete list `here <https://iai-group.github.io/pkg-vocabulary/>`)
 - Executing SPARQL queries against the PKG
 - Saving the PKG
 
-The PKG Connector uses the [RDFLib](https://github.com/RDFLib/rdflib) library to handle the PKG and execute the SPARQL queries. For this reason, we differentiate between two types of SPARQL queries: (1) queries to update the PKG, such as adding and removing statements, and (2) queries to retrieve information from the PKG.
+The PKG Connector uses the `RDFLib <https://github.com/RDFLib/rdflib>` library to handle the PKG and execute the SPARQL queries. For this reason, we differentiate between two types of SPARQL queries: (1) queries to update the PKG, such as adding and removing statements, and (2) queries to retrieve information from the PKG.
 
 SPARQL Queries
 --------------
