@@ -24,6 +24,6 @@ Routes
 The server has four main routes that relate to the :doc:`features available <pkg_client>` in the PKG Client:
 
 * `/auth`: Handles the authentication of users and service providers.
-* `/nl`: Handles natural language instructions.
+* `/nl`: Handles natural language instructions provided by users to manage the PKG.
 * `/statements`: Manages the addition and deletion of statements via forms.
 * `/explore`: Handles SPARQL queries for the visualization of the PKG.
