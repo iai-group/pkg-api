@@ -51,7 +51,7 @@ By default, the server will run locally on port 5000. In case you want to run th
 
 ## PKG Client
 
-The user interface is a React application that communicates with the server to manage the PKG. More details on how to run PKG Client can be found [here](pkg-client/README.md).
+The user interface is a React application that communicates with the server to manage the PKG. More details on how to run PKG Client can be found [here](pkg_client/README.md).
 
 :warning: Note that you need to update `PKG_API_BASE_URL` in the [configuration](pkg_client/public/config.json) in case the server is not running on the default port.
 
