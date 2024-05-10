@@ -4,7 +4,7 @@ This module contains a three-step annotator for annotating a statement
 with a triple and a preference using LLM.
 """
 
-
+import logging
 import re
 import uuid
 from typing import Dict, Optional, Tuple
@@ -22,6 +22,15 @@ _DEFAULT_PROMPT_PATHS = {
 }
 
 _DEFAULT_CONFIG_PATH = "pkg_api/nl_to_pkg/llm/configs/llm_config_mistral.yaml"
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 def is_number(value: str) -> bool:
@@ -68,6 +77,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
         Returns:
             The intent and the annotations.
         """
+        logger.debug(f"Annotating statement: {statement}")
         intent = self._get_intent(statement)
         triple = self._get_triple(statement)
         preference = (
@@ -90,6 +100,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
             self._prompt_paths["intent"], statement=statement
         )
         response = self._llm_connector.get_response(prompt)
+        logger.debug(f"LLM response for intent annotation: {response}")
         response_terms = response.split()
         if len(self._valid_intents.intersection(response_terms)) == 1:
             return next(
@@ -110,6 +121,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
             self._prompt_paths["triple"], statement=statement
         )
         response = self._llm_connector.get_response(prompt)
+        logger.debug(f"LLM response for triple annotation: {response}")
         response_terms = [
             None if "N/A" in term.strip() else term.strip()
             for term in response.split("|")
@@ -141,6 +153,7 @@ class ThreeStepStatementAnnotator(StatementAnnotator):
             object=triple_object.reference,
         )
         response = self._llm_connector.get_response(prompt)
+        logger.debug(f"LLM response for preference annotation: {response}")
         response_terms = [
             term.strip() for term in re.split(r"[ .,;]+", response)
         ]
