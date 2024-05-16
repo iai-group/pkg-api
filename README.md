@@ -59,6 +59,8 @@ The user interface is a React application that communicates with the server to m
 
 <https://github.com/iai-group/pkg-api/assets/28621493/cf51ab83-b7c9-4441-93c9-abd2bae18a98>
 
+Instructions on how to run the demo can be found [here](docs/HOWTO_demo.md).
+
 ## Conventions
 
 We follow the [IAI Python Style Guide](https://github.com/iai-group/styleguide/tree/main/python).
