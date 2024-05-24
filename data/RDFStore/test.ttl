@@ -1,0 +1,42 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ex: <http://example.org/pkg#> .
+@prefix pav: <http://purl.org/pav/> .
+@prefix pkg: <http://w3id.org/pkg/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix wi: <http://purl.org/ontology/wi/core#> .
+@prefix wo: <http://purl.org/ontology/wo/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:22c50e90-0ec0-11ef-8006-ba58ddc07f3e a rdf:Statement ;
+    dc:description "I like Tom Cruise movies" ;
+    pav:authoredBy ex:test ;
+    pav:authoredOn "2024-05-10T13:26:30.257514"^^xsd:dateTime ;
+    rdf:object [ a skos:Concept ;
+            dc:description "Tom Cruisemovies" ] ;
+    rdf:predicate [ a skos:Concept ;
+            dc:description "like" ] .
+
+ex:504fc652-0ec0-11ef-8006-ba58ddc07f3e a rdf:Statement ;
+    dc:description "I like The Matrix" ;
+    pav:authoredBy ex:test ;
+    pav:authoredOn "2024-05-10T13:27:43.253602"^^xsd:dateTime ;
+    rdf:object [ a skos:Concept ;
+            dc:description "The Matrix" ] ;
+    rdf:predicate [ a skos:Concept ;
+            dc:description "like" ] .
+
+ex:b4cee32e-0ec0-11ef-8006-ba58ddc07f3e a rdf:Statement ;
+    dc:description "I like Tom Cruise" ;
+    pav:authoredBy ex:test ;
+    pav:authoredOn "2024-05-10T13:30:30.174251"^^xsd:dateTime ;
+    rdf:object <https://dbpedia.org/resource/Tom_Cruise> ;
+    rdf:predicate [ a skos:Concept ;
+            dc:description "like" ] ;
+    rdf:subject ex:test .
+
+ex:test wi:preference [ wi:topic <https://dbpedia.org/resource/Tom_Cruise> ;
+            wo:weight [ wo:scale pkg:StandardScale ;
+                    wo:weight_value 1.0 ] ;
+            pav:derivedFrom ex:b4cee32e-0ec0-11ef-8006-ba58ddc07f3e ] .
+
