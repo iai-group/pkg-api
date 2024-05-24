@@ -1,4 +1,4 @@
-host: "https://ollama.ux.uis.no"
+host: "ADD_OLLAMA_HOST"
 model: "mistral"
 stream: false
 options:
