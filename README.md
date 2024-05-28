@@ -73,15 +73,11 @@ If you use the PKG API, please cite the following paper:
 @inproceedings{Bernard:2024:WWW,
   author = {Bernard, Nolwenn and Kostric, Ivica and \L{}ajewska, Weronika and Balog, Krisztian and Galus\v{c}\'{a}kov\'{a}, Petra and Setty, Vinay and Skj\ae{}veland, Martin G.},
   title = {{PKG API}: {A} Tool for Personal Knowledge Graph Management},
-  year = {2024},
-  isbn = {9798400701726},
-  publisher = {Association for Computing Machinery},
-  address = {New York, NY, USA},
-  url = {https://doi.org/10.1145/3589335.3651247},
-  doi = {10.1145/3589335.3651247},
   booktitle = {Companion Proceedings of the ACM on Web Conference 2024},
   pages = {1051--1054},
-  series = {WWW '24}
+  series = {WWW '24},
+  year = {2024},
+  doi = {10.1145/3589335.3651247},
 }
 ```
 
