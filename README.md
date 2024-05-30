@@ -70,13 +70,14 @@ We follow the [IAI Python Style Guide](https://github.com/iai-group/styleguide/t
 If you use the PKG API, please cite the following paper:
 
 ```bibtex
-@misc{Bernard:2024:arXiv,
- title        = {PKG API: A Tool for Personal Knowledge Graph Management},
- author       = {Nolwenn Bernard and Ivica Kostric and Weronika Łajewska and Krisztian Balog and Petra Galuščáková and Vinay Setty and Martin G. Skjæveland},
- year         = 2024,
- eprint       = {2402.07540},
- archiveprefix = {arXiv},
- primaryclass = {cs.HC}
+@inproceedings{Bernard:2024:WWW,
+  author = {Bernard, Nolwenn and Kostric, Ivica and \L{}ajewska, Weronika and Balog, Krisztian and Galus\v{c}\'{a}kov\'{a}, Petra and Setty, Vinay and Skj\ae{}veland, Martin G.},
+  title = {{PKG API}: {A} Tool for Personal Knowledge Graph Management},
+  booktitle = {Companion Proceedings of the ACM on Web Conference 2024},
+  pages = {1051--1054},
+  series = {WWW '24},
+  year = {2024},
+  doi = {10.1145/3589335.3651247},
 }
 ```
 
